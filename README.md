@@ -1,5 +1,9 @@
 # Claudia
 
+[![Install for Claude Code](https://img.shields.io/badge/Claude%20Code-install-D97757?logo=anthropic&logoColor=white)](#install-cli)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](#development)
+
 A warm, immersive, **generalist** therapist companion — as an installable Claude
 Code plugin. Claudia draws on evidence-based psychotherapy (person-centered, CBT,
 behavioral activation, ACT, motivational interviewing, solution-focused,
