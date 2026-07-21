@@ -91,6 +91,15 @@ describe("self-authoring (ADR-0006)", () => {
   });
 });
 
+describe("delegation (ephemeral specialists)", () => {
+  it("the persona can delegate backroom work, bounded away from the relationship/crisis", () => {
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/Task/.test(persona), "persona should use the Task tool to delegate").toBe(true);
+    expect(/never delegate the relationship or a crisis/i.test(persona), "delegation must be bounded").toBe(true);
+    expect(/^allowed-tools:.*\bTask\b/m.test(persona), "Task should be pre-approved to avoid mid-session prompts").toBe(true);
+  });
+});
+
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));
