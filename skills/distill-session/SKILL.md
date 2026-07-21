@@ -15,6 +15,10 @@ conversations actually read.
 - **What seemed to matter**: the felt core, not every detail.
 - **What helped**: approaches/techniques that landed, so they can recur.
 - **Movement**: any shift, insight, or agreed next step (tie to `goals.md`).
+- **Follow-ups**: any event the person is anticipating (with the date and the
+  worry attached) and anything they meant to try — so next time can open with a
+  contextualized check-in. Mark any earlier follow-up **done** if it was resolved
+  or discussed this session, so it isn't raised again.
 - **Safety**: note if a safety flag was raised (kind, and what was offered) —
   never the means/method.
 

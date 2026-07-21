@@ -19,8 +19,11 @@ and a distilled memory are saved **locally on their own machine** under
 
 ## What to write (working layer)
 
-- `person.md` — a short, evolving model: context, what they're navigating, what
-  helps them, communication style. Distilled, kind, non-clinical.
+- `person.md` — a short, evolving model: the person's **name**, context, what
+  they're navigating, what helps them, communication style — plus a **Follow-ups**
+  list: events they're anticipating (with the date and the **concern attached**)
+  and between-session steps, each marked *open* or *done*. This is what lets the
+  next session open with a contextualized check-in. Distilled, kind, non-clinical.
 - `goals.md` — what you've agreed to work toward (alliance: goal consensus).
 - `safety.md` — locale, region-appropriate resources, and any standing safety
   flags. **Never** record means/method details.

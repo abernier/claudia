@@ -36,18 +36,53 @@ Claudia deliberately ships only three commands — the rest is conversation:
 | `/forget` | Really delete a memory, a session, or everything. |
 | `/export` | Export your memory and deliverables. |
 
-## Install
+## Install (CLI)
+
+The repo is its own single-plugin marketplace, so you install it in two steps:
+register the marketplace, then install the plugin.
+
+**From a local checkout** (works today):
 
 ```
-claude plugin marketplace add abernier/claudia
-claude plugin install claudia@claudia
+git clone <this-repo> claudia && cd claudia
+claude plugin marketplace add .            # register the local marketplace
+claude plugin install claudia@claudia --scope user
 ```
 
-Then just start talking. Validate a local checkout with:
+**From GitHub** (once published):
 
 ```
-claude plugin validate . --strict
+claude plugin marketplace add <owner>/claudia
+claude plugin install claudia@claudia --scope user
 ```
+
+Then start a **new session** and just talk. Manage it with:
+
+```
+claude plugin list
+claude plugin update claudia@claudia       # pull a new version
+claude plugin uninstall claudia@claudia
+claude plugin validate . --strict          # validate before publishing
+```
+
+> ⚠️ A CLI install is a **cached, versioned copy** — it will **not** pick up your
+> repo edits until you bump `version` in `plugin.json` and run `update`. If you're
+> developing the plugin, use the live / hot-reload setup below instead.
+
+## Reaching Claudia
+
+Once installed, in any new session:
+
+- **Just name her or open up.** "Claudia, can we talk?", "@Claudia, I've had a
+  hard week", or simply sharing what's on your mind activates the persona.
+- **Guaranteed entry:** type `/` and pick **Claudia** (`claudia:claudia`) from the
+  menu.
+
+Claudia runs in your **main session** — deliberately *not* as an `@`-mentioned
+subagent. An `@`-mention targets a subagent, which would run *outside* the
+per-turn safety hook; the whole point is that Claudia stays where that safety
+layer applies. So there is no `@Claudia` agent — name her in plain language
+instead, and the persona comes to you.
 
 ## Repository layout
 
@@ -85,18 +120,20 @@ npm run test:watch
 Pure logic lives in `src/` (imported by the thin hook wrappers in `scripts/`), so
 it is unit-testable without spawning a process or calling a model.
 
-### Live development (edit without reinstalling)
+### Live / hot-reload development (edit without reinstalling)
 
-Installing from the marketplace makes a **cached, versioned copy** — repo edits
-don't show up until you bump the version and update. For development, link the
-repo in place instead, so Claude Code loads it live as `claudia@skills-dir`:
+A CLI install is a cached, versioned copy, so repo edits don't show up until you
+bump the version and update. For development, **link the repo in place** instead:
+Claude Code then loads it live from your working tree as `claudia@skills-dir`, and
+your edits are picked up with no reinstall.
 
 ```
-./scripts/dev-link.sh        # symlinks the repo into ~/.claude/skills, live
-./scripts/dev-unlink.sh      # revert
+./scripts/dev-link.sh        # symlink the repo into ~/.claude/skills (hot, in place)
+./scripts/dev-unlink.sh      # revert to the packaged install
 ```
 
-What each edit needs to take effect:
+`dev-link.sh` also removes any cached CLI install first, to avoid duplicate hooks.
+How "hot" each edit is:
 
 | You changed | To apply |
 |---|---|

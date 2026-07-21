@@ -91,6 +91,27 @@ describe("self-authoring (ADR-0006)", () => {
   });
 });
 
+describe("opening ritual", () => {
+  it("greets by name, checks in on a still-open thread, handles first-timers, skips resolved", () => {
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/still.?open/i.test(persona), "opening should target a still-open thread").toBe(true);
+    expect(/by name/i.test(persona), "opening should greet by name").toBe(true);
+    expect(/First time/i.test(persona), "opening should handle first-timers").toBe(true);
+    expect(/resolved/i.test(persona), "opening should not re-raise resolved threads").toBe(true);
+  });
+
+  it("recall surfaces anticipated events (follow-ups) and skips resolved ones", () => {
+    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    expect(/anticipat/i.test(recall)).toBe(true);
+    expect(/resolved/i.test(recall)).toBe(true);
+  });
+
+  it("the persona is reachable by name (model-invocation trigger)", () => {
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/names Claudia|talk to Claudia|@Claudia/i.test(persona)).toBe(true);
+  });
+});
+
 describe("delegation (ephemeral specialists)", () => {
   it("the persona can delegate backroom work, bounded away from the relationship/crisis", () => {
     const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");

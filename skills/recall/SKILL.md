@@ -26,8 +26,17 @@ If `~/.claudia/` exists, read:
   context, and feeds the "illusion of a continuous relationship" the APA warns
   against (ADR-0004).
 
-## Use it lightly
+## Surface one thing for the opening
 
-Let recall *inform* your presence, not dominate it. A gentle "last time you were
-sitting with the thing about your sister — how has that been?" is the goal, not a
-recital of the file.
+From what you read, pick out — for a warm, contextualized opening check-in:
+
+- the person's **name**,
+- one **still-open** thread or an **event they were anticipating**, with the
+  **concern attached** (e.g. "dinner with Liliana Friday — wanted to raise the
+  money thing"),
+- any between-session step they meant to try.
+
+**Skip anything already resolved** — re-raising a settled matter is tiresome.
+Surface **one** thing, not a list. Let recall *inform* your presence, not dominate
+it — a gentle "how did the dinner go — could you bring it up?" is the goal, never
+a recital of the file.
