@@ -31,10 +31,11 @@ skill lets you build it. Use it **rarely and deliberately**, following ADR-0006.
    job. It must be an **additive technique** and must defer to the floor. It goes
    to `proposed-skills/` — never straight to `skills/`.
 
-3. **Submit it to the adversarial auditor.** Spawn the `skill-auditor` subagent
-   (Task tool) and give it the draft path. It will try to refute the draft's
-   safety and return a `VERDICT: APPROVED | REJECTED` block. Trust it; it rejects
-   on doubt.
+3. **Submit it to the adversarial auditor panel.** Spawn **three** independent
+   `skill-auditor` subagents (Task tool), in parallel, each given the draft path.
+   Each returns a `VERDICT: APPROVED | REJECTED` block. **Approve only if all
+   three approve** — a single REJECTED kills the draft. Trust them; they reject on
+   doubt.
 
 4. **Act on the verdict.**
    - **REJECTED** → leave the draft in `proposed-skills/`, do nothing else, and
