@@ -85,6 +85,28 @@ npm run test:watch
 Pure logic lives in `src/` (imported by the thin hook wrappers in `scripts/`), so
 it is unit-testable without spawning a process or calling a model.
 
+### Live development (edit without reinstalling)
+
+Installing from the marketplace makes a **cached, versioned copy** — repo edits
+don't show up until you bump the version and update. For development, link the
+repo in place instead, so Claude Code loads it live as `claudia@skills-dir`:
+
+```
+./scripts/dev-link.sh        # symlinks the repo into ~/.claude/skills, live
+./scripts/dev-unlink.sh      # revert
+```
+
+What each edit needs to take effect:
+
+| You changed | To apply |
+|---|---|
+| `scripts/*.mjs`, `src/*.mjs` (hook logic) | nothing — run fresh on the next turn / session end |
+| `SOUL.md` | re-invoke the `claudia` skill (new session) — it's read on load |
+| a `SKILL.md` / `commands/*.md` body | `/reload-plugins` |
+| `hooks/hooks.json` wiring or `plugin.json` | restart Claude Code |
+
+Ship for real with the marketplace install (README top); use the link for dev.
+
 ## Safety
 
 If you or someone else is in immediate danger, contact your local emergency
