@@ -2,7 +2,7 @@
   "name": "claudia",
   "displayName": "Claudia",
   "version": "0.1.0",
-  "description": "A warm, immersive, generalist therapist companion. Evidence-informed, multi-approach, safety-floored. Not a licensed clinician.",
+  "description": "A warm, generalist companion for reflection and emotional support — evidence-informed, multi-approach, safety-floored. Not a licensed clinician, not therapy, not a medical device.",
   "author": { "name": "Antoine Bernier" },
   "license": "MIT",
   "keywords": [

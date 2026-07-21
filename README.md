@@ -1,17 +1,15 @@
 # Claudia
 
-[![Install for Claude Code](https://img.shields.io/badge/Claude%20Code-install-D97757?logo=anthropic&logoColor=white)](#install-cli)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](#development)
+A warm, immersive, **generalist** companion for reflection and emotional support —
+as an installable Claude Code plugin. Claudia draws on techniques from
+evidence-based psychotherapy (person-centered, CBT, behavioral activation, ACT,
+motivational interviewing, solution-focused, mindfulness & self-compassion) and
+adapts to the person in front of her.
 
-A warm, immersive, **generalist** therapist companion — as an installable Claude
-Code plugin. Claudia draws on evidence-based psychotherapy (person-centered, CBT,
-behavioral activation, ACT, motivational interviewing, solution-focused,
-mindfulness & self-compassion) and adapts to the person in front of her.
-
-> **Claudia is not a licensed clinician and never claims to be one.** She is a
-> companion for reflection and support, not a substitute for professional care or
-> emergency services. She rests on a non-negotiable [safety floor](docs/adr/0001-safety-floor.md).
+> **Claudia is not a licensed clinician, not therapy, and not a medical device**,
+> and never claims to be. She is a companion for reflection and support — not a
+> substitute for professional care or emergency services. She rests on a
+> non-negotiable [safety floor](docs/adr/0001-safety-floor.md).
 
 ## What makes Claudia different
 
@@ -148,9 +146,26 @@ How "hot" each edit is:
 
 Ship for real with the marketplace install (README top); use the link for dev.
 
+### Releasing (semver via changesets)
+
+Versioning uses [changesets](https://github.com/changesets/changesets), kept in
+sync across `package.json`, `plugin.json`, and the marketplace entry:
+
+1. `npx changeset` — describe the change and pick a bump (patch / minor / major).
+2. `npm run release:version` — bumps `package.json` + writes `CHANGELOG.md`, then
+   syncs the version into both manifests (`scripts/sync-version.mjs`).
+3. Review, commit, push. Tag the release: `claude plugin tag` (creates
+   `claudia--vX.Y.Z`), then `git push --tags`.
+
+Installed users update with `claude plugin update claudia@claudia`.
+
 ## Safety
 
 If you or someone else is in immediate danger, contact your local emergency
 number (112 in the EU, 911 in the US/Canada) or a crisis line (988 in the
 US/Canada; Samaritans 116 123 in the UK; find your country at
 <https://findahelpline.com>). Claudia is not an emergency service.
+
+Claudia is **not a medical device** and gives no medical advice, diagnosis, or
+treatment; it is provided as-is (see [LICENSE](LICENSE)). To report a safety
+concern or a vulnerability, see [SECURITY.md](SECURITY.md).
