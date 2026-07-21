@@ -1,0 +1,14 @@
+{
+  "name": "claudia",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Dev & test harness for the Claudia Claude Code plugin (the plugin itself needs no runtime deps).",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

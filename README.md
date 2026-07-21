@@ -67,6 +67,24 @@ commands/         the three commands
 hooks/            the per-turn safety hook + session-save hook
 ```
 
+## Development
+
+The plugin itself needs no runtime dependencies. Tests (Vitest) cover the
+deterministic logic — the safety classifier, session archiving, and repo
+integrity — plus a deterministic "simulated conversation" that runs scripted
+turns through the real safety/archiving pipeline (no model call). The model's
+natural-language *quality* is out of scope here; that belongs in a separate,
+non-deterministic eval.
+
+```
+npm install
+npm test          # vitest run
+npm run test:watch
+```
+
+Pure logic lives in `src/` (imported by the thin hook wrappers in `scripts/`), so
+it is unit-testable without spawning a process or calling a model.
+
 ## Safety
 
 If you or someone else is in immediate danger, contact your local emergency

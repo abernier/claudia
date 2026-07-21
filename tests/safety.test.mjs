@@ -1,0 +1,87 @@
+import { describe, it, expect } from "vitest";
+import { heuristic, decide, escalationContext } from "../src/safety.mjs";
+
+describe("heuristic risk bands", () => {
+  it("flags explicit suicidal ideation as clear", () => {
+    expect(heuristic("I want to kill myself").band).toBe("clear");
+    expect(heuristic("I don't want to live anymore").band).toBe("clear");
+    expect(heuristic("I keep thinking about ending it all").band).toBe("clear");
+  });
+
+  it("flags multilingual clear risk", () => {
+    expect(heuristic("je veux en finir ce soir").band).toBe("clear");
+    expect(heuristic("quiero matarme").band).toBe("clear");
+  });
+
+  it("flags veiled distress as uncertain", () => {
+    expect(heuristic("I just want the pain to stop").band).toBe("uncertain");
+    expect(heuristic("à quoi bon, je n'en peux plus").band).toBe("uncertain");
+  });
+
+  it("leaves benign text safe", () => {
+    expect(heuristic("had a lovely coffee this morning").band).toBe("safe");
+    expect(heuristic("").band).toBe("safe");
+    expect(heuristic("let's kill the failing process").band).toBe("safe"); // no false positive
+  });
+});
+
+describe("decide()", () => {
+  it("escalates clear risk WITHOUT calling the model", async () => {
+    let called = false;
+    const r = await decide("kill myself", {
+      modelClassifierEnabled: true,
+      classifyWithModel: async () => ((called = true), { ok: true, verdict: { risk: "none" } }),
+    });
+    expect(r.escalate).toBe(true);
+    expect(called).toBe(false);
+  });
+
+  it("stays silent on benign even with the model enabled", async () => {
+    const r = await decide("nice weather today", {
+      modelClassifierEnabled: true,
+      classifyWithModel: async () => ({ ok: true, verdict: { risk: "imminent" } }),
+    });
+    expect(r.escalate).toBe(false);
+  });
+
+  it("uncertain + model OFF → fail-safe escalate", async () => {
+    const r = await decide("I can't go on anymore", { modelClassifierEnabled: false });
+    expect(r.escalate).toBe(true);
+    expect(r.reason).toContain("classifier off");
+  });
+
+  it("uncertain + model says elevated → escalate", async () => {
+    const r = await decide("I can't go on anymore", {
+      modelClassifierEnabled: true,
+      classifyWithModel: async () => ({ ok: true, verdict: { risk: "elevated", category: "suicide" } }),
+    });
+    expect(r.escalate).toBe(true);
+    expect(r.reason).toContain("model:elevated");
+  });
+
+  it("uncertain + model says none → silent", async () => {
+    const r = await decide("I can't go on anymore", {
+      modelClassifierEnabled: true,
+      classifyWithModel: async () => ({ ok: true, verdict: { risk: "none" } }),
+    });
+    expect(r.escalate).toBe(false);
+  });
+
+  it("uncertain + model UNAVAILABLE → fail-safe escalate", async () => {
+    const r = await decide("I can't go on anymore", {
+      modelClassifierEnabled: true,
+      classifyWithModel: async () => ({ ok: false }),
+    });
+    expect(r.escalate).toBe(true);
+    expect(r.reason).toContain("failing safe");
+  });
+});
+
+describe("escalationContext()", () => {
+  it("names the crisis skill and marks itself as a safety-layer note", () => {
+    const c = escalationContext("suicide");
+    expect(c).toContain("crisis");
+    expect(c).toContain("docs/safety/crisis-protocol.md");
+    expect(c).toContain("not the person");
+  });
+});
