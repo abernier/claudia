@@ -64,6 +64,26 @@ describe("components", () => {
   });
 });
 
+describe("self-authoring (ADR-0006)", () => {
+  it("ships the adversarial auditor as a READ-ONLY agent", () => {
+    const p = path.join(root, "agents/skill-auditor.md");
+    expect(existsSync(p)).toBe(true);
+    const txt = readFileSync(p, "utf8");
+    expect(/disallowedTools:.*Write/i.test(txt), "auditor must not be able to write skills").toBe(true);
+  });
+
+  it("ships the author-skill meta-skill", () => {
+    expect(existsSync(path.join(root, "skills/author-skill/SKILL.md"))).toBe(true);
+  });
+
+  it("quarantine is separate from the load path", () => {
+    // proposed-skills/ holds drafts and is NOT under skills/ (the only load path),
+    // so a draft is inert until promoted.
+    expect(existsSync(path.join(root, "proposed-skills"))).toBe(true);
+    expect(existsSync(path.join(root, "skills/proposed-skills"))).toBe(false);
+  });
+});
+
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));
