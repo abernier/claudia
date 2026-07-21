@@ -52,7 +52,7 @@ claude plugin install claudia@claudia --scope user
 **From GitHub** (once published):
 
 ```
-claude plugin marketplace add <owner>/claudia
+claude plugin marketplace add abernier/claudia
 claude plugin install claudia@claudia --scope user
 ```
 
