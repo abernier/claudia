@@ -3,12 +3,16 @@
  * Claudia — save the session (SessionEnd hook).
  *
  * Writes the person's dated transcript to their local archive under ~/.claudia/
- * (default-on; ADR-0004), as a READABLE markdown file. Deterministic and
- * local-only — nothing is ever uploaded. The distilled *summary* (the layer
- * recall reads) is produced by the `distill-session` skill at close, not here.
+ * (default-on; ADR-0004) as READABLE markdown. Deterministic and local-only.
+ * The distilled *summary* (the layer recall reads) is produced by the
+ * `distill-session` skill at close, not here.
  *
- * The person stays in control: `{ "saveTranscripts": false }` in
- * ~/.claudia/config.json opts out of the verbatim archive.
+ * Because the plugin may be enabled at user scope, this hook fires for EVERY
+ * session — including unrelated coding sessions. So it only archives a session
+ * that was actually a Claudia conversation (persona signature present); it never
+ * pollutes ~/.claudia with anything else.
+ *
+ * Opt-out: `{ "saveTranscripts": false }` in ~/.claudia/config.json.
  */
 
 import { promises as fs } from "node:fs";
@@ -21,7 +25,7 @@ function readStdin() {
     process.stdin.setEncoding("utf8");
     process.stdin.on("data", (c) => (data += c));
     process.stdin.on("end", () => resolve(data));
-    setTimeout(() => resolve(data), 2000);
+    setTimeout(() => resolve(data), 3000); // safety net only
   });
 }
 
@@ -31,7 +35,11 @@ function todayStamp() {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
-// Pull readable text out of a Claude Code transcript entry, tolerantly.
+// Claude Code encodes a project dir by replacing "/" and "." with "-".
+function projectDirFor(cwd) {
+  return cwd.replace(/[/.]/g, "-");
+}
+
 function textFromContent(content) {
   if (typeof content === "string") return content.trim();
   if (Array.isArray(content)) {
@@ -43,6 +51,9 @@ function textFromContent(content) {
   }
   return "";
 }
+
+// Is this transcript actually a Claudia conversation? (persona signature)
+const CLAUDIA_SIGNATURE = /You are Claudia|unconditional positive regard|skills\/claudia|"name"\s*:\s*"claudia"/;
 
 function renderMarkdown(jsonl) {
   const lines = jsonl.split("\n").filter(Boolean);
@@ -57,7 +68,7 @@ function renderMarkdown(jsonl) {
     }
     const msg = e.message || e;
     const role = msg.role || e.type;
-    if (role !== "user" && role !== "assistant") continue; // skip tool/meta events
+    if (role !== "user" && role !== "assistant") continue;
     const text = textFromContent(msg.content);
     if (!text) continue;
     out.push(role === "user" ? `**You:**` : `**Claudia:**`, "", text, "");
@@ -76,6 +87,46 @@ async function main() {
       /* tolerate */
     }
 
+    // Locate the transcript: honour whatever field is provided, else self-locate
+    // from session id + cwd (robust to the exact payload shape).
+    let transcriptPath =
+      payload.transcript_path || payload.transcriptPath || payload.transcript;
+    if (!transcriptPath && payload.session_id && payload.cwd) {
+      transcriptPath = path.join(
+        os.homedir(),
+        ".claude",
+        "projects",
+        projectDirFor(payload.cwd),
+        `${payload.session_id}.jsonl`
+      );
+    }
+
+    // One-time, non-sensitive diagnostic (field NAMES only, no content) so we can
+    // confirm the payload shape without ever exposing the conversation.
+    await fs
+      .writeFile(
+        path.join(os.tmpdir(), "claudia-sessionend-diag.json"),
+        JSON.stringify(
+          { keys: Object.keys(payload), resolved: transcriptPath || null, at: todayStamp() },
+          null,
+          2
+        )
+      )
+      .catch(() => {});
+
+    if (!transcriptPath) return process.exit(0);
+
+    let jsonl;
+    try {
+      jsonl = await fs.readFile(transcriptPath, "utf8");
+    } catch {
+      return process.exit(0); // can't read it — nothing to archive
+    }
+
+    // GATE: only archive real Claudia conversations. Never pollute ~/.claudia
+    // with unrelated (e.g. coding) sessions.
+    if (!CLAUDIA_SIGNATURE.test(jsonl)) return process.exit(0);
+
     const root = path.join(os.homedir(), ".claudia");
     const sessionsDir = path.join(root, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
@@ -88,22 +139,11 @@ async function main() {
       /* no config → default-on */
     }
 
-    const transcriptPath = payload.transcript_path || payload.transcriptPath;
-    if (transcriptPath) {
-      try {
-        const jsonl = await fs.readFile(transcriptPath, "utf8");
-        const md = renderMarkdown(jsonl);
-        if (md) {
-          // Append if today's file exists, so multiple sessions in a day accrue.
-          const dest = path.join(sessionsDir, `${todayStamp()}.transcript.md`);
-          await fs.appendFile(dest, md + "\n\n---\n\n");
-        } else {
-          // Parsing yielded nothing → keep the raw record rather than lose it.
-          await fs.appendFile(path.join(sessionsDir, `${todayStamp()}.transcript.jsonl`), jsonl);
-        }
-      } catch {
-        /* transcript unreadable — nothing to archive */
-      }
+    const md = renderMarkdown(jsonl);
+    if (md) {
+      await fs.appendFile(path.join(sessionsDir, `${todayStamp()}.transcript.md`), md + "\n\n---\n\n");
+    } else {
+      await fs.appendFile(path.join(sessionsDir, `${todayStamp()}.transcript.jsonl`), jsonl);
     }
 
     // Crash-safety marker: a summary is pending if the close ritual didn't run.
