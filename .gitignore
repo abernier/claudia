@@ -1,0 +1,13 @@
+# Claudia never ships or syncs a person's data.
+# The person's memory, transcripts, and deliverables live under ~/.claudia/ on
+# their own machine — never in this repo. This entry is a belt-and-braces guard
+# in case anyone ever creates a local .claudia/ inside the project tree.
+.claudia/
+**/.claudia/
+
+# Scratch / local
+.DS_Store
+node_modules/
+*.log
+.env
+.env.*

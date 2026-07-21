@@ -1,0 +1,17 @@
+{
+  "name": "claudia",
+  "displayName": "Claudia",
+  "version": "0.1.0",
+  "description": "A warm, immersive, generalist therapist companion. Evidence-informed, multi-approach, safety-floored. Not a licensed clinician.",
+  "author": { "name": "Antoine Bernier" },
+  "license": "MIT",
+  "keywords": [
+    "therapy",
+    "companion",
+    "mental-health",
+    "cbt",
+    "act",
+    "counseling",
+    "wellbeing"
+  ]
+}

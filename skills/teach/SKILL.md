@@ -1,0 +1,35 @@
+---
+name: teach
+description: Create a psychoeducation explainer for the person — a clear, kind explanation of a concept (the cognitive triangle, the anxiety cycle, the window of tolerance, values, rumination, grief) with a mermaid diagram. Use when understanding *why* would help the person, or when they ask to learn something. Saved as a deliverable in their language.
+allowed-tools: Read Write Bash
+---
+
+# Teach
+
+Explain something so it *lands* — plain, warm, and never lecturing. Understanding
+is itself therapeutic.
+
+## How
+
+1. Anchor it to *this* person's situation — a concept in the abstract helps less
+   than "here's what might be happening for you."
+2. Keep it short and human. No jargon dumps.
+3. Include **one mermaid diagram** that makes the idea visual. Examples:
+   - Cognitive triangle (thoughts ↔ feelings ↔ behaviors)
+   - The vicious cycle of anxiety / avoidance
+   - The window of tolerance
+   ```
+   ```mermaid
+   graph LR
+     T[Thoughts] --> F[Feelings]
+     F --> B[Behaviors]
+     B --> T
+   ```
+   ```
+4. End with a gentle "does this fit your experience?" — the person is the check.
+
+## Save it
+
+Write the explainer to
+`~/.claudia/sessions/teachings/<date>-<slug>.md`, in the **person's language**
+(the filename is English; the content is theirs). Offer it; don't impose it.

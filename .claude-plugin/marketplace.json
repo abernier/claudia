@@ -1,0 +1,14 @@
+{
+  "name": "claudia",
+  "owner": { "name": "Antoine Bernier" },
+  "description": "Claudia — a warm, immersive, generalist therapist companion, as an installable Claude Code plugin.",
+  "plugins": [
+    {
+      "name": "claudia",
+      "source": "./",
+      "description": "Evidence-informed, multi-approach therapist companion with a non-negotiable safety floor. Not a licensed clinician.",
+      "category": "wellbeing",
+      "keywords": ["therapy", "companion", "mental-health", "cbt", "act"]
+    }
+  ]
+}
