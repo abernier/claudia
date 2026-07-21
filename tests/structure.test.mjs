@@ -76,6 +76,13 @@ describe("self-authoring (ADR-0006)", () => {
     expect(existsSync(path.join(root, "skills/author-skill/SKILL.md"))).toBe(true);
   });
 
+  it("the persona knows it can author skills (self-concept, not just capability)", () => {
+    const soul = readFileSync(path.join(root, "SOUL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/grow|build myself|extend yourself/i.test(soul), "SOUL should express self-extension").toBe(true);
+    expect(/author-skill/.test(persona), "persona should point to author-skill").toBe(true);
+  });
+
   it("quarantine is separate from the load path", () => {
     // proposed-skills/ holds drafts and is NOT under skills/ (the only load path),
     // so a draft is inert until promoted.
