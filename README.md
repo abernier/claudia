@@ -46,7 +46,7 @@ register the marketplace, then install the plugin.
 **From a local checkout** (works today):
 
 ```
-git clone <this-repo> claudia && cd claudia
+git clone https://github.com/abernier/claudia && cd claudia
 claude plugin marketplace add .            # register the local marketplace
 claude plugin install claudia@claudia --scope user
 ```
