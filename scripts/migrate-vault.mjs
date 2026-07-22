@@ -1,0 +1,167 @@
+#!/usr/bin/env node
+/**
+ * Claudia — vault migration runner (ADR-0020).
+ *
+ * Applies pending vault migrations (see `src/migrations/`) to `~/.claudia/`, in order,
+ * skipping any already recorded in the vault's `.migrations` ledger. Each migration is a
+ * pure, idempotent `{ relPath: content } → { relPath: newContent }` transform; this
+ * script does the fs work: read → (dry-run preview | backup → apply → ledger → rebuild
+ * dashboard). `*.transcript.md` (the verbatim archive) is never read for rewriting nor
+ * written.
+ *
+ * Two callers:
+ *  - `/migrate` (manual): `--dry` to preview, or apply with an explicit backup.
+ *  - `recall` (benign upkeep): applies pending migrations then discloses what changed —
+ *    a no-op after the first run because the ledger + idempotency say so.
+ *
+ * Usage: node scripts/migrate-vault.mjs [--dry] [vaultDir]
+ *   default vaultDir = ~/.claudia
+ *
+ * `runMigrations({ root, dry })` is exported (pure-ish: only touches the given vault) so
+ * it can be tested against a fixture directory.
+ */
+import { promises as fs } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { migrations } from "../src/migrations/index.mjs";
+import { rebuildDashboard } from "./build-dashboard.mjs";
+
+const LEDGER = ".migrations";
+
+function stamp() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+async function walk(dir, base = dir) {
+  const out = [];
+  let entries = [];
+  try {
+    entries = await fs.readdir(dir, { withFileTypes: true });
+  } catch {
+    return out;
+  }
+  for (const e of entries) {
+    const abs = path.join(dir, e.name);
+    if (e.isDirectory()) out.push(...(await walk(abs, base)));
+    else out.push(path.relative(base, abs).split(path.sep).join("/"));
+  }
+  return out;
+}
+
+async function readLedger(root) {
+  try {
+    const txt = await fs.readFile(path.join(root, LEDGER), "utf8");
+    return new Set(txt.split(/\r?\n/).map((s) => s.trim()).filter(Boolean));
+  } catch {
+    return new Set();
+  }
+}
+
+async function appendLedger(root, ids) {
+  const applied = await readLedger(root);
+  for (const id of ids) applied.add(id);
+  await fs.writeFile(path.join(root, LEDGER), [...applied].join("\n") + "\n");
+}
+
+/**
+ * @param {{root: string, dry?: boolean}} opts
+ * @returns {Promise<{status: 'absent'|'noop'|'nochange'|'dry'|'applied', ran: string[], changed: string[], backup: string|null, diffs?: Array<{rel:string, before:string, after:string}>}>}
+ */
+export async function runMigrations({ root, dry = false }) {
+  try {
+    await fs.access(root);
+  } catch {
+    return { status: "absent", ran: [], changed: [], backup: null };
+  }
+
+  const applied = await readLedger(root);
+  const pending = migrations.filter((m) => !applied.has(m.id));
+  if (!pending.length) return { status: "noop", ran: [], changed: [], backup: null };
+
+  // Load markdown files (never the verbatim transcripts) into a { rel: content } map.
+  const rels = (await walk(root)).filter((r) => r.endsWith(".md") && !r.endsWith(".transcript.md"));
+  const original = {};
+  for (const rel of rels) original[rel] = await fs.readFile(path.join(root, rel), "utf8");
+
+  // Fold pending migrations, each transforming the accumulated content.
+  let files = { ...original };
+  const ran = [];
+  for (const m of pending) {
+    files = { ...files, ...m.migrate(files) };
+    ran.push(m.id);
+  }
+  const changed = Object.keys(files).filter((rel) => files[rel] !== original[rel]);
+
+  if (dry) {
+    const diffs = changed.map((rel) => ({ rel, before: original[rel], after: files[rel] }));
+    return { status: changed.length ? "dry" : "nochange", ran, changed, backup: null, diffs };
+  }
+
+  // Migrations were pending but produced nothing (e.g. hand-migrated already): record
+  // them as applied so we never re-scan, but take no backup — there is nothing to undo.
+  if (!changed.length) {
+    await appendLedger(root, ran);
+    return { status: "nochange", ran, changed, backup: null };
+  }
+
+  // Real change: back the whole vault up first, then apply.
+  const backup = `${root.replace(/\/+$/, "")}.bak-${stamp()}`;
+  await fs.cp(root, backup, { recursive: true });
+  for (const rel of changed) {
+    const abs = path.join(root, rel);
+    await fs.mkdir(path.dirname(abs), { recursive: true });
+    await fs.writeFile(abs, files[rel]);
+  }
+  await appendLedger(root, ran);
+  await rebuildDashboard(root); // derived mirror: regenerate, never migrate in place
+
+  return { status: "applied", ran, changed, backup };
+}
+
+function printDiffs(diffs) {
+  for (const { rel, before, after } of diffs) {
+    const b = before.split("\n");
+    const a = after.split("\n");
+    console.log(`\n${rel}`);
+    for (let i = 0; i < Math.max(b.length, a.length); i++) {
+      if (b[i] !== a[i]) {
+        if (b[i] != null && b[i] !== "") console.log(`   - ${b[i]}`);
+        if (a[i] != null && a[i] !== "") console.log(`   + ${a[i]}`);
+      }
+    }
+  }
+}
+
+async function main() {
+  const argv = process.argv.slice(2);
+  const dry = argv.includes("--dry");
+  const root = argv.find((a) => !a.startsWith("--")) || path.join(os.homedir(), ".claudia");
+
+  const r = await runMigrations({ root, dry });
+  switch (r.status) {
+    case "absent":
+      console.log(`Nothing to migrate at ${root}.`);
+      break;
+    case "noop":
+      console.log("✓ Vault up to date (nothing to migrate).");
+      break;
+    case "nochange":
+      if (dry) console.log(`DRY-RUN — nothing would change; would mark applied: ${r.ran.join(", ")}.`);
+      else console.log(`✓ Already in target form. Marked applied: ${r.ran.join(", ")} (no backup needed).`);
+      break;
+    case "dry":
+      printDiffs(r.diffs);
+      console.log(`\nDRY-RUN — would migrate ${r.changed.length} file(s) via: ${r.ran.join(", ")}.`);
+      break;
+    case "applied":
+      console.log(`✓ Migrated ${r.changed.length} file(s) via ${r.ran.join(", ")}.\n  Backup: ${r.backup}`);
+      break;
+  }
+  process.exit(0);
+}
+
+// Run only when invoked directly, not on import (tests import runMigrations).
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

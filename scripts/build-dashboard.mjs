@@ -9,6 +9,9 @@
  * summarises (the summarising already happened in the source files).
  * `safety.md` is never mirrored.
  *
+ * `rebuildDashboard(root)` is exported so the migration runner can refresh the mirror
+ * after applying a migration, without duplicating the read/assemble logic.
+ *
  * Opt-out: `{ "dashboard": false }` in ~/.claudia/config.json — then no file is
  * written and any existing dashboard.md is removed (the opt-out must be real,
  * or /forget-ing the file would be undone at the next close).
@@ -19,6 +22,7 @@
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildDashboard, personName, sessionsForMirror } from "../src/dashboard.mjs";
 
 function todayStamp() {
@@ -29,14 +33,17 @@ function todayStamp() {
 
 const read = (p) => fs.readFile(p, "utf8").catch(() => null);
 
-async function main() {
+/**
+ * Rebuild `<root>/dashboard.md` from the working files. Honours the opt-out and fails
+ * silent (never throws). Returns true if the mirror was written, false if skipped.
+ */
+export async function rebuildDashboard(root) {
   try {
-    const root = path.join(os.homedir(), ".claudia");
     // Nothing to mirror until the person actually has a memory here.
     try {
       await fs.access(root);
     } catch {
-      return process.exit(0);
+      return false;
     }
 
     const dashboardPath = path.join(root, "dashboard.md");
@@ -46,7 +53,7 @@ async function main() {
       const cfg = JSON.parse((await read(path.join(root, "config.json"))) || "{}");
       if (cfg.dashboard === false) {
         await fs.rm(dashboardPath, { force: true }).catch(() => {});
-        return process.exit(0);
+        return false;
       }
     } catch {
       /* no/unreadable config → default-on */
@@ -77,10 +84,16 @@ async function main() {
     });
 
     await fs.writeFile(dashboardPath, md);
-    process.exit(0);
+    return true;
   } catch {
-    process.exit(0);
+    return false; // benign: never blocks a hook, recall, or a migration run
   }
 }
 
-main();
+async function main() {
+  await rebuildDashboard(path.join(os.homedir(), ".claudia"));
+  process.exit(0);
+}
+
+// Run only when invoked directly (`node scripts/build-dashboard.mjs`), not on import.
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
