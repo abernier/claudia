@@ -236,6 +236,28 @@ describe("life timeline (ADR-0014)", () => {
   });
 });
 
+describe("to-do-later surface (ADR-0018)", () => {
+  it("ships the todo skill and the ADR", () => {
+    expect(existsSync(path.join(root, "skills/todo/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/adr/0018-todo-surface.md"))).toBe(true);
+  });
+
+  it("the persona points to it — the trigger that makes it reachable mid-session", () => {
+    // The guard that was missing at v0.3.0: the surface was wired into
+    // recall/remember/distill, but the always-loaded persona never mentioned it,
+    // so asking Claudia to "create a todo" mid-conversation routed nowhere. A
+    // wired-but-untriggerable capability is invisible until found by hand — this
+    // asserts the reachability, not just the plumbing.
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/todo/i.test(persona), "persona should point to the todo capability").toBe(true);
+  });
+
+  it("recall reads it and memory-layout records it", () => {
+    expect(/todo\.md/.test(readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8"))).toBe(true);
+    expect(/todo\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+  });
+});
+
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));
