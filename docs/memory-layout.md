@@ -26,6 +26,8 @@ English/universal; **content is written in the person's language**.
 └── sessions/                        one set of files per SESSION, keyed <date>-<short-session-id> (ADR-0017)
     ├── 2026-07-21-9113d5d7.summary.md      distilled — READ on recall
     ├── 2026-07-21-9113d5d7.transcript.md   verbatim — the person's archive, NOT read in routine
+    ├── 2026-07-21-9113d5d7.assets/         images the person pasted, extracted from the transcript (ADR-0021)
+    │   └── img-001.png                     named by order of appearance; embedded inline in the .md
     ├── 2026-07-22-4f0ac1e2.pending-summary dirty flag: needs (re)distilling; cleared by distill-session
     ├── teachings/
     │   └── 2026-07-21-anxiety-cycle.md
@@ -38,7 +40,7 @@ English/universal; **content is written in the person's language**.
 | Layer | Files | Who reads it | Default |
 |---|---|---|---|
 | **Working memory** | `person.md`, `goals.md`, `todo.md`, `understanding.md`, `people.md`, `timeline.md`, `themes.md`, `themes/*`, `safety.md`, `*.summary.md`, `MEMORY.md` | Claudia, via `recall`, every session | on |
-| **Person's archive** | `*.transcript.jsonl` | the person (via `/export`); **not** Claudia in routine | on (opt-out via `config.json`) |
+| **Person's archive** | `*.transcript.md` (`.jsonl` fallback), `<stem>.assets/*` | the person (via `/export`); **not** Claudia in routine | on (opt-out via `config.json`) |
 
 ## Invariants
 
@@ -65,8 +67,9 @@ English/universal; **content is written in the person's language**.
 
 - `scripts/save-session.mjs` (SessionEnd) → `<date>-<id>.transcript.md`, one file per
   session, **overwritten** each close (ADR-0017); gated on genuine `claudia`-skill
-  *activation*, not a stray persona string. Also drops a `<date>-<id>.pending-summary`
-  dirty flag every close.
+  *activation*, not a stray persona string. Also extracts any images the person pasted
+  from the transcript into `<date>-<id>.assets/` (`img-NNN.<ext>`, embedded inline;
+  ADR-0021), and drops a `<date>-<id>.pending-summary` dirty flag every close.
 - `distill-session` skill → `<date>-<id>.summary.md`. Runs live at close when possible,
   but is normally **deferred**: `recall` detects any `pending-summary` (via
   `scripts/pending-sessions.mjs`) and distills that session at the next open, then

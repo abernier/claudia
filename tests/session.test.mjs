@@ -3,11 +3,20 @@ import path from "node:path";
 import {
   projectDirFor,
   textFromContent,
+  partsFromContent,
   isClaudiaSession,
   sessionIdFrom,
   renderMarkdown,
   resolveTranscriptPath,
 } from "../src/session.mjs";
+
+// A tiny 1×1 PNG, base64 — enough to assert extraction round-trips the bytes.
+const PNG_1PX =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+const imageBlock = (data = PNG_1PX, media_type = "image/png") => ({
+  type: "image",
+  source: { type: "base64", media_type, data },
+});
 
 const userMsg = (content) => JSON.stringify({ type: "user", message: { role: "user", content } });
 
@@ -24,6 +33,33 @@ describe("textFromContent()", () => {
     expect(textFromContent([{ type: "text", text: "a" }, { type: "tool_use", name: "x" }, { type: "text", text: "b" }])).toBe("a\n\nb");
   });
   it("returns empty for unknown shapes", () => expect(textFromContent(null)).toBe(""));
+});
+
+describe("partsFromContent()", () => {
+  it("wraps a plain string as one text part", () => {
+    expect(partsFromContent("hi")).toEqual([{ kind: "text", text: "hi" }]);
+  });
+  it("keeps text and image blocks in order, drops tool_use", () => {
+    const parts = partsFromContent([
+      { type: "text", text: "voilà " },
+      imageBlock(),
+      { type: "tool_use", name: "x" },
+    ]);
+    expect(parts).toEqual([
+      { kind: "text", text: "voilà" },
+      { kind: "image", mediaType: "image/png", data: PNG_1PX },
+    ]);
+  });
+  it("surfaces an image nested inside a tool_result but not its text (future-proof)", () => {
+    const parts = partsFromContent([
+      { type: "tool_result", content: [{ type: "text", text: "ignored" }, imageBlock(PNG_1PX, "image/jpeg")] },
+    ]);
+    expect(parts).toEqual([{ kind: "image", mediaType: "image/jpeg", data: PNG_1PX }]);
+  });
+  it("returns empty for unknown / empty shapes", () => {
+    expect(partsFromContent(null)).toEqual([]);
+    expect(partsFromContent([{ type: "text", text: "   " }])).toEqual([]);
+  });
 });
 
 describe("isClaudiaSession()", () => {
@@ -69,16 +105,43 @@ describe("renderMarkdown()", () => {
   ].join("\n");
 
   it("renders You/Claudia turns and skips meta events", () => {
-    const md = renderMarkdown(jsonl, "2026-07-21");
-    expect(md).toContain("# Session — 2026-07-21");
-    expect(md).toContain("**You:**");
-    expect(md).toContain("**Claudia:**");
-    expect(md).toContain("Je suis là.");
-    expect(md).not.toContain("file-history-snapshot");
+    const { markdown, images } = renderMarkdown(jsonl, "2026-07-21");
+    expect(markdown).toContain("# Session — 2026-07-21");
+    expect(markdown).toContain("**You:**");
+    expect(markdown).toContain("**Claudia:**");
+    expect(markdown).toContain("Je suis là.");
+    expect(markdown).not.toContain("file-history-snapshot");
+    expect(images).toEqual([]);
   });
 
-  it("returns null when nothing is renderable", () => {
-    expect(renderMarkdown('{"type":"meta"}', "2026-07-21")).toBeNull();
+  it("returns null markdown and no images when nothing is renderable", () => {
+    expect(renderMarkdown('{"type":"meta"}', "2026-07-21")).toEqual({ markdown: null, images: [] });
+  });
+
+  it("extracts a pasted image, numbers it, and embeds it inline into assetsDir", () => {
+    const withImage = userMsg([{ type: "text", text: "regarde ça" }, imageBlock()]);
+    const { markdown, images } = renderMarkdown(withImage, "2026-07-21", { assetsDir: "2026-07-21-abcd1234.assets" });
+    expect(images).toEqual([{ name: "img-001.png", mediaType: "image/png", data: PNG_1PX }]);
+    // Text then image, in order, linked relative to the session's own assets dir.
+    expect(markdown).toContain("regarde ça");
+    expect(markdown).toContain("![img-001](2026-07-21-abcd1234.assets/img-001.png)");
+    expect(markdown.indexOf("regarde ça")).toBeLessThan(markdown.indexOf("![img-001]"));
+  });
+
+  it("numbers multiple images sequentially across turns and maps the extension", () => {
+    const twoTurns = [
+      userMsg([imageBlock(PNG_1PX, "image/png")]),
+      JSON.stringify({ type: "assistant", message: { role: "assistant", content: [{ type: "text", text: "vu" }] } }),
+      userMsg([imageBlock(PNG_1PX, "image/jpeg")]),
+    ].join("\n");
+    const { images } = renderMarkdown(twoTurns, "2026-07-21");
+    expect(images.map((i) => i.name)).toEqual(["img-001.png", "img-002.jpeg"]);
+  });
+
+  it("renders an image-only turn (no text) rather than dropping it", () => {
+    const { markdown, images } = renderMarkdown(userMsg([imageBlock()]), "2026-07-21");
+    expect(markdown).toContain("**You:**");
+    expect(images).toHaveLength(1);
   });
 });
 

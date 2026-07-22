@@ -11,7 +11,8 @@ right and it must be reliable.
 
 1. Clarify the scope with them (unless `$ARGUMENTS` already says):
    - a **single session** (e.g. `2026-07-21`) → its `.summary.md`,
-     `.transcript.jsonl`, and related deliverables,
+     `.transcript.md` (or `.transcript.jsonl` fallback), its `<stem>.assets/` folder
+     of pasted images, and related deliverables,
    - a **topic** → the relevant lines in `person.md` / `goals.md` and any tied
      files,
    - **everything** → the whole `~/.claudia/` directory.

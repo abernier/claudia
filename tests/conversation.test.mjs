@@ -42,7 +42,7 @@ describe("simulated conversation — archiving", () => {
 
   it("recognises a Claudia session and renders the dialogue", () => {
     expect(isClaudiaSession(claudiaTranscript)).toBe(true);
-    const md = renderMarkdown(claudiaTranscript, "2026-07-21");
+    const { markdown: md } = renderMarkdown(claudiaTranscript, "2026-07-21");
     expect(md).toContain("**You:**");
     expect(md).toContain("**Claudia:**");
     expect(md).toContain("Je t'écoute");
