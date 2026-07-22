@@ -5,6 +5,10 @@
 .claudia/
 **/.claudia/
 
+# Generated eval artifacts (tier 3, run via /selftest)
+evals/report.html
+evals/results/
+
 # Scratch / local
 .DS_Store
 node_modules/

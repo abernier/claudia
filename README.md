@@ -20,8 +20,9 @@ adapts to the person in front of her.
 - **Immersion with a floor.** Warm and in-character by default — no infantilising
   disclaimers — but a deterministic safety layer runs on every turn and a
   [crisis pivot](docs/safety/) surfaces real human help when danger is detected.
-- **Natural-language first.** Only four slash commands exist — three
-  deterministic data/safety actions plus one pull-only reflection aid.
+- **Natural-language first.** Only five slash commands exist — four for the
+  person (three deterministic data/safety actions plus a pull-only reflection
+  aid) and one maintainer test gate.
   Everything therapeutic happens in ordinary conversation. See
   [ADR-0003](docs/adr/0003-plugin-runtime-shape.md).
 - **Your data, your machine.** Memory lives under `~/.claudia/` on your own
@@ -31,7 +32,8 @@ adapts to the person in front of her.
 
 ## Commands
 
-Claudia deliberately ships only four commands — the rest is conversation:
+Claudia deliberately ships only five commands — the rest is conversation
+(four for the person, one for the maintainer):
 
 | Command | What it does |
 |---|---|
@@ -39,6 +41,7 @@ Claudia deliberately ships only four commands — the rest is conversation:
 | `/forget` | Really delete a memory, a session, or everything. |
 | `/export` | Export your memory and deliverables. |
 | `/thread` | Show the thread of the conversation so far — a light, person-pulled reflection you can gather back or keep wandering from. |
+| `/selftest` | Maintainer gate: run all three test tiers — Vitest, strict manifest validate, budget-capped model evals — and report one verdict. |
 
 ## Install (CLI)
 
@@ -102,7 +105,7 @@ docs/
   safety/         crisis protocol, C-SSRS logic, localized resources, classifier
   bibliography.md the evidence base
 skills/           Claudia's capabilities
-commands/         the four commands
+commands/         the five commands
 hooks/            the per-turn safety hook + session-save hook
 ```
 
@@ -112,8 +115,8 @@ The plugin itself needs no runtime dependencies. Tests (Vitest) cover the
 deterministic logic — the safety classifier, session archiving, and repo
 integrity — plus a deterministic "simulated conversation" that runs scripted
 turns through the real safety/archiving pipeline (no model call). The model's
-natural-language *quality* is out of scope here; that belongs in a separate,
-non-deterministic eval.
+natural-language *quality* is out of scope here; that belongs in the separate,
+non-deterministic evals under [`evals/`](evals/README.md).
 
 ```
 npm install
@@ -123,6 +126,12 @@ npm run test:watch
 
 Pure logic lives in `src/` (imported by the thin hook wrappers in `scripts/`), so
 it is unit-testable without spawning a process or calling a model.
+
+**The heavy gate.** `/selftest` (run from the repo checkout) chains all three
+tiers — the Vitest suite, `claude plugin validate . --strict`, and the
+budget-capped model-quality evals — into a single verdict. It is a deliberate,
+punctual gesture (the eval tier costs tokens), not CI. See
+[`evals/README.md`](evals/README.md).
 
 ### Live / hot-reload development (edit without reinstalling)
 

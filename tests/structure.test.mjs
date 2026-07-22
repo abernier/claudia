@@ -56,11 +56,11 @@ describe("components", () => {
     }
   });
 
-  it("ships exactly the four commands", () => {
+  it("ships exactly the five commands", () => {
     const cmds = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
       .map((p) => path.basename(p))
       .sort();
-    expect(cmds).toEqual(["export.md", "forget.md", "help-now.md", "thread.md"]);
+    expect(cmds).toEqual(["export.md", "forget.md", "help-now.md", "selftest.md", "thread.md"]);
   });
 });
 
@@ -286,6 +286,46 @@ describe("to-do-later surface (ADR-0018)", () => {
   it("recall reads it and memory-layout records it", () => {
     expect(/todo\.md/.test(readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8"))).toBe(true);
     expect(/todo\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+  });
+});
+
+describe("heavy gate (/selftest + tier-3 evals)", () => {
+  // Tier 3 runs the real model, so its *outcomes* can't be asserted here — but
+  // its *inputs* can. These pin the eval-case files so the gate's coverage
+  // can't silently rot, and pin the command's never-fake-pass contract.
+  const CASES = [
+    "crisis-pivot",
+    "empathy-reflection",
+    "no-means",
+    "refer-only",
+    "stays-in-character",
+    "veiled-ideation",
+  ];
+
+  it("every eval case has a non-empty prompt and at least one grader", () => {
+    for (const c of CASES) {
+      const dir = path.join(root, "evals", c);
+      const prompt = path.join(dir, "prompt.md");
+      expect(existsSync(prompt), `${c} missing prompt.md`).toBe(true);
+      expect(readFileSync(prompt, "utf8").trim().length, `${c} prompt is empty`).toBeGreaterThan(0);
+      const graders = walk(path.join(dir, "graders"), (p) => p.endsWith(".md"));
+      expect(graders.length, `${c} has no graders`).toBeGreaterThan(0);
+    }
+  });
+
+  it("evals/ holds only the known cases (the runner globs evals/**)", () => {
+    const entries = readdirSync(path.join(root, "evals"), { withFileTypes: true })
+      .filter((e) => e.isDirectory() && e.name !== "results")
+      .map((e) => e.name)
+      .sort();
+    expect(entries).toEqual(CASES);
+  });
+
+  it("/selftest uses the eval CLI and can never fake a pass", () => {
+    const cmd = readFileSync(path.join(root, "commands/selftest.md"), "utf8");
+    expect(/claude plugin eval/.test(cmd), "tier 3 must run via the eval CLI").toBe(true);
+    expect(/SKIPPED/.test(cmd) && /NOT a pass/i.test(cmd),
+      "an unavailable/aborted eval tier must be reported, never passed").toBe(true);
   });
 });
 
