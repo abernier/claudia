@@ -108,6 +108,14 @@ into a family genogram. Non-judgmental, correctable, local (`~/.claudia/people.m
 Defined in ADR-0010.
 _Avoid_: clinical/accusatory labels about the people in it; "dossier", "profile".
 
+**Person fiche**:
+A markdown note per important person (`~/.claudia/people/<name>.md`) following a
+common reflective template, wiki-linked to other fiches, session summaries, themes,
+and the working understanding. A *mirror* of the person's own experience of the
+bond — never a profile of the third party. Defined in ADR-0011.
+_Avoid_: "profile", "dossier", "record" (it is the person's reflective note, not a
+file kept *on* someone).
+
 **Deliverable**:
 An artifact Claudia produces *for* the person, written under `~/.claudia/` —
 a session summary, an exercise/worksheet, a `/teach` explainer (with diagrams),

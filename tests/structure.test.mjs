@@ -194,13 +194,39 @@ describe("relationship map (ADR-0010)", () => {
   });
 });
 
+describe("person fiches (ADR-0011)", () => {
+  it("ships the ADR and the common template", () => {
+    expect(existsSync(path.join(root, "docs/adr/0011-person-fiches.md"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/person-fiche-template.md"))).toBe(true);
+  });
+
+  it("relationships maintains fiches, wiki-linked, transcript only via summary", () => {
+    const skill = readFileSync(path.join(root, "skills/relationships/SKILL.md"), "utf8");
+    expect(/per-person fiches/i.test(skill)).toBe(true);
+    expect(/wikilink/i.test(skill)).toBe(true);
+    expect(/only through/i.test(skill), "reach a transcript only through its summary").toBe(true);
+  });
+
+  it("export runs the wikilink→relative export pass", () => {
+    expect(/vault-export\.mjs/.test(readFileSync(path.join(root, "commands/export.md"), "utf8"))).toBe(true);
+  });
+
+  it("the template stays a mirror, not a dossier", () => {
+    const tmpl = readFileSync(path.join(root, "docs/person-fiche-template.md"), "utf8");
+    expect(/mirror/i.test(tmpl) && /never a dossier/i.test(tmpl)).toBe(true);
+  });
+});
+
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));
     const linkRe = /\]\(([^)]+?\.md)(#[^)]*)?\)/g;
     const broken = [];
     for (const f of mdFiles) {
-      const txt = readFileSync(f, "utf8");
+      // Strip code (fenced + inline) so example link-syntax isn't link-checked.
+      const txt = readFileSync(f, "utf8")
+        .replace(/```[\s\S]*?```/g, "")
+        .replace(/`[^`]*`/g, "");
       let m;
       while ((m = linkRe.exec(txt))) {
         const target = m[1];

@@ -8,8 +8,9 @@ allowed-tools: Read Write Bash
 
 Keep a light, living map of the people who matter to the person — so you *know*
 who Liliana or "your sister" is, and can hold their world in mind across sessions.
-It lives at `~/.claudia/people.md` as a **mermaid** diagram plus a short key. It
-feeds the [working understanding](../understand/SKILL.md).
+The **graph** lives at `~/.claudia/people.md` (mermaid); each person can also get a
+**fiche** at `~/.claudia/people/<name>.md`. It feeds the
+[working understanding](../understand/SKILL.md).
 
 ## When to use it
 
@@ -32,11 +33,23 @@ graph TD
   ME ---|"sister · close"| SIS["Marie"]
   ME ---|"partner · tender, some tension lately"| LIL["Liliana"]
   ME ---|"manager · draining"| BOSS["Sam"]
+  click SIS "people/Marie.md"
+  click LIL "people/Liliana.md"
 ```
 ```
 
-Below the diagram, a one-line key per person in the person's own words (who they
-are, what the bond is like for *them*).
+Below the diagram, a one-line key per person in the person's own words, and a
+`click` linking each node to its fiche.
+
+## Per-person fiches
+
+Each important person can have a fiche at `~/.claudia/people/<name>.md`, following
+[the common template](../../docs/person-fiche-template.md): a *reflective* note (the
+person's own experience of the bond, CCRT-style — never a profile of the third
+party), cross-linked with `[[wikilinks]]` to other people, session summaries,
+`[[themes]]`, and the working understanding — **reaching a transcript only through
+its summary**. Keep an index of everyone at the top of `MEMORY.md`. Build them
+gradually: a stub when a person first matters, deepened as they recur.
 
 ## Guardrails (ADR-0010)
 

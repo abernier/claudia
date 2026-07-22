@@ -13,6 +13,9 @@ English/universal; **content is written in the person's language**.
 ├── understanding.md     the working understanding — provisional, dated, correctable (ADR-0008)
 ├── people.md            relationship map (mermaid ecomap → genogram), non-judgmental (ADR-0010)
 ├── safety.md            locale + region resources + standing safety flags (never means/methods)
+├── people/                         one reflective fiche per important person (ADR-0011)
+│   ├── Liliana.md                  wiki-linked to sessions, themes, other people
+│   └── Marie.md
 └── sessions/
     ├── 2026-07-21.summary.md        distilled — READ on recall
     ├── 2026-07-21.transcript.jsonl  verbatim — the person's archive, NOT read in routine
