@@ -13,10 +13,13 @@ English/universal; **content is written in the person's language**.
 ├── understanding.md     the working understanding — provisional, dated, correctable (ADR-0008)
 ├── people.md            relationship map (mermaid ecomap → genogram), non-judgmental (ADR-0010)
 ├── timeline.md          the life timeline — person-led, trauma-informed dated list (ADR-0014)
+├── themes.md            recurring threads across sessions — person-ratified, provisional (ADR-0015)
 ├── safety.md            locale + region resources + standing safety flags (never means/methods)
 ├── people/                         one reflective fiche per important person (ADR-0011)
 │   ├── Liliana.md                  wiki-linked to sessions, themes, other people
 │   └── Marie.md
+├── themes/                         one note per recurring thread that earned depth (ADR-0015)
+│   └── the inner critic.md         name in the person's words; verbatim kept separate
 └── sessions/
     ├── 2026-07-21.summary.md        distilled — READ on recall
     ├── 2026-07-21.transcript.jsonl  verbatim — the person's archive, NOT read in routine
@@ -30,7 +33,7 @@ English/universal; **content is written in the person's language**.
 
 | Layer | Files | Who reads it | Default |
 |---|---|---|---|
-| **Working memory** | `person.md`, `goals.md`, `understanding.md`, `people.md`, `timeline.md`, `safety.md`, `*.summary.md`, `MEMORY.md` | Claudia, via `recall`, every session | on |
+| **Working memory** | `person.md`, `goals.md`, `understanding.md`, `people.md`, `timeline.md`, `themes.md`, `themes/*`, `safety.md`, `*.summary.md`, `MEMORY.md` | Claudia, via `recall`, every session | on |
 | **Person's archive** | `*.transcript.jsonl` | the person (via `/export`); **not** Claudia in routine | on (opt-out via `config.json`) |
 
 ## Invariants
@@ -52,4 +55,6 @@ English/universal; **content is written in the person's language**.
 - `understand` skill → `understanding.md` (the working understanding).
 - `relationships` skill → `people.md` (the relationship map).
 - `timeline` skill → `timeline.md` (the life timeline).
+- `themes` skill → `themes.md`, `themes/` (recurring threads; `distill-session` flags
+  candidates, `recall` surfaces them for the person to ratify).
 - `teach` / `exercise` skills → `teachings/`, `exercises/`.

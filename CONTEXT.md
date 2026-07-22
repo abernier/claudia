@@ -125,6 +125,25 @@ never forced), positive events first-class. A dated list is canonical; a mermaid
 _Avoid_: "life chart" (the clinical symptom-tracking method we don't do), "trauma
 inventory".
 
+**The thread**:
+The felt through-line of a conversation, and the person-pulled `/thread` command
+that reflects it — a short *fil-de-sens* in a dim `※` meta-channel, close to the
+person's own words, so they can gather the conversation back or keep wandering.
+Person-triggered only, descriptive never directive, ephemeral (nothing stored; the
+session summary captures the durable thread). Defined in ADR-0015.
+_Avoid_: "agenda", "redirect", "get back on track" (it never steers — digression is
+not an error).
+
+**Theme**:
+A recurring thread that cuts across the person's sessions and people — "the inner
+critic", "stepping back so others aren't upset" — the connective tissue a single
+session summary can't carry (`~/.claudia/themes.md` + `themes/<name>.md`).
+Person-ratified (Claudia proposes tentatively; the person names, reshapes, or
+rejects), provisional, externalising not clinical, and it holds strengths and
+exceptions as well as struggles. Defined in ADR-0015.
+_Avoid_: "formulation", "diagnosis", "problem list", "case file" (it is a
+person-authored map, not a clinical record).
+
 **Deliverable**:
 An artifact Claudia produces *for* the person, written under `~/.claudia/` —
 a session summary, an exercise/worksheet, a `/teach` explainer (with diagrams),

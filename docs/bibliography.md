@@ -106,6 +106,48 @@ corrected estimates are routinely smaller than headline figures.
   umbrella review. *World Psychiatry* 22:286–304.
   https://onlinelibrary.wiley.com/doi/full/10.1002/wps.21104
 
+### Following the thread — formulation, narrative, process & self-monitoring (ADR-0015)
+
+- **Rogers (1957).** The necessary and sufficient conditions of therapeutic
+  personality change. *Journal of Consulting Psychology* 21:95–103. —
+  Non-directive core; following the person's own frame of reference *is* the
+  intervention.
+- **Blagys & Hilsenroth (2000).** Distinctive activities of short-term
+  psychodynamic–interpersonal therapy. *Clinical Psychology: Science & Practice*
+  7:167–188. — Empirically-derived features: focus on affect, recurring themes,
+  working with avoidance — i.e. drift as signal, not noise.
+- **Gendlin (1996).** *Focusing-Oriented Psychotherapy.* Guilford. — The felt
+  sense; the client's *process* "knows" where to go — track process over content.
+- **Greenberg, Rice & Elliott (1993).** *Facilitating Emotional Change.* Guilford.
+  — Emotion-Focused Therapy: *process-directive, never content-directive*;
+  marker-guided tasks.
+- **White & Epston (1990).** *Narrative Means to Therapeutic Ends.* Norton. —
+  Threads/themes, unique outcomes, externalising, re-authoring; themes surfaced
+  tentatively, the person as author.
+- **Kuyken, Padesky & Dudley (2009).** *Collaborative Case Conceptualization.*
+  Guilford. — Build the formulation *with* the person, in their own language
+  ("the client knows best").
+- **Bieling & Kuyken (2003).** Is cognitive case formulation science or science
+  fiction? *Clinical Psychology: Science & Practice* 10:52–69. — Reliability is
+  good for descriptive elements but **degrades at the inferential layer** — keep
+  inferred themes provisional.
+- **Redhead, Johnstone & Nightingale (2015).** Clients' experiences of
+  formulation in CBT. *Psychology and Psychotherapy* 88:453–467. — Formulation can
+  bring understanding *or* shame/overwhelm if shared too fast — pace it.
+- **Bordin (1979).** The generalizability of the psychoanalytic concept of the
+  working alliance. *Psychotherapy* 16:252–260. — Alliance = bond + tasks + goals;
+  introducing a tool is an *offered task* — consented it strengthens, imposed it
+  ruptures.
+- **Nelson & Hayes (1981).** Theoretical explanations for reactivity in
+  self-monitoring. *Behavior Modification* 5:3–14. — The act of tracking changes
+  the tracked behavior — keep the map low-salience/low-frequency.
+- **Blease et al. (2021).** Sharing mental-health notes with patients: Delphi
+  study. *PLOS ONE* 16:e0258056. — Benefits likely outweigh risks, but a
+  documentation "chilling effect" is real — keep it person-controlled and hideable.
+- **Wells (2009).** *Metacognitive Therapy for Anxiety and Depression.* Guilford.
+  — Excessive self-monitoring/rumination (the Cognitive Attentional Syndrome) is
+  the *engine* of disorder — more monitoring is not better; the off-switch matters.
+
 ---
 
 ## Digital / chatbot evidence

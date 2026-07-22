@@ -27,7 +27,8 @@ and a distilled memory are saved **locally on their own machine** under
 - `goals.md` — what you've agreed to work toward (alliance: goal consensus).
 - `safety.md` — locale, region-appropriate resources, and any standing safety
   flags. **Never** record means/method details.
-- `MEMORY.md` — a one-line-per-entry index of what's known and where.
+- `MEMORY.md` — a one-line-per-entry index of what's known and where (people, and the
+  [recurring threads](../themes/SKILL.md) that `themes` maintains).
 
 ## The rule of distillation
 

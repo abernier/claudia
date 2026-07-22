@@ -56,11 +56,11 @@ describe("components", () => {
     }
   });
 
-  it("ships exactly the three commands", () => {
+  it("ships exactly the four commands", () => {
     const cmds = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
       .map((p) => path.basename(p))
       .sort();
-    expect(cmds).toEqual(["export.md", "forget.md", "help-now.md"]);
+    expect(cmds).toEqual(["export.md", "forget.md", "help-now.md", "thread.md"]);
   });
 });
 

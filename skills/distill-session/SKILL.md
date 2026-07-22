@@ -21,6 +21,10 @@ conversations actually read.
   or discussed this session, so it isn't raised again.
 - **Safety**: note if a safety flag was raised (kind, and what was offered) —
   never the means/method.
+- **Recurring threads**: if something the person raised has *returned* across
+  sessions, note it as a **candidate theme** — tentative, for `recall` to gently
+  offer next time, never stored as fact until the person ratifies it (see
+  [`themes`](../themes/SKILL.md)).
 
 ## Rules
 
@@ -33,4 +37,6 @@ conversations actually read.
 
 Then update `person.md` / `goals.md` via `remember` if something durable emerged,
 and — if a pattern crystallised or the direction shifted — invoke `understand` to
-revise the working understanding.
+revise the working understanding. If a thread has *recurred*, hand a **candidate
+theme** to [`themes`](../themes/SKILL.md) — tentative, never stored until the person
+ratifies it.

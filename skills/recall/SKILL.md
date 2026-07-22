@@ -24,6 +24,8 @@ If `~/.claudia/` exists, read:
 - `people.md` — the [relationship map](../relationships/SKILL.md): who the
   important people are (Liliana, "your sister"…) and how the person frames each
   bond, so you hold their world in mind.
+- `themes.md` — the [recurring threads](../themes/SKILL.md) across sessions, and any
+  **candidate** thread awaiting the person's ratification. Hold them lightly.
 - The most recent one or two `sessions/*.summary.md` — the distilled thread.
 
 ## What NOT to read
@@ -47,6 +49,11 @@ Let the time layer's `gap_kind` / `since_last` (see your persona's *sense of
 time*) tune the opening's frame — a warm "we were talking late last night…"
 (`overnight`) or "it's been a few days…" (`multi_day`) — without ever counting
 the hours aloud or remarking on *how* the break happened (ADR-0012).
+
+If `distill-session` left a **candidate theme**, recall is the natural moment to
+*offer* it for ratification — gently, as a question ("a thread of X keeps returning —
+does that fit?"), and never on top of a full recital (see [`themes`](../themes/SKILL.md)).
+One thing at a time.
 
 **Skip anything already resolved** — re-raising a settled matter is tiresome.
 Surface **one** thing, not a list. Let recall *inform* your presence, not dominate

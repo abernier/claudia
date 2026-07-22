@@ -61,7 +61,8 @@ The thread this relationship touches → [[trust]], [[boundaries]].
   dismissed when…"), never a label on the other person ("she is …"). Update
   `last_reflected` when it changes.
 - **Link generously but earn each link** (the one-sentence rule). Use `[[wikilinks]]`
-  with `aliases`; link person↔person, person↔session-summary, person↔`[[themes]]`,
+  with `aliases`; link person↔person, person↔session-summary, person↔`[[themes]]`
+  (now backed by the [`themes`](../skills/themes/SKILL.md) layer, ADR-0015),
   person↔`understanding.md`. **Reach a transcript only through its summary.**
 - **Top of every fiche links back to the index** (`MEMORY.md`), which lists people by
   circle and doubles as the memory root.
