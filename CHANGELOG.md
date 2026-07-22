@@ -1,5 +1,73 @@
 # claudia
 
+## 0.2.0
+
+**Digest.** Memory with shape. Claudia gains a living **working understanding** and
+agreed **goals**, **active curiosity** with an offered **intake**, a **relationship
+map** and a cross-linked **person-fiche vault**, a person-led, trauma-informed **life
+timeline**, and **"the thread"** — a person-pulled `/thread` recap within a session and
+recurring **themes** across sessions. Under the hood she also gains a light **sense of
+time** and stays **continuous across resume/compaction**. All local-only, provisional,
+and deletable — on the same non-negotiable safety floor.
+
+### Minor Changes
+
+- 6c5eb62: Rebalance Claudia from reflect-heavy/question-light toward **active, well-dosed
+  curiosity**, and add an offered **`intake`** (ADR-0009). She now asks openly about
+  the person and the people/history behind what they share — reflection-led (~2
+  reflections per question, never 3 in a row, no stacked/"why" questions, signpost
+  why she asks), letting sensitive material emerge. The `intake` skill (invocable by
+  the person via `/intake` and by Claudia when she offers to get acquainted) runs a
+  short, declinable getting-to-know-you that seeds the working understanding.
+  Grounded in the literature (Elliott 2023; Ivey; MI/OARS; Padesky; SAMHSA TIP 57;
+  Chu et al. 2026) in `docs/competencies/curiosity-and-questions.md`.
+- 621298c: Add a **life timeline** (ADR-0014): Claudia can keep the arc of the person's life
+  at `~/.claudia/timeline.md` — both a memory of important events and an offered
+  life-review tool (grounded in the counselling "lifeline", life-review/reminiscence,
+  and narrative re-authoring; _not_ the clinical NIMH mood chart). New `timeline`
+  skill; `intake` and `understand` feed it; events cross-link to person fiches and
+  session notes. Canonical store is a dated, sectioned list holding flexible dates,
+  the person's own titles/valence, and wikilinks; a mermaid `timeline` is an optional
+  "see the shape" view. Strongly trauma-informed: person-led and partial by design,
+  painful events titrated and only if volunteered, never a forced chronological
+  trauma inventory, never inferred, positive events first-class, safety floor first.
+- 9666578: Turn the relationship map into a small **cross-linked vault**: each important
+  person can get a reflective **fiche** at `~/.claudia/people/<name>.md` following a
+  common template (ADR-0011), wiki-linked to other people, session summaries,
+  themes, and the working understanding — reaching a transcript only through its
+  summary. The mermaid graph links each node to its fiche (`click`). Wikilinks are
+  Obsidian-friendly; `/export` runs a pass (`scripts/vault-export.mjs`) that rewrites
+  them to relative links for plain-markdown portability. Guardrail: a fiche is a
+  mirror, not a dossier — the person's own experience, never a verdict or diagnosis
+  about the third party; local, correctable, deletable. Grounded in CCRT, ecomap
+  attributes, and PKM (Zettelkasten/MOC/evergreen).
+- 4d407fe: Claudia can maintain a light **relationship map** of the important people in the
+  person's life (ADR-0010) — an ecomap (who's around them, how each bond feels as
+  they frame it) that grows into a family genogram, rendered in **mermaid** at
+  `~/.claudia/people.md`. It powers continuity (knowing who "Liliana" or "your
+  sister" is) and feeds the working understanding. New `relationships` skill; the
+  `intake` seeds it, `recall` surfaces it. Guardrails: local-only, correctable
+  (shown to check it's right), and strictly **non-judgmental** — it records who
+  people are to the person and their own experience of each bond, never clinical or
+  accusatory labels about others.
+- f24e6b7: Add **the thread** (ADR-0015): person-pulled orientation at two scales, never a leash.
+  Within a session, `/thread` reflects the conversation's through-line as a short
+  _fil-de-sens_ in a dim `※` meta-channel — person-triggered, descriptive-never-directive,
+  ephemeral (prose by default, an optional mermaid "arbre de pensée" on demand). Across
+  sessions, a new `themes` skill sediments the recurring threads — proposed tentatively
+  and ratified by the person, provisional, externalising-not-clinical, holding strengths
+  and exceptions as well as struggles — filling the previously-dangling `[[themes]]` vault
+  seam. Wiring: `distill-session` flags candidates, `recall` surfaces one for
+  ratification, `remember` indexes them. Purely additive (floor/soul/crisis/hooks
+  untouched); cleared by an adversarial safety panel.
+- cf19f7d: Add a **working understanding** — a de-clinicalised, provisional, collaborative
+  theory of the person that adapts Claudia's direction across sessions (ADR-0008).
+  New `understand` skill and `~/.claudia/understanding.md`; `recall` and the persona
+  load it, hold it lightly as a hypothesis, and reflect it back for correction.
+  Transparent, editable, deletable, and anti-dependency by design (it centres the
+  person's own strengths and aims to have them need Claudia _less_). Never a
+  diagnosis or a clinical record.
+
 ## 0.1.0
 
 Initial public release — a warm, generalist companion for reflection and emotional

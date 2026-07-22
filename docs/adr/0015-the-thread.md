@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 ---
 
 # The thread — person-pulled orientation, within and across sessions
