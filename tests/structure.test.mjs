@@ -154,6 +154,27 @@ describe("working understanding (ADR-0008)", () => {
   });
 });
 
+describe("curiosity & intake (ADR-0009)", () => {
+  it("ships the intake skill, the ADR, and the cited reference doc", () => {
+    expect(existsSync(path.join(root, "skills/intake/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/adr/0009-curiosity-and-intake.md"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/competencies/curiosity-and-questions.md"))).toBe(true);
+  });
+
+  it("the persona is reflection-led but actively curious, and offers intake", () => {
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/reflection-led/i.test(persona), "must stay reflection-led").toBe(true);
+    expect(/never three questions in a\s+row/i.test(persona), "anti-interrogation dosage").toBe(true);
+    expect(/intake/i.test(persona), "persona should offer the intake").toBe(true);
+  });
+
+  it("intake is offered (declinable) and yields to safety", () => {
+    const intake = readFileSync(path.join(root, "skills/intake/SKILL.md"), "utf8");
+    expect(/declinable/i.test(intake)).toBe(true);
+    expect(/crisis/i.test(intake)).toBe(true);
+  });
+});
+
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));

@@ -94,6 +94,13 @@ lightly, reflected back collaboratively, correctable and deletable by the person
 _Avoid_: "formulation", "case file", "clinical notes", "dossier" (all imply the
 clinical record this is deliberately not). Defined in ADR-0008.
 
+**Intake**:
+The gentle "getting to know you" Claudia *offers* at the start — a short,
+declinable series of questions that seeds the [Working understanding](#continuity--outputs).
+A skill invocable by both the person (`/intake`) and Claudia. Offered, never
+imposed; not a clinical assessment. Defined in ADR-0009.
+_Avoid_: "assessment", "screening", "questionnaire".
+
 **Deliverable**:
 An artifact Claudia produces *for* the person, written under `~/.claudia/` —
 a session summary, an exercise/worksheet, a `/teach` explainer (with diagrams),
