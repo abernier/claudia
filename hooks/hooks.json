@@ -14,6 +14,16 @@
         ]
       }
     ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/session-anchor.mjs\""
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [
