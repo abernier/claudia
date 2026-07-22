@@ -45,7 +45,7 @@ decisions live as ADRs in [`docs/adr/`](adr/), the vocabulary in
    when a specific technique is indicated (e.g. exposure for anxiety/OCD/PTSD).
 3. **Claude Code plugin runtime shape** —
    [ADR-0003](adr/0003-plugin-runtime-shape.md). Persona is a skill (a plugin's
-   `CLAUDE.md` is not auto-loaded); natural-language-first with only three
+   `CLAUDE.md` is not auto-loaded); natural-language-first with only four
    commands; per-turn safety is a deterministic hook; single-plugin marketplace.
 4. **Two-layer memory under `~/.claudia/`** —
    [ADR-0004](adr/0004-memory-model.md). Working memory (distilled summaries, read

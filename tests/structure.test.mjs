@@ -64,6 +64,37 @@ describe("components", () => {
   });
 });
 
+describe("README stays in sync with the command surface", () => {
+  // The gap that let /thread ship undocumented: commands/ was guarded (above)
+  // and updated, but nothing tied the README's Commands table — or its prose
+  // count — back to it, so the README kept saying "three". These assert that
+  // link, so the docs can't drift on the next command added or removed (the
+  // README must be current before each merge).
+  const commands = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
+    .map((p) => "/" + path.basename(p, ".md"))
+    .sort();
+  const readme = readFileSync(path.join(root, "README.md"), "utf8");
+
+  it("the Commands table lists exactly the shipped commands", () => {
+    const tabled = [...readme.matchAll(/^\|\s*`(\/[a-z-]+)`\s*\|/gm)]
+      .map((m) => m[1])
+      .sort();
+    expect(tabled).toEqual(commands);
+  });
+
+  it("every '<n> commands' count in the prose matches how many ship", () => {
+    const words = ["zero", "one", "two", "three", "four", "five", "six",
+      "seven", "eight", "nine", "ten"];
+    const expected = words[commands.length];
+    expect(expected, `extend words[] past ${commands.length}`).toBeDefined();
+    const counts = [...readme.matchAll(
+      /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:slash\s+)?commands?\b/gi,
+    )].map((m) => m[1].toLowerCase());
+    expect(counts.length, "README should state the command count").toBeGreaterThan(0);
+    for (const w of counts) expect(w).toBe(expected);
+  });
+});
+
 describe("self-authoring (ADR-0006)", () => {
   it("ships the adversarial auditor as a READ-ONLY agent", () => {
     const p = path.join(root, "agents/skill-auditor.md");

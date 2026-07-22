@@ -20,9 +20,10 @@ adapts to the person in front of her.
 - **Immersion with a floor.** Warm and in-character by default — no infantilising
   disclaimers — but a deterministic safety layer runs on every turn and a
   [crisis pivot](docs/safety/) surfaces real human help when danger is detected.
-- **Natural-language first.** Only three slash commands exist (all
-  system/safety/privacy actions). Everything therapeutic happens in ordinary
-  conversation. See [ADR-0003](docs/adr/0003-plugin-runtime-shape.md).
+- **Natural-language first.** Only four slash commands exist — three
+  deterministic data/safety actions plus one pull-only reflection aid.
+  Everything therapeutic happens in ordinary conversation. See
+  [ADR-0003](docs/adr/0003-plugin-runtime-shape.md).
 - **Your data, your machine.** Memory lives under `~/.claudia/` on your own
   computer. Nothing is uploaded. See [ADR-0004](docs/adr/0004-memory-model.md).
 - **Speaks your language.** The codebase is English; Claudia speaks *your*
@@ -30,13 +31,14 @@ adapts to the person in front of her.
 
 ## Commands
 
-Claudia deliberately ships only three commands — the rest is conversation:
+Claudia deliberately ships only four commands — the rest is conversation:
 
 | Command | What it does |
 |---|---|
 | `/help-now` | Immediately surface crisis resources for your region. |
 | `/forget` | Really delete a memory, a session, or everything. |
 | `/export` | Export your memory and deliverables. |
+| `/thread` | Show the thread of the conversation so far — a light, person-pulled reflection you can gather back or keep wandering from. |
 
 ## Install (CLI)
 
@@ -100,7 +102,7 @@ docs/
   safety/         crisis protocol, C-SSRS logic, localized resources, classifier
   bibliography.md the evidence base
 skills/           Claudia's capabilities
-commands/         the three commands
+commands/         the four commands
 hooks/            the per-turn safety hook + session-save hook
 ```
 
