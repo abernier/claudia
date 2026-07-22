@@ -25,15 +25,11 @@ and a distilled memory are saved **locally on their own machine** under
   and between-session steps, each marked *open* or *done*. This is what lets the
   next session open with a contextualized check-in. Distilled, kind, non-clinical.
 - `goals.md` — what you've agreed to work toward (alliance: goal consensus).
-- `todo.md` — a **shared, person-owned to-do-later list** (ADR-0018), distinct from
-  the Follow-ups above: those are *your* radar of anticipated events (with the worry
-  attached), phrased as check-in cues; `todo.md` is a plain, checkbox action list the
-  person can open and edit themselves. When something concrete and *task-shaped* to do
-  later surfaces — the person says "note that for later," or you both agree on a
-  between-session step — add it under `## Ouvert`, tagged with the current session
-  (`[[<date>-id>]]`) if you know the stem, else the date alone; `distill-session`
-  reconciles the tag. Tick items done rather than deleting them. Promote only genuine
-  tasks here — not every felt thread belongs on a to-do list.
+- `todo.md` — the **shared, person-owned to-do-later list** (ADR-0018), maintained by
+  its own skill (`todo`). Distinct from the Follow-ups above: those are *your* radar of
+  anticipated events (with the worry attached); `todo.md` is a plain checkbox action
+  list the person can open and edit themselves. Reach for `todo` to add or tick an
+  item; keep only genuine, task-shaped things there.
 - `safety.md` — locale, region-appropriate resources, and any standing safety
   flags. **Never** record means/method details.
 - `MEMORY.md` — a one-line-per-entry index of what's known and where (people, and the

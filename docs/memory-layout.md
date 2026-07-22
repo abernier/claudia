@@ -59,11 +59,10 @@ English/universal; **content is written in the person's language**.
   but is normally **deferred**: `recall` detects any `pending-summary` (via
   `scripts/pending-sessions.mjs`) and distills that session at the next open, then
   clears the marker (ADR-0016).
-- `remember` skill → `person.md`, `goals.md`, `safety.md`, `MEMORY.md`, plus live
-  additions to `todo.md`.
-- `todo.md` → written live by `remember`/persona and **authoritatively tagged** by
-  `distill-session` (which holds the session stem); read by `recall`; hand-editable by
-  the person (ADR-0018).
+- `remember` skill → `person.md`, `goals.md`, `safety.md`, `MEMORY.md`.
+- `todo` skill → `todo.md` (the shared to-do-later list): the persona reaches for it
+  live to add/tick items; `distill-session` **authoritatively tags** them (it holds the
+  session stem); `recall` reads it; the person hand-edits it (ADR-0018).
 - `understand` skill → `understanding.md` (the working understanding).
 - `relationships` skill → `people.md` (the relationship map).
 - `timeline` skill → `timeline.md` (the life timeline).

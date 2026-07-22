@@ -38,8 +38,9 @@ If `~/.claudia/` exists, read:
 - `MEMORY.md` — the index of what's known.
 - `person.md` — who this person is (context, style, what helps them).
 - `goals.md` — what you're working toward together.
-- `todo.md` — the shared **to-do-later** list (ADR-0018): concrete things either the
-  person or you jotted to pick up later, each tagged with the session that raised it.
+- `todo.md` — the shared **to-do-later** list (ADR-0018; maintained by `todo`):
+  concrete things either the person or you jotted to pick up later, each tagged with
+  the session that raised it.
   Scan `## Ouvert` for one still-open, task-shaped item — a possible gentle nudge for
   the opening. Person-owned: they may have edited or ticked it themselves.
 - `safety.md` — locale and any standing safety flags. **Read this first.**

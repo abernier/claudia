@@ -26,10 +26,16 @@ things to do later. Both parties write to it; the person can open and edit it di
   a candidate for the opening nudge — never a recital, always declinable, skipped if
   resolved. It is the concrete home for the "a step they meant to try" the opening
   already looks for.
+- **A dedicated `todo` skill owns the behavior.** Like every other memory surface
+  (`understand`, `relationships`, `timeline`, `themes`), `todo.md` has its own skill —
+  the discoverable trigger for "note this for later" / "crée une todo," referenced from
+  the persona so it fires mid-conversation. (An earlier revision folded the writes into
+  `remember`; that left the capability untriggerable — the persona never routed to it.)
 - **Written in three places, one of them authoritative:**
-  - *Live* — Claudia (or the person) appends under `## Ouvert` the moment a task
-    surfaces. Mid-session she may not hold the finalized session stem (the archive file
-    is only written at `SessionEnd`), so a live tag may be date-only or absent.
+  - *Live* — the persona reaches for `todo` (or the person appends by hand) under
+    `## Ouvert` the moment a task surfaces. Mid-session she may not hold the finalized
+    session stem (the archive file is only written at `SessionEnd`), so a live tag may
+    be date-only or absent.
   - *Authoritative* — `distill-session` holds the real `<stem>` (it is writing
     `<stem>.summary.md`), so it completes/normalizes tags, promotes this session's
     actionable items, and ticks resolved ones — mirroring the Follow-ups it marks *done*.

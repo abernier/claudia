@@ -55,9 +55,9 @@ rm -f "$HOME/.claudia/sessions/<stem>.pending-summary"
 - The verbatim `<date>.transcript.md` is saved separately by the `SessionEnd` hook
   (`save-session.mjs`) — that is the person's archive, not this.
 
-Then **sync `~/.claudia/todo.md`** (ADR-0018). This is the *authoritative* place to
-tag it: you hold the real session stem here (the `<stem>` you just wrote), which a
-live addition mid-conversation may not have had. Promote this session's concrete,
+Then **sync `~/.claudia/todo.md`** via `todo` (ADR-0018). This is the *authoritative*
+place to tag it: you hold the real session stem here (the `<stem>` you just wrote),
+which a live addition mid-conversation may not have had. Promote this session's concrete,
 *task-shaped* to-do-later items into `## Ouvert`, tagged `[[<stem>]]`; complete any
 provisional or date-only tag a live addition left behind; and tick `[x]` anything this
 session resolved (mirroring the Follow-ups you marked *done*). Promote genuine tasks,
