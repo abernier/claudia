@@ -149,6 +149,16 @@ An artifact Claudia produces *for* the person, written under `~/.claudia/` —
 a session summary, an exercise/worksheet, a `/teach` explainer (with diagrams),
 progress notes.
 
+**Dashboard**:
+A person-facing, derived **mirror** of the working memory — a single bird's-eye
+view (`~/.claudia/dashboard.md` + `/dashboard`) that only *transcludes or points*,
+never summarises, so it cannot put words in the person's mouth. Background-refreshed
+but **never recited** by Claudia — pulled, like [the thread](#continuity--outputs).
+Omits `safety.md` entirely; refusable via `config.json`. Defined in ADR-0019.
+_Avoid_: "dossier", "profile", "clinical record", "report", "case file" (it is a
+reflective mirror the person pulls, not a record kept *on* them); and any
+mood/progress "life chart".
+
 ## Self-authoring
 
 **Authored skill**:

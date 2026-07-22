@@ -56,11 +56,11 @@ describe("components", () => {
     }
   });
 
-  it("ships exactly the four commands", () => {
+  it("ships exactly the five commands", () => {
     const cmds = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
       .map((p) => path.basename(p))
       .sort();
-    expect(cmds).toEqual(["export.md", "forget.md", "help-now.md", "thread.md"]);
+    expect(cmds).toEqual(["dashboard.md", "export.md", "forget.md", "help-now.md", "thread.md"]);
   });
 });
 
@@ -286,6 +286,48 @@ describe("to-do-later surface (ADR-0018)", () => {
   it("recall reads it and memory-layout records it", () => {
     expect(/todo\.md/.test(readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8"))).toBe(true);
     expect(/todo\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+  });
+});
+
+describe("dashboard mirror (ADR-0019)", () => {
+  it("ships the command, the script, the pure module, and the ADR", () => {
+    expect(existsSync(path.join(root, "commands/dashboard.md"))).toBe(true);
+    expect(existsSync(path.join(root, "scripts/build-dashboard.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "src/dashboard.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/adr/0019-dashboard.md"))).toBe(true);
+  });
+
+  it("is rebuilt at SessionEnd and at the tail of recall (a zero-lag mirror)", () => {
+    const h = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
+    expect(/build-dashboard\.mjs/.test(JSON.stringify(h.hooks.SessionEnd)), "SessionEnd should rebuild it").toBe(true);
+    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    expect(/build-dashboard\.mjs/.test(recall), "recall should rebuild after deferred distillation").toBe(true);
+  });
+
+  it("is a mirror that transcludes or points — never summarises prose", () => {
+    const adr = readFileSync(path.join(root, "docs/adr/0019-dashboard.md"), "utf8");
+    expect(/never summarise|linked, never excerpted/i.test(adr)).toBe(true);
+    const mod = readFileSync(path.join(root, "src/dashboard.mjs"), "utf8");
+    expect(/transclude/i.test(mod) && /never/i.test(mod)).toBe(true);
+  });
+
+  it("never mirrors safety.md (no risk profile at a glance)", () => {
+    const adr = readFileSync(path.join(root, "docs/adr/0019-dashboard.md"), "utf8");
+    expect(/deliberately absent/i.test(adr)).toBe(true);
+    const script = readFileSync(path.join(root, "scripts/build-dashboard.mjs"), "utf8");
+    expect(/"safety\.md"/.test(script), "the builder must not read safety.md").toBe(false);
+  });
+
+  it("is disclosed once (remember) and refusable via config.json", () => {
+    expect(/dashboard/i.test(readFileSync(path.join(root, "skills/remember/SKILL.md"), "utf8"))).toBe(true);
+    expect(/cfg\.dashboard === false/.test(readFileSync(path.join(root, "scripts/build-dashboard.mjs"), "utf8"))).toBe(true);
+  });
+
+  it("is recorded in the memory layout and the glossary (non-dossier)", () => {
+    expect(/dashboard\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+    const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
+    expect(/\*\*Dashboard\*\*/.test(ctx)).toBe(true);
+    expect(/_Avoid_.*(dossier|profile|clinical)/i.test(ctx)).toBe(true);
   });
 });
 

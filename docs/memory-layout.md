@@ -6,8 +6,9 @@ English/universal; **content is written in the person's language**.
 
 ```
 ~/.claudia/
-├── config.json          optional — e.g. { "saveTranscripts": false } to opt out of verbatim archive
+├── config.json          optional — e.g. { "saveTranscripts": false }, { "dashboard": false } to opt out
 ├── MEMORY.md            one-line-per-entry index of what Claudia knows and where
+├── dashboard.md         derived, person-facing mirror — bird's-eye view; transcludes or points, never summarises (ADR-0019)
 ├── person.md            distilled, evolving model of the person (context, what helps, style)
 ├── goals.md             agreed therapy goals (alliance: goal consensus)
 ├── todo.md              shared to-do-later list — status-grouped, session-tagged, person-editable (ADR-0018)
@@ -40,6 +41,10 @@ English/universal; **content is written in the person's language**.
 
 ## Invariants
 
+- **`dashboard.md` is a derived view, not a source** — a mirror of the files above,
+  rebuilt deterministically; **`recall` reads the sources, never the mirror**. It only
+  transcludes or links (never summarises), omits `safety.md` entirely, and is refusable
+  via `config.json` (ADR-0019).
 - **Recall reads the working layer only** — never a raw transcript (context
   economy, avoid re-exposing crisis content, limit dependency). See `recall`.
 - **Summaries are distilled, never verbatim**, and respect the safety floor (no
@@ -69,3 +74,7 @@ English/universal; **content is written in the person's language**.
 - `themes` skill → `themes.md`, `themes/` (recurring threads; `distill-session` flags
   candidates, `recall` surfaces them for the person to ratify).
 - `teach` / `exercise` skills → `teachings/`, `exercises/`.
+- `scripts/build-dashboard.mjs` → `dashboard.md`, the derived mirror (ADR-0019). Runs at
+  `SessionEnd` (after `save-session`) and at the tail of `recall` (after deferred
+  distillation), and on demand via `/dashboard`. Reads the working files, transcludes or
+  links, never summarises; respects `{ "dashboard": false }`.

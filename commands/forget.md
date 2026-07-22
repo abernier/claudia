@@ -19,7 +19,14 @@ right and it must be reliable.
    Name exactly what will be removed.
 3. Delete it for real from `~/.claudia/` (and update `MEMORY.md` so the index no
    longer references it).
-4. Confirm gently what was removed. Do not editorialise or resist the person's
+4. If anything survived (a **partial** delete — a single session or a topic),
+   rebuild the dashboard mirror so it no longer reflects what was erased (ADR-0019).
+   On "everything", it is gone with the directory, so skip this.
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"
+   ```
+5. Confirm gently what was removed. Do not editorialise or resist the person's
    choice — deletion is theirs.
 
 Never delete without the explicit confirmation in step 2.

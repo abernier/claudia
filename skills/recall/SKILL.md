@@ -31,6 +31,13 @@ your presence — never announce "I'm distilling your last session." (This is th
 sanctioned path by which a past transcript is read, and it is `distill-session`'s job, not
 recall's — recall itself still never reads one for continuity.)
 
+Once any catch-up distillation is done, refresh the person's dashboard mirror so it reflects
+the newest summary (ADR-0019) — deterministic, silent, never recited:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"
+```
+
 ## What to read (working memory only)
 
 If `~/.claudia/` exists, read:
