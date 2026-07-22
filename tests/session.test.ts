@@ -76,9 +76,8 @@ describe("isClaudiaSession()", () => {
   });
   it("false when the persona text only appears inside a tool_result (a dev session reading the file)", () => {
     const jsonl = userMsg([
-      // `as unknown as`: a tool_result whose nested content is a raw *string* — deliberately outside ContentBlock's
-      // declared shape (content?: ContentBlock[]); the gate must not read inside it.
-      { type: "tool_result", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia" } as unknown as ContentBlock,
+      // A tool_result whose nested content is a raw *string* — a real transcript shape; the gate must not read inside it.
+      { type: "tool_result", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia" },
     ]);
     expect(isClaudiaSession(jsonl)).toBe(false);
   });
@@ -162,5 +161,9 @@ describe("resolveTranscriptPath()", () => {
   });
   it("returns null when there is nothing to go on", () => {
     expect(resolveTranscriptPath({}, "/home")).toBeNull();
+  });
+  it("tolerates a null / undefined payload, symmetric with sessionIdFrom()", () => {
+    expect(resolveTranscriptPath(null, "/home/x")).toBeNull();
+    expect(resolveTranscriptPath(undefined, "/home/x")).toBeNull();
   });
 });

@@ -76,10 +76,11 @@ function rewriteFile(content, rel, index) {
       if (name.includes("<") || name.includes(">")) return "[<stem>](sessions/<stem>.summary.md)";
       let targetRel;
       if (SESSION.test(name)) targetRel = `sessions/${name}.summary.md`;
-      else if (index.has(name)) targetRel = /** @type {string} */ (index.get(name)); // has(name) guarantees present
       else {
-        if (base === "themes.md") return display; // define-site → plain text, not a self-link
-        targetRel = "themes.md";
+        const hit = index.get(name);
+        if (hit !== undefined) targetRel = hit;
+        else if (base === "themes.md") return display; // define-site → plain text, not a self-link
+        else targetRel = "themes.md";
       }
       let dest = relTo(fromDir, targetRel);
       dest = /\s/.test(dest) ? `<${dest}${anchor}>` : `${dest}${anchor}`;

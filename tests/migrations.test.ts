@@ -1,7 +1,9 @@
 import { describe, it, expect, afterEach } from "vitest";
+import { spawnSync } from "node:child_process";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { migrations } from "../src/migrations/index.mjs";
 import { migrate, id } from "../src/migrations/0001-wikilinks-to-relative.mjs";
 import { runMigrations } from "../scripts/migrate-vault.mjs";
@@ -169,5 +171,64 @@ describe("runMigrations() — the fs runner", () => {
   it("reports absent when the vault does not exist", async () => {
     const r = await runMigrations({ root: path.join(os.tmpdir(), "claudia-does-not-exist-xyz") });
     expect(r.status).toBe("absent");
+  });
+
+  // The registry is injectable (test seam) so we can exercise the runner against a
+  // migration shape the real registry does not have yet: one that CREATES a file.
+  const creator = {
+    id: "9999-create-greeting",
+    description: "fake migration that creates a file absent from the vault",
+    migrate: (): Record<string, string> => ({ "greeting.md": "hello\n" }),
+  };
+
+  it("dry-run renders a created file as pure additions (before is the empty string)", async () => {
+    const { root } = await makeVault({ "MEMORY.md": "hi\n" });
+    const r = await runMigrations({ root, dry: true, migrations: [creator] });
+    expect(r.status).toBe("dry");
+    expect(r.diffs).toEqual([{ rel: "greeting.md", before: "", after: "hello\n" }]);
+    expect(await has(root, "greeting.md")).toBe(false); // dry run writes nothing
+  });
+
+  it("applies a migration that creates a file, backing the vault up first", async () => {
+    const { root } = await makeVault({ "MEMORY.md": "hi\n" });
+    const r = await runMigrations({ root, migrations: [creator] });
+    expect(r.status).toBe("applied");
+    expect(await read(root, "greeting.md")).toBe("hello\n");
+    expect((await read(root, ".migrations")).trim()).toBe("9999-create-greeting");
+    // The backup snapshot predates the write: it holds the original vault and NOT the
+    // created file — proof the backup was taken before any change landed.
+    expect(r.backup).toBeTruthy();
+    expect(await read(r.backup!, "MEMORY.md")).toBe("hi\n"); // (`!` safe: toBeTruthy above)
+    expect(await has(r.backup!, "greeting.md")).toBe(false);
+  });
+});
+
+describe("migrate-vault CLI — failure after the backup", () => {
+  const parents: string[] = [];
+  afterEach(async () => {
+    for (const p of parents.splice(0)) await fs.rm(p, { recursive: true, force: true });
+  });
+
+  it("exits 1 with a plain restore hint instead of an unhandled rejection", async () => {
+    const parent = await fs.mkdtemp(path.join(os.tmpdir(), "claudia-"));
+    parents.push(parent);
+    const root = path.join(parent, ".claudia");
+    await fs.mkdir(root, { recursive: true });
+    await fs.writeFile(path.join(root, "MEMORY.md"), "- [[Liliana]]\n");
+    // `.migrations` as a *directory*: readLedger tolerates it (EISDIR → empty ledger), so
+    // the run proceeds — backup, rewrite — then the post-apply ledger write throws EISDIR.
+    // That reproduces a failure AFTER the backup exists, mid-way through the apply path.
+    await fs.mkdir(path.join(root, ".migrations"));
+
+    const script = fileURLToPath(new URL("../scripts/migrate-vault.mjs", import.meta.url));
+    const r = spawnSync(process.execPath, [script, root], { encoding: "utf8" });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain("Migration failed");
+    expect(r.stderr).toContain("partially migrated");
+    expect(r.stderr).toContain(".bak-"); // points at the restorable backup folder
+    // Hedged phrasing: a failure can also land BEFORE fs.cp, where no backup exists —
+    // the message must never assert one does.
+    expect(r.stderr).toContain("If a folder named");
+    expect(r.stderr).not.toContain("UnhandledPromiseRejection");
   });
 });

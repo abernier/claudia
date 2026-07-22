@@ -51,11 +51,14 @@ async function walk(dir, base = dir) {
   return out;
 }
 
+// Resolved before main() runs so the failure handler below can name the
+// destination — a mid-copy error leaves files there, and the person needs to
+// know where that untrustworthy partial tree lives.
+const src = process.argv[2] || path.join(os.homedir(), ".claudia");
+const dest = process.argv[3] || path.join(os.homedir(), "Desktop", `claudia-export-${stamp()}`);
+
 /** @returns {Promise<void>} */
 async function main() {
-  const src = process.argv[2] || path.join(os.homedir(), ".claudia");
-  const dest = process.argv[3] || path.join(os.homedir(), "Desktop", `claudia-export-${stamp()}`);
-
   const files = await walk(src);
   if (!files.length) {
     console.log(`Nothing to export at ${src}`);
@@ -73,4 +76,11 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(() => process.exit(0));
+main().catch((/** @type {unknown} */ err) => {
+  // /export is user-invoked: exiting 0 here would pass an interrupted copy off
+  // as a complete backup. Say what broke and where the partial tree landed.
+  const why = err instanceof Error ? err.message : String(err);
+  console.error(`Export failed: ${why}`);
+  console.error(`A partial copy may exist at ${dest} — don't trust it as a complete export.`);
+  process.exit(1);
+});

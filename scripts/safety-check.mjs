@@ -68,7 +68,8 @@ function classifyWithModel(text) {
 
 /**
  * Emit the UserPromptSubmit hook output that injects the escalation note.
- * @param {string | null} reason - Why we escalated (a SafetyDecision reason).
+ * @param {string} reason - Why we escalated. Always a string: SafetyDecision is
+ *   discriminated on `escalate`, so the `if (escalate)` call site narrows it.
  * @returns {void}
  */
 function emitEscalation(reason) {

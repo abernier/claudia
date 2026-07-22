@@ -2,11 +2,13 @@
 /**
  * Claudia — list sessions that were archived but never distilled.
  *
- * Prints one `YYYY-MM-DD` per line, oldest first; prints nothing when there is
- * nothing to catch up on. The `recall` skill runs this at the start of a
- * conversation to distill any session whose close was too abrupt to run
- * `distill-session` live (ADR-0016). Detection is deterministic (this script);
- * the distillation itself is the model's job.
+ * Prints one session stem per line, oldest first; prints nothing when there is
+ * nothing to catch up on. A stem is the archive key (ADR-0017): `<date>-<shortId>`
+ * for session-keyed archives, plain `<date>` only for legacy date-keyed ones.
+ * The `recall` skill runs this at the start of a conversation to distill any
+ * session whose close was too abrupt to run `distill-session` live (ADR-0016).
+ * Detection is deterministic (this script); the distillation itself is the
+ * model's job.
  *
  * Benign layer: FAILS SILENT — on any error or a missing directory it prints
  * nothing and exits 0, never blocking recall.
@@ -28,7 +30,7 @@ async function main() {
     } catch {
       return process.exit(0); // no sessions dir yet → nothing pending
     }
-    for (const date of pendingSessions(names)) process.stdout.write(date + "\n");
+    for (const stem of pendingSessions(names)) process.stdout.write(stem + "\n");
   } catch {
     /* fail silent */
   }

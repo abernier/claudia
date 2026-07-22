@@ -26,8 +26,10 @@ export const UNCERTAIN = [
 ];
 
 /**
- * Outcome of the synchronous first pass.
- * @typedef {{ band: 'clear'|'uncertain'|'safe', reason: string|null }} HeuristicResult
+ * Outcome of the synchronous first pass. Discriminated: any non-safe band
+ * carries a concrete reason string (decide() forwards it as an escalation
+ * reason, which must be a string — see SafetyDecision).
+ * @typedef {{ band: 'clear'|'uncertain', reason: string } | { band: 'safe', reason: null }} HeuristicResult
  */
 
 /**
@@ -45,7 +47,8 @@ export function heuristic(text) {
 
 /**
  * The context note injected into the turn when we escalate.
- * @param {string|null} reason - Why we escalated (a SafetyDecision reason).
+ * @param {string} reason - Why we escalated (an escalating SafetyDecision always
+ *   carries a string reason — the discriminated union guarantees it).
  * @returns {string}
  */
 export function escalationContext(reason) {
@@ -60,8 +63,10 @@ export function escalationContext(reason) {
 
 /**
  * Verdict parsed from the model classifier's output. Model output is untrusted,
- * so every field stays optional.
- * @typedef {{ risk?: 'none'|'elevated'|'imminent', category?: string }} ClassifierVerdict
+ * so every field stays optional AND `risk` is a plain string: the model can emit
+ * anything ("IMMINENT", "unknown", …) and decide() only trusts what it can
+ * normalize to a recognized value.
+ * @typedef {{ risk?: string, category?: string }} ClassifierVerdict
  */
 
 /**
@@ -70,8 +75,11 @@ export function escalationContext(reason) {
  */
 
 /**
- * The final call: whether to escalate this turn, and why.
- * @typedef {{ escalate: boolean, reason: string|null }} SafetyDecision
+ * The final call: whether to escalate this turn, and why. Discriminated on
+ * `escalate` so an escalation can never lack a reason and a non-escalation can
+ * never carry one — callers narrow on `escalate` and pass `reason` straight to
+ * escalationContext() without a null check.
+ * @typedef {{ escalate: true, reason: string } | { escalate: false, reason: null }} SafetyDecision
  */
 
 /**
@@ -91,11 +99,16 @@ export async function decide(text, { modelClassifierEnabled = false, classifyWit
   if (modelClassifierEnabled && classifyWithModel) {
     const res = await classifyWithModel(text);
     if (!res || !res.ok) return { escalate: true, reason: "uncertain, classifier unavailable — failing safe" };
-    const risk = res.verdict?.risk;
+    // The verdict is untrusted model text: normalize before matching so
+    // "IMMINENT" or " elevated " still read as risk instead of falling through.
+    const risk = String(res.verdict?.risk ?? "").trim().toLowerCase();
     if (risk === "imminent" || risk === "elevated") {
       return { escalate: true, reason: `model:${risk}:${res.verdict?.category || "?"}` };
     }
-    return { escalate: false, reason: null };
+    // Only an explicit, recognized "none" may clear an uncertain message. Any
+    // other value (typo, schema drift, empty verdict) counts as NO verdict.
+    if (risk === "none") return { escalate: false, reason: null };
+    return { escalate: true, reason: "uncertain, unrecognized classifier verdict — failing safe" };
   }
   return { escalate: true, reason: "veiled distress (model classifier off)" };
 }

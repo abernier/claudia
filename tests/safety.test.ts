@@ -75,6 +75,54 @@ describe("decide()", () => {
     expect(r.escalate).toBe(true);
     expect(r.reason).toContain("failing safe");
   });
+
+  // Model output is untrusted text — the verdict check must normalize case and
+  // whitespace, and anything it does not recognize must fail SAFE (escalate),
+  // never silently read as "no risk".
+  it('uncertain + model says "IMMINENT" (uppercase) → escalates', async () => {
+    const r = await decide("I can't go on anymore", {
+      modelClassifierEnabled: true,
+      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: { risk: "IMMINENT", category: "suicide" } }),
+    });
+    expect(r.escalate).toBe(true);
+    expect(r.reason).toBe("model:imminent:suicide");
+  });
+
+  it('uncertain + model says "Elevated " (case + whitespace) → escalates', async () => {
+    const r = await decide("I can't go on anymore", {
+      modelClassifierEnabled: true,
+      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: { risk: "Elevated " } }),
+    });
+    expect(r.escalate).toBe(true);
+    expect(r.reason).toBe("model:elevated:?");
+  });
+
+  it('uncertain + model says "NONE" (uppercase) → silent, it normalizes to a recognized clear verdict', async () => {
+    const r = await decide("I can't go on anymore", {
+      modelClassifierEnabled: true,
+      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: { risk: "NONE" } }),
+    });
+    expect(r.escalate).toBe(false);
+    expect(r.reason).toBe(null);
+  });
+
+  it("uncertain + unrecognized verdict value → fail-safe escalate", async () => {
+    const r = await decide("I can't go on anymore", {
+      modelClassifierEnabled: true,
+      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: { risk: "unknown" } }),
+    });
+    expect(r.escalate).toBe(true);
+    expect(r.reason).toContain("failing safe");
+  });
+
+  it("uncertain + empty verdict object → fail-safe escalate", async () => {
+    const r = await decide("I can't go on anymore", {
+      modelClassifierEnabled: true,
+      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: {} }),
+    });
+    expect(r.escalate).toBe(true);
+    expect(r.reason).toContain("failing safe");
+  });
 });
 
 describe("escalationContext()", () => {

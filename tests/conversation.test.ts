@@ -9,7 +9,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { decide } from "../src/safety.mjs";
-import { renderMarkdown, isClaudiaSession, type TranscriptEntry } from "../src/session.mjs";
+import { renderMarkdown, isClaudiaSession, type ContentBlock, type TranscriptEntry } from "../src/session.mjs";
 
 /** One scripted turn: what the person says, and whether safety must pivot on it. */
 type ScriptedTurn = { user: string; escalate: boolean };
@@ -64,10 +64,10 @@ describe("simulated conversation — archiving", () => {
   it("does NOT archive a dev session that merely READS the claudia skill (persona text in a tool_result)", () => {
     const devReadingSkill = ([
       { type: "user", message: { role: "user", content: "dans ~/.claudia je ne vois pas les fichiers md" } },
-      // Cast: real tool_use blocks carry name/input beyond the deliberately-minimal ContentBlock typedef.
-      { type: "assistant", message: { role: "assistant", content: [{ type: "tool_use", name: "Read", input: {} }] } } as unknown as TranscriptEntry,
-      // Cast: deliberately off-model — a real tool_result can hold its content as a raw STRING (the typedef models nested blocks only); persona text there must NOT trip the gate.
-      { type: "user", message: { role: "user", content: [{ type: "tool_result", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia\nYour identity is below." }] } } as unknown as TranscriptEntry,
+      // `as`: real tool_use blocks carry name/input beyond the deliberately-minimal ContentBlock typedef.
+      { type: "assistant", message: { role: "assistant", content: [{ type: "tool_use", name: "Read", input: {} } as ContentBlock] } },
+      // A real tool_result can hold its content as a raw STRING; persona text there must NOT trip the gate.
+      { type: "user", message: { role: "user", content: [{ type: "tool_result", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia\nYour identity is below." }] } },
     ] satisfies TranscriptEntry[])
       .map((o) => JSON.stringify(o))
       .join("\n");

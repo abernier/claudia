@@ -24,7 +24,7 @@ export function projectDirFor(cwd) {
  * @property {string} [type]  "text" | "image" | "tool_result" | anything else (ignored)
  * @property {string} [text]  present on text blocks
  * @property {{ type?: string, media_type?: string, data?: string }} [source]  present on image blocks (base64)
- * @property {ContentBlock[]} [content]  present on tool_result blocks (nested one level)
+ * @property {string | ContentBlock[]} [content]  present on tool_result blocks — nested blocks, or a raw string in real transcripts (hence the Array.isArray narrowing)
  */
 
 /**
@@ -246,12 +246,14 @@ export function renderMarkdown(jsonl, dateStamp, { assetsDir = "assets" } = {}) 
 /**
  * Resolve the transcript path from a hook payload: honour any provided field,
  * else self-locate from session id + cwd under the given home directory.
- * Returns null when it cannot be resolved.
- * @param {TranscriptHookPayload} payload
+ * Returns null when it cannot be resolved — including a missing payload
+ * altogether, symmetric with `sessionIdFrom` (hooks parse external stdin).
+ * @param {TranscriptHookPayload | null | undefined} payload
  * @param {string} homedir  the base under which `.claude/projects` lives
  * @returns {string | null}
  */
 export function resolveTranscriptPath(payload, homedir) {
+  if (!payload) return null;
   const direct = payload.transcript_path || payload.transcriptPath || payload.transcript;
   if (direct) return direct;
   if (payload.session_id && payload.cwd) {

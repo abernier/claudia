@@ -17,8 +17,9 @@
  * Usage: node scripts/migrate-vault.mjs [--dry] [vaultDir]
  *   default vaultDir = ~/.claudia
  *
- * `runMigrations({ root, dry })` is exported (pure-ish: only touches the given vault) so
- * it can be tested against a fixture directory.
+ * `runMigrations({ root, dry, migrations })` is exported (pure-ish: only touches the
+ * given vault) so it can be tested against a fixture directory, with `migrations`
+ * injectable to exercise registry shapes the real list does not have yet.
  */
 import { promises as fs } from "node:fs";
 import os from "node:os";
@@ -86,7 +87,7 @@ async function appendLedger(root, ids) {
  * One changed file in a dry-run preview: full before/after content.
  * @typedef {object} MigrationDiff
  * @property {string} rel  vault-relative POSIX path
- * @property {string} before  content on disk
+ * @property {string} before  content on disk; empty string for a file the migration creates
  * @property {string} after  content the migrations would write
  */
 
@@ -99,10 +100,12 @@ async function appendLedger(root, ids) {
  */
 
 /**
- * @param {{root: string, dry?: boolean}} opts
+ * @param {{root: string, dry?: boolean, migrations?: ReadonlyArray<import("../src/migrations/index.mjs").Migration>}} opts
+ *   `migrations` is a test seam: defaults to the real registry, overridable so tests can
+ *   run the fs machinery against fabricated migrations (e.g. one that creates a file).
  * @returns {Promise<MigrationRunResult>}
  */
-export async function runMigrations({ root, dry = false }) {
+export async function runMigrations({ root, dry = false, migrations: list = migrations }) {
   try {
     await fs.access(root);
   } catch {
@@ -110,7 +113,7 @@ export async function runMigrations({ root, dry = false }) {
   }
 
   const applied = await readLedger(root);
-  const pending = migrations.filter((m) => !applied.has(m.id));
+  const pending = list.filter((m) => !applied.has(m.id));
   if (!pending.length) return { status: "noop", ran: [], changed: [], backup: null };
 
   // Load markdown files (never the verbatim transcripts) into a { rel: content } map.
@@ -130,10 +133,10 @@ export async function runMigrations({ root, dry = false }) {
   const changed = Object.keys(files).filter((rel) => files[rel] !== original[rel]);
 
   if (dry) {
-    // The `before` cast holds while every migration only rewrites existing files. A
-    // migration that *creates* a file would surface `undefined` here — printDiffs must
-    // learn to render "new file" before such a migration ships.
-    const diffs = changed.map((rel) => ({ rel, before: /** @type {string} */ (original[rel]), after: /** @type {string} */ (files[rel]) }));
+    // A file a migration *creates* has no on-disk original: `original[rel]` is undefined
+    // there, and `?? ""` maps it to the empty string so printDiffs renders the whole file
+    // as pure additions — exactly what "new file" should look like in a preview.
+    const diffs = changed.map((rel) => ({ rel, before: original[rel] ?? "", after: /** @type {string} */ (files[rel]) }));
     return { status: changed.length ? "dry" : "nochange", ran, changed, backup: null, diffs };
   }
 
@@ -178,27 +181,41 @@ async function main() {
   const dry = argv.includes("--dry");
   const root = argv.find((a) => !a.startsWith("--")) || path.join(os.homedir(), ".claudia");
 
-  const r = await runMigrations({ root, dry });
-  switch (r.status) {
-    case "absent":
-      console.log(`Nothing to migrate at ${root}.`);
-      break;
-    case "noop":
-      console.log("✓ Vault up to date (nothing to migrate).");
-      break;
-    case "nochange":
-      if (dry) console.log(`DRY-RUN — nothing would change; would mark applied: ${r.ran.join(", ")}.`);
-      else console.log(`✓ Already in target form. Marked applied: ${r.ran.join(", ")} (no backup needed).`);
-      break;
-    case "dry":
-      printDiffs(r.diffs);
-      console.log(`\nDRY-RUN — would migrate ${r.changed.length} file(s) via: ${r.ran.join(", ")}.`);
-      break;
-    case "applied":
-      console.log(`✓ Migrated ${r.changed.length} file(s) via ${r.ran.join(", ")}.\n  Backup: ${r.backup}`);
-      break;
+  // A failure can land mid-apply — after the backup, between file writes — so an
+  // unhandled rejection here would leave the user staring at a stack trace with a
+  // half-migrated vault. Catch it and say the one thing that matters: how to restore.
+  try {
+    const r = await runMigrations({ root, dry });
+    switch (r.status) {
+      case "absent":
+        console.log(`Nothing to migrate at ${root}.`);
+        break;
+      case "noop":
+        console.log("✓ Vault up to date (nothing to migrate).");
+        break;
+      case "nochange":
+        if (dry) console.log(`DRY-RUN — nothing would change; would mark applied: ${r.ran.join(", ")}.`);
+        else console.log(`✓ Already in target form. Marked applied: ${r.ran.join(", ")} (no backup needed).`);
+        break;
+      case "dry":
+        printDiffs(r.diffs);
+        console.log(`\nDRY-RUN — would migrate ${r.changed.length} file(s) via: ${r.ran.join(", ")}.`);
+        break;
+      case "applied":
+        console.log(`✓ Migrated ${r.changed.length} file(s) via ${r.ran.join(", ")}.\n  Backup: ${r.backup}`);
+        break;
+    }
+    process.exit(0);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(
+      `✗ Migration failed: ${msg}\n` +
+        `  The vault at ${root} may be partially migrated.\n` +
+        `  If a folder named ${root.replace(/\/+$/, "")}.bak-<timestamp> exists next to it, it is a full\n` +
+        `  pre-migration backup taken before any change — restore by copying it back over ${root}.`,
+    );
+    process.exit(1);
   }
-  process.exit(0);
 }
 
 // Run only when invoked directly, not on import (tests import runMigrations).
