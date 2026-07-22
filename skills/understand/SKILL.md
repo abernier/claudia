@@ -22,7 +22,8 @@ crystallises, or at close. Most turns don't need it.
 - **Where we're heading together** — the shared focus/direction (the "axis"),
   tied to `goals.md`.
 - **Context that matters** — their world: key people, work, the history they've
-  shared (this also powers warm, contextualised openings).
+  shared (this also powers warm, contextualised openings); the deeper life arc
+  lives in the [`timeline`](../timeline/SKILL.md).
 
 ## Rules
 

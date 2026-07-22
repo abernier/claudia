@@ -217,6 +217,25 @@ describe("person fiches (ADR-0011)", () => {
   });
 });
 
+describe("life timeline (ADR-0012)", () => {
+  it("ships the timeline skill and the ADR", () => {
+    expect(existsSync(path.join(root, "skills/timeline/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/adr/0012-life-timeline.md"))).toBe(true);
+  });
+
+  it("is person-led, trauma-informed; dated-list canonical, mermaid optional", () => {
+    const skill = readFileSync(path.join(root, "skills/timeline/SKILL.md"), "utf8");
+    expect(/never force/i.test(skill), "never force a chronological trauma inventory").toBe(true);
+    expect(/never infer/i.test(skill), "never infer unstated events").toBe(true);
+    expect(/sectioned list/i.test(skill), "dated sectioned list is canonical").toBe(true);
+    expect(/optional/i.test(skill) && /mermaid/i.test(skill), "mermaid is an optional view").toBe(true);
+  });
+
+  it("is recorded in the memory layout", () => {
+    expect(/timeline\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+  });
+});
+
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));

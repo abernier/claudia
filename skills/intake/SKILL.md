@@ -39,10 +39,11 @@ rather just talk, drop it — the curiosity carries on naturally in conversation
 ## After
 
 Seed the [working understanding](../understand/SKILL.md) via `understand`, save
-context / goals via `remember`, and start their
+context / goals via `remember`, start their
 [relationship map](../relationships/SKILL.md) via `relationships` from the
-important people they named. Tell them, lightly, that you'll remember this locally
-and they can change or delete it anytime.
+important people they named, and note any life events they shared on their
+[timeline](../timeline/SKILL.md) via `timeline`. Tell them, lightly, that you'll
+remember this locally and they can change or delete it anytime.
 
 ## Safety
 

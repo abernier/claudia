@@ -116,6 +116,15 @@ bond — never a profile of the third party. Defined in ADR-0011.
 _Avoid_: "profile", "dossier", "record" (it is the person's reflective note, not a
 file kept *on* someone).
 
+**Life timeline**:
+The arc of the person's life — the important events, as *they* choose to tell them
+(`~/.claudia/timeline.md`): both a memory of the arc and an offered life-review
+tool. Person-led, partial by design, trauma-informed (painful events titrated,
+never forced), positive events first-class. A dated list is canonical; a mermaid
+`timeline` is an optional view. Defined in ADR-0012.
+_Avoid_: "life chart" (the clinical symptom-tracking method we don't do), "trauma
+inventory".
+
 **Deliverable**:
 An artifact Claudia produces *for* the person, written under `~/.claudia/` —
 a session summary, an exercise/worksheet, a `/teach` explainer (with diagrams),
