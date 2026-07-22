@@ -1,5 +1,38 @@
 # claudia
 
+## 0.4.0
+
+### Minor Changes
+
+- a1383eb: Add a person-facing **dashboard** — `~/.claudia/dashboard.md` + `/dashboard` (ADR-0019):
+  a single bird's-eye view of where things are (goals, live themes, what's to pick up,
+  your people, recent threads). It is a **derived mirror**, never a source of truth: a
+  deterministic script (`scripts/build-dashboard.mjs` → `src/dashboard.mjs`) only
+  **transcludes** what a working file already says or **points** to it with a relative
+  markdown link — it never summarises, so it cannot put words in the person's mouth (the working
+  understanding and each session summary are linked, never excerpted; wrapped bullets are
+  kept whole). Kept fresh in the background (rebuilt at `SessionEnd` and at the tail of
+  `recall`, after any deferred distillation) so it can be opened directly, yet Claudia
+  **never recites it**. `safety.md` is deliberately absent (no risk profile at a glance;
+  that net lives in the safety hook and `/help-now`), and there is no mood/progress chart.
+  Disclosed once via `remember`'s first-run note, refusable via `{ "dashboard": false }` in
+  `config.json`, rebuilt by `/forget` after a partial delete, and carried by `/export`.
+  Recorded in the `docs/memory-layout.md` contract. The command surface grows from four to
+  five.
+
+### Patch Changes
+
+- 8f277f5: Drop Obsidian-style `[[wikilinks]]` from everything generated into `~/.claudia/` in
+  favour of **plain relative markdown links** (`[Marie](Marie.md)`,
+  `[…](../sessions/<stem>.summary.md)`). The dashboard mirror (`src/dashboard.mjs`) now
+  emits relative links, and the skills/template that write the person's notes (fiches,
+  `themes.md` + `themes/`, `timeline.md`, `todo.md`) prescribe them — computed from the
+  linking file's own directory, with space-bearing paths wrapped in angle brackets. As a
+  result the export pass no longer rewrites anything: `scripts/vault-export.mjs` copies the
+  vault out verbatim, and the `wikilinksToRelative` helper (`src/vault.mjs`) is removed. The
+  notes stay portable and legible everywhere (GitHub, any plain viewer, Obsidian) with no
+  rewrite step. Docs and ADRs (0011/0014/0015/0018/0019, memory-layout) updated to match.
+
 ## 0.3.0
 
 ### Minor Changes
