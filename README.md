@@ -157,6 +157,11 @@ sync across `package.json`, `plugin.json`, and the marketplace entry:
 3. Review, commit, push. Tag the release: `claude plugin tag` (creates
    `claudia--vX.Y.Z`), then `git push --tags`.
 
+Pushing the tag triggers `.github/workflows/release.yml`, which publishes the
+GitHub Release automatically — title from the annotated tag's subject line, notes
+from the matching `CHANGELOG.md` section (`scripts/changelog-extract.mjs`). No
+manual `gh release create`.
+
 Installed users update with `claude plugin update claudia@claudia`.
 
 ## Safety

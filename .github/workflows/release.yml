@@ -1,0 +1,45 @@
+name: Release
+
+# Publish a GitHub Release whenever a `claudia--vX.Y.Z` tag is pushed.
+# The tag is still cut by hand (see README "Releasing"); this only turns that
+# tag into a Release page — title from the annotated tag's subject line, body
+# from the matching CHANGELOG.md section. No manual `gh release create` needed.
+
+on:
+  push:
+    tags:
+      - "claudia--v*"
+
+permissions:
+  contents: write
+
+jobs:
+  github-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # need the annotated tag object for its subject line
+
+      - name: Build title + notes
+        id: meta
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          version="${tag#claudia--v}"
+          # Title = the annotated tag's subject (e.g. "claudia v0.2.1 — …");
+          # fall back to a plain "claudia vX.Y.Z" for a lightweight tag.
+          title="$(git tag -l --format='%(contents:subject)' "$tag")"
+          [ -n "$title" ] || title="claudia v${version}"
+          node scripts/changelog-extract.mjs "$version" > RELEASE_NOTES.md
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "title=$title" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "${{ steps.meta.outputs.title }}" \
+            --notes-file RELEASE_NOTES.md \
+            --verify-tag
