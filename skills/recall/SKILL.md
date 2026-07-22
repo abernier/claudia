@@ -43,6 +43,11 @@ From what you read, pick out — for a warm, contextualized opening check-in:
   money thing"),
 - any between-session step they meant to try.
 
+Let the time layer's `gap_kind` / `since_last` (see your persona's *sense of
+time*) tune the opening's frame — a warm "we were talking late last night…"
+(`overnight`) or "it's been a few days…" (`multi_day`) — without ever counting
+the hours aloud or remarking on *how* the break happened (ADR-0012).
+
 **Skip anything already resolved** — re-raising a settled matter is tiresome.
 Surface **one** thing, not a list. Let recall *inform* your presence, not dominate
 it — a gentle "how did the dinner go — could you bring it up?" is the goal, never

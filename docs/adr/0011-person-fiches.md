@@ -26,7 +26,7 @@ evergreen notes, wikilinks).
 - **Wikilinks `[[Name]]` + `aliases`** by default: local-first, Obsidian-openable,
   free backlinks, rename-safe, legible on GitHub.
 - **An export pass** (`scripts/vault-export.mjs`, via `/export`) rewrites wikilinks to
-  relative `[text](path.md)` for plain-markdown portability.
+  relative `` `[text](path.md)` `` for plain-markdown portability.
 - **Transcript links only *through* the session summary** — one hop of indirection
   keeps raw transcripts a step removed.
 - The **one-sentence rule**: no link you can't justify in a sentence.
