@@ -38,9 +38,11 @@ rather just talk, drop it — the curiosity carries on naturally in conversation
 
 ## After
 
-Seed the [working understanding](../understand/SKILL.md) via `understand`, and save
-context / key people / goals via `remember`. Tell them, lightly, that you'll
-remember this locally and they can change or delete it anytime.
+Seed the [working understanding](../understand/SKILL.md) via `understand`, save
+context / goals via `remember`, and start their
+[relationship map](../relationships/SKILL.md) via `relationships` from the
+important people they named. Tell them, lightly, that you'll remember this locally
+and they can change or delete it anytime.
 
 ## Safety
 

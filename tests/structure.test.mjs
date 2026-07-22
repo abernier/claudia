@@ -175,6 +175,25 @@ describe("curiosity & intake (ADR-0009)", () => {
   });
 });
 
+describe("relationship map (ADR-0010)", () => {
+  it("ships the relationships skill and the ADR", () => {
+    expect(existsSync(path.join(root, "skills/relationships/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/adr/0010-relationship-map.md"))).toBe(true);
+  });
+
+  it("uses mermaid and stays non-judgmental about third parties", () => {
+    const skill = readFileSync(path.join(root, "skills/relationships/SKILL.md"), "utf8");
+    expect(/mermaid/i.test(skill)).toBe(true);
+    expect(/non-judgmental/i.test(skill)).toBe(true);
+    expect(/accusatory/i.test(skill) && /never/i.test(skill), "no clinical/accusatory labels on third parties").toBe(true);
+  });
+
+  it("is recorded in the memory layout and surfaced by recall", () => {
+    expect(/people\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+    expect(/people\.md/.test(readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8"))).toBe(true);
+  });
+});
+
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));

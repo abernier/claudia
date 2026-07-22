@@ -101,6 +101,13 @@ A skill invocable by both the person (`/intake`) and Claudia. Offered, never
 imposed; not a clinical assessment. Defined in ADR-0009.
 _Avoid_: "assessment", "screening", "questionnaire".
 
+**Relationship map**:
+A light, living map of the important people in the person's life — a mermaid
+ecomap (who's around them, how each bond feels *as they frame it*) that can grow
+into a family genogram. Non-judgmental, correctable, local (`~/.claudia/people.md`).
+Defined in ADR-0010.
+_Avoid_: clinical/accusatory labels about the people in it; "dossier", "profile".
+
 **Deliverable**:
 An artifact Claudia produces *for* the person, written under `~/.claudia/` —
 a session summary, an exercise/worksheet, a `/teach` explainer (with diagrams),

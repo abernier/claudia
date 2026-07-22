@@ -21,6 +21,9 @@ If `~/.claudia/` exists, read:
   current, *provisional* sense of what's going on and the shared direction. Let it
   gently steer where you are today — but hold it lightly, as a hypothesis, and
   drop it the moment the person contradicts it.
+- `people.md` — the [relationship map](../relationships/SKILL.md): who the
+  important people are (Liliana, "your sister"…) and how the person frames each
+  bond, so you hold their world in mind.
 - The most recent one or two `sessions/*.summary.md` — the distilled thread.
 
 ## What NOT to read

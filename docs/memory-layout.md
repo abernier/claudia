@@ -11,6 +11,7 @@ English/universal; **content is written in the person's language**.
 ├── person.md            distilled, evolving model of the person (context, what helps, style)
 ├── goals.md             agreed therapy goals (alliance: goal consensus)
 ├── understanding.md     the working understanding — provisional, dated, correctable (ADR-0008)
+├── people.md            relationship map (mermaid ecomap → genogram), non-judgmental (ADR-0010)
 ├── safety.md            locale + region resources + standing safety flags (never means/methods)
 └── sessions/
     ├── 2026-07-21.summary.md        distilled — READ on recall
@@ -25,7 +26,7 @@ English/universal; **content is written in the person's language**.
 
 | Layer | Files | Who reads it | Default |
 |---|---|---|---|
-| **Working memory** | `person.md`, `goals.md`, `understanding.md`, `safety.md`, `*.summary.md`, `MEMORY.md` | Claudia, via `recall`, every session | on |
+| **Working memory** | `person.md`, `goals.md`, `understanding.md`, `people.md`, `safety.md`, `*.summary.md`, `MEMORY.md` | Claudia, via `recall`, every session | on |
 | **Person's archive** | `*.transcript.jsonl` | the person (via `/export`); **not** Claudia in routine | on (opt-out via `config.json`) |
 
 ## Invariants
@@ -45,4 +46,5 @@ English/universal; **content is written in the person's language**.
 - `distill-session` skill (close ritual) → `*.summary.md`.
 - `remember` skill → `person.md`, `goals.md`, `safety.md`, `MEMORY.md`.
 - `understand` skill → `understanding.md` (the working understanding).
+- `relationships` skill → `people.md` (the relationship map).
 - `teach` / `exercise` skills → `teachings/`, `exercises/`.
