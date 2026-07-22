@@ -18,7 +18,8 @@ A single file, `~/.claudia/todo.md` (working layer), holding concrete *task-shap
 things to do later. Both parties write to it; the person can open and edit it directly.
 
 - **Format: by status, session as a tag.** `## Ouvert` / `## Fait`, each line a
-  checkbox item ending in `· [[<date>-id>]]` — the session that raised it. Grouping by
+  checkbox item ending in `· [<stem>](sessions/<stem>.summary.md)` — a relative link to
+  the session that raised it. Grouping by
   status (not by session) keeps "what's still open" scannable as the list grows across
   sessions, while the tag preserves provenance. Person's language, like every working
   file.

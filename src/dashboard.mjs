@@ -4,8 +4,8 @@
  * `dashboard.md` is a DERIVED, person-facing bird's-eye view of the working
  * memory (ADR-0019). It is a MIRROR, never a source of truth: this module only
  * ever **transcludes** what a source file already says (a list, a mermaid block,
- * the items under a heading) or **points** to it with a `[[wikilink]]`. It NEVER
- * summarises or paraphrases — a deterministic script cannot read therapeutic
+ * the items under a heading) or **points** to it with a relative markdown link. It
+ * NEVER summarises or paraphrases — a deterministic script cannot read therapeutic
  * prose without risking putting words in the person's mouth, so it does not try
  * ("transclude or point, never guess"). The two prose surfaces — the working
  * understanding and each session summary — are therefore *linked*, never excerpted.
@@ -138,8 +138,11 @@ function fr(iso) {
 /**
  * Assemble the dashboard markdown from already-read source strings. A `null`
  * source means "the file does not exist" → its section is omitted (no dangling
- * link); a present-but-unparsable source falls back to a bare `[[wikilink]]`.
+ * link); a present-but-unparsable source falls back to a bare relative link.
  * The two prose surfaces are never excerpted — only linked.
+ *
+ * dashboard.md lives at the vault root, so links to root files are bare
+ * (`goals.md`) and links to session summaries are `sessions/<stem>.summary.md`.
  */
 export function buildDashboard(input = {}) {
   const {
@@ -156,9 +159,9 @@ export function buildDashboard(input = {}) {
 
   const L = [];
   const push = (...xs) => L.push(...xs);
-  const emit = (heading, source, items, wikilink) => {
+  const emit = (heading, source, items, link) => {
     if (source == null || String(source).trim() === "") return; // file absent → no section
-    push(heading, ...(items.length ? [...items, ""] : [`→ ${wikilink}`, ""]));
+    push(heading, ...(items.length ? [...items, ""] : [`→ ${link}`, ""]));
   };
 
   push(`# Vue d'ensemble${name ? ` — ${name}` : ""}`, "");
@@ -174,35 +177,39 @@ export function buildDashboard(input = {}) {
   if (vitals.length) push(`*${vitals.join(" · ")}*`, "");
 
   // Là où on en est — the working understanding is prose; link it, never excerpt it.
-  if (understandingExists) push("## Là où on en est", "→ [[understanding]] *(provisoire)*", "");
+  if (understandingExists) push("## Là où on en est", "→ [understanding](understanding.md) *(provisoire)*", "");
 
-  emit("## Objectifs", goals, listItems(goals), "[[goals]]");
-  emit("## Thèmes vivants", themes, listItems(themes), "[[themes]]");
+  emit("## Objectifs", goals, listItems(goals), "[goals](goals.md)");
+  emit("## Thèmes vivants", themes, listItems(themes), "[themes](themes.md)");
 
   const open = sectionItems(todo, /ouvert/i);
-  emit("## À reprendre", todo, open.length ? open : listItems(todo), "[[todo]]");
+  emit("## À reprendre", todo, open.length ? open : listItems(todo), "[todo](todo.md)");
 
   // Derniers fils — dates + links; a not-yet-distilled session says so, never an excerpt.
   const fils = dated
     .slice(0, 2)
-    .map((s) => (s.hasSummary ? `- ${fr(s.date)} → [[${s.stem}]]` : `- ${fr(s.date)} · *en cours de distillation*`));
+    .map((s) =>
+      s.hasSummary
+        ? `- ${fr(s.date)} → [${s.stem}](sessions/${s.stem}.summary.md)`
+        : `- ${fr(s.date)} · *en cours de distillation*`,
+    );
   if (fils.length) push("## Derniers fils", ...fils, "");
 
   // Ton monde — the ecomap verbatim, else the names list, else a link.
   const eco = mermaidBlock(people);
   if (eco) push("## Ton monde", eco, "");
-  else emit("## Ton monde", people, listItems(people), "[[people]]");
+  else emit("## Ton monde", people, listItems(people), "[people](people.md)");
 
   // Repères de vie — the last three dated items.
-  emit("## Repères de vie", timeline, listItems(timeline).slice(-3), "[[timeline]]");
+  emit("## Repères de vie", timeline, listItems(timeline).slice(-3), "[timeline](timeline.md)");
 
   // Footer nav — only the surfaces that actually exist (no dangling links).
   const nav = [
-    understandingExists && "[[understanding]]",
-    goals != null && "[[goals]]",
-    themes != null && "[[themes]]",
-    people != null && "[[people]]",
-    timeline != null && "[[timeline]]",
+    understandingExists && "[understanding](understanding.md)",
+    goals != null && "[goals](goals.md)",
+    themes != null && "[themes](themes.md)",
+    people != null && "[people](people.md)",
+    timeline != null && "[timeline](timeline.md)",
   ].filter(Boolean);
   push("---", "");
   if (nav.length) push(`→ ${nav.join(" · ")}`, "");

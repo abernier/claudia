@@ -231,14 +231,14 @@ describe("person fiches (ADR-0011)", () => {
     expect(existsSync(path.join(root, "docs/person-fiche-template.md"))).toBe(true);
   });
 
-  it("relationships maintains fiches, wiki-linked, transcript only via summary", () => {
+  it("relationships maintains fiches, cross-linked, transcript only via summary", () => {
     const skill = readFileSync(path.join(root, "skills/relationships/SKILL.md"), "utf8");
     expect(/per-person fiches/i.test(skill)).toBe(true);
-    expect(/wikilink/i.test(skill)).toBe(true);
+    expect(/relative markdown link/i.test(skill)).toBe(true);
     expect(/only through/i.test(skill), "reach a transcript only through its summary").toBe(true);
   });
 
-  it("export runs the wikilink→relative export pass", () => {
+  it("export runs the vault export pass", () => {
     expect(/vault-export\.mjs/.test(readFileSync(path.join(root, "commands/export.md"), "utf8"))).toBe(true);
   });
 

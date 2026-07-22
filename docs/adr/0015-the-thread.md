@@ -46,7 +46,7 @@ to the person's own words.
 
 ## Across sessions — the theme layer
 
-The vault (ADR-0011) already links fiches to `[[themes]]`, but nothing backs those
+The vault (ADR-0011) already links fiches to themes, but nothing backs those
 links. This fills that seam with a **deliberately light** layer whose job is
 distinct from the working understanding (the *current direction*), goals (the
 *targets*), and fiches (per *person*): **themes are the recurring threads that cut
@@ -74,11 +74,11 @@ Mirrors the relationship-map (ADR-0010) and timeline (ADR-0014) contract exactly
 **the markdown store is canonical; any mermaid graph is a regenerated view.**
 
 - `~/.claudia/themes.md` = the index/MOC: one line per thread in the person's words,
-  status (`open` / `quiet` / `eased`), and `[[wikilinks]]` to fiches, session
-  summaries, and the working understanding.
+  status (`open` / `quiet` / `eased`), and **relative markdown links** to fiches,
+  session summaries, and the working understanding.
 - `~/.claudia/themes/<name>.md` = a dedicated note **only when a thread graduates**
-  (gains depth) — filename is the thread's name in the person's words (like a fiche,
-  so `[[wikilinks]]` resolve); dated, *revised not overwritten*, with the person's
+  (gains depth) — filename is the thread's name in the person's words (like a fiche);
+  dated, *revised not overwritten*, with the person's
   **verbatim kept separate from any tentative reflection**, exceptions/what-helps,
   and backlinks.
 - An **optional mermaid `graph`** of threads (nodes = themes, edges = theme↔theme /
@@ -108,10 +108,9 @@ for the route-to-human path.
 - **Theme layer wiring**: `distill-session` flags candidate threads; `recall` reads
   `themes.md` and surfaces at most one candidate for ratification, never a list;
   `remember` indexes themes in `MEMORY.md`; `docs/memory-layout.md` and
-  `docs/person-fiche-template.md` gain the now-backed `[[themes]]`; `themes.md` /
-  `themes/` join the vault; `src/vault.mjs` + `/export` already rewrite the
-  wikilinks; **`/forget` deletes a theme note and de-links it everywhere** (real
-  deletion, ADR-0004).
+  `docs/person-fiche-template.md` gain the now-backed themes; `themes.md` /
+  `themes/` join the vault; `/export` copies them out verbatim; **`/forget` deletes
+  a theme note and de-links it everywhere** (real deletion, ADR-0004).
 - **Purely additive** — it touches neither the safety floor, the soul, the crisis
   pivot, nor the hooks. `author-skill`'s self-authoring quarantine does not apply
   (that flow is for Claudia's *autonomous* authoring, not developer changes under an

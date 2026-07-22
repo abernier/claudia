@@ -19,14 +19,15 @@ borrow the fields**. The reflective backbone is Luborsky's **CCRT** (what I tend
 want from them / what I experience back / how I respond) — chosen because it is about
 the person's *experienced* relationship, not an objective profile — plus
 genogram/ecomap attributes and PKM conventions (Zettelkasten, Maps of Content,
-evergreen notes, wikilinks).
+evergreen notes).
 
 ## Linking
 
-- **Wikilinks `[[Name]]` + `aliases`** by default: local-first, Obsidian-openable,
-  free backlinks, rename-safe, legible on GitHub.
-- **An export pass** (`scripts/vault-export.mjs`, via `/export`) rewrites wikilinks to
-  relative `` `[text](path.md)` `` for plain-markdown portability.
+- **Plain relative markdown links** by default (`[Marie](Marie.md)`,
+  `[…](../sessions/<stem>.summary.md)`), computed from the linking file's own
+  directory: portable and legible everywhere — GitHub, any plain viewer, Obsidian —
+  with no rewrite step. Paths containing spaces are wrapped in angle brackets
+  (`[…](<../themes/the inner critic.md>)`).
 - **Transcript links only *through* the session summary** — one hop of indirection
   keeps raw transcripts a step removed.
 - The **one-sentence rule**: no link you can't justify in a sentence.
@@ -46,7 +47,7 @@ and the memory floor (ADR-0004, local-only).
 
 - `skills/relationships/` is extended to maintain the graph **and** the fiches **and**
   the MOC; `docs/person-fiche-template.md` is the canonical outline.
-- `src/vault.mjs` (`wikilinksToRelative`) + `scripts/vault-export.mjs` implement the
-  export pass; `/export` runs it.
+- `scripts/vault-export.mjs` copies the vault out verbatim (no link rewrite needed);
+  `/export` runs it.
 - Fiche filenames use the people's real names (the person's language) — `~/.claudia/`
   is the person's *data*, not the repo, so ADR-0005 (English codebase) does not apply.

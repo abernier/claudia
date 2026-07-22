@@ -12,7 +12,7 @@ the third party. See [ADR-0011](adr/0011-person-fiches.md) and
 ---
 type: person
 name: Liliana                 # the file's canonical name (person's own language)
-aliases: [Lili]               # so [[Lili]] resolves to this fiche
+aliases: [Lili]               # other names I use for her (my own reference)
 relationship: partner         # brother, mother, friend, manager, ex…
 closeness: high               # how close it feels — the person's word
 felt_quality: warm-but-tense  # the felt tone, in the person's words
@@ -20,7 +20,7 @@ support_direction: mutual     # gives / receives / mutual / draining
 status: active                # active | dormant | estranged | deceased
 first_noted: 2026-07-21
 last_reflected: 2026-07-22
-themes: ["[[trust]]", "[[conflict-avoidance]]"]
+themes: [trust, conflict-avoidance]
 tags: [family]
 ---
 
@@ -41,15 +41,15 @@ The felt tone of the bond, right now and over time. My experience, not a verdict
 - **How I respond:** …
 
 ## Key moments
-- 2026-07-21 — the dinner where I couldn't bring up the money thing. → [[2026-07-21]]
+- 2026-07-21 — the dinner where I couldn't bring up the money thing. → [2026-07-21](../sessions/2026-07-21-9113d5d7.summary.md)
 - …each dated, each linking its **session summary** (never the raw transcript).
 
 ## What I'm working on here
-The thread this relationship touches → [[trust]], [[boundaries]].
+The thread this relationship touches → [trust](../themes/trust.md), [boundaries](../themes/boundaries.md).
 
 ## Connections
-- [[Marie]] — her sister, my closest friend
-- [[Sam]] — my manager (unrelated, but they've met)
+- [Marie](Marie.md) — her sister, my closest friend
+- [Sam](Sam.md) — my manager (unrelated, but they've met)
 
 ## Open questions
 - Things I'm still wondering about, gently.
@@ -60,10 +60,14 @@ The thread this relationship touches → [[trust]], [[boundaries]].
 - **First person, tentative, correctable.** Every line is *my* experience ("I felt
   dismissed when…"), never a label on the other person ("she is …"). Update
   `last_reflected` when it changes.
-- **Link generously but earn each link** (the one-sentence rule). Use `[[wikilinks]]`
-  with `aliases`; link person↔person, person↔session-summary, person↔`[[themes]]`
-  (now backed by the [`themes`](../skills/themes/SKILL.md) layer, ADR-0015),
-  person↔`understanding.md`. **Reach a transcript only through its summary.**
+- **Link generously but earn each link** (the one-sentence rule). Use **relative
+  markdown links** — a fiche lives in `people/`, so link another person as
+  `[Marie](Marie.md)`, a session as `[2026-07-21](../sessions/<stem>.summary.md)`, a
+  thread as `[trust](../themes/trust.md)` (the [`themes`](../skills/themes/SKILL.md)
+  layer, ADR-0015), and the working understanding as
+  `[understanding](../understanding.md)`. Wrap any path containing spaces in angle
+  brackets — `[the inner critic](<../themes/the inner critic.md>)`. **Reach a
+  transcript only through its summary.**
 - **Top of every fiche links back to the index** (`MEMORY.md`), which lists people by
   circle and doubles as the memory root.
 - **Never a dossier.** No diagnosis of anyone; Claudia never contacts or discloses to

@@ -20,20 +20,23 @@ It is **partial by design**: gaps are fine; never try to "fill the missing years
 
 Sections = life stages (headings). One entry per event, holding all fields:
 
+`timeline.md` lives at the vault root, so people link as `people/<name>.md` and
+sessions as `sessions/<stem>.summary.md`:
+
 ```markdown
 ## Childhood
 - **1998** — born in Lyon.
-- **~age 9** — my parents divorced. *valence:* hard → [[Papa]], [[Maman]] · [[2026-07-22]]
+- **~age 9** — my parents divorced. *valence:* hard → [Papa](people/Papa.md), [Maman](people/Maman.md) · [2026-07-22](sessions/2026-07-22-4f0ac1e2.summary.md)
 
 ## Twenties
-- **2019** — I lost my father. *sensitive* → [[Papa]]
+- **2019** — I lost my father. *sensitive* → [Papa](people/Papa.md)
 - **2021** — moved to Paris for a new job. *valence:* hopeful
 ```
 
 Per event: flexible **date** (exact / year / age / "the hard year" / undated is
 fine), the person's own **title**, optional **valence** (*their* felt sense, never
-a clinical score), **people** (`[[fiche]]`), a short **note** (meaning / what got
-them through), **session** backlink, a *sensitive* flag when apt. Only ever
+a clinical score), **people** (`people/<name>.md` links), a short **note** (meaning /
+what got them through), **session** backlink, a *sensitive* flag when apt. Only ever
 `person-stated` — **never infer** an event they didn't tell you.
 
 ## Optional "see the shape of it" view

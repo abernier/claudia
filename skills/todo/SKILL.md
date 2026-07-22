@@ -23,13 +23,14 @@ Offer, don't impose — the list is theirs, never homework you assign.
 ## The format — by status, session-tagged
 
 Two sections, `## Ouvert` / `## Fait`, each line a checkbox item ending in
-`· [[<date>-id>]]` — the session that raised it. Grouping by status keeps
-"what's still open" scannable as it grows; the tag keeps provenance.
+`· [<stem>](sessions/<stem>.summary.md)` — a relative link to the session that raised
+it (todo.md is at the vault root). Grouping by status keeps "what's still open"
+scannable as it grows; the tag keeps provenance.
 
 - **Add** under `## Ouvert`, in the person's language, one concrete task per line.
-  Tag it with the current session (`[[<date>-id>]]`) if you know the stem; else the
-  date alone, or leave the tag off — `distill-session` completes it authoritatively
-  (it holds the real stem when it writes the summary).
+  Tag it with the current session — `[<stem>](sessions/<stem>.summary.md)` — if you
+  know the stem; else leave the tag off — `distill-session` completes it
+  authoritatively (it holds the real stem when it writes the summary).
 - **Complete** by ticking `[x]` (move it under `## Fait`, or leave it in place) —
   **never delete**; a done item is a small, kind record of movement.
 - **Person-editable**: they may have added or ticked items by hand. **Read the file

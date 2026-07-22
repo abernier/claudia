@@ -18,7 +18,7 @@ English/universal; **content is written in the person's language**.
 ├── themes.md            recurring threads across sessions — person-ratified, provisional (ADR-0015)
 ├── safety.md            locale + region resources + standing safety flags (never means/methods)
 ├── people/                         one reflective fiche per important person (ADR-0011)
-│   ├── Liliana.md                  wiki-linked to sessions, themes, other people
+│   ├── Liliana.md                  relative-linked to sessions, themes, other people
 │   └── Marie.md
 ├── themes/                         one note per recurring thread that earned depth (ADR-0015)
 │   └── the inner critic.md         name in the person's words; verbatim kept separate
@@ -41,6 +41,12 @@ English/universal; **content is written in the person's language**.
 
 ## Invariants
 
+- **Notes cross-link with plain relative markdown links**, computed from the linking
+  file's own directory — a `people/` fiche links another person as `[Marie](Marie.md)`,
+  a session as `[…](../sessions/<stem>.summary.md)`, a root file as `[…](../themes.md)`;
+  a root file (e.g. `timeline.md`) links a fiche as `[…](people/<name>.md)`. Wrap any
+  path containing spaces in angle brackets — `[…](<themes/the inner critic.md>)`.
+  `/export` copies notes verbatim, with no rewrite step.
 - **`dashboard.md` is a derived view, not a source** — a mirror of the files above,
   rebuilt deterministically; **`recall` reads the sources, never the mirror**. It only
   transcludes or links (never summarises), omits `safety.md` entirely, and is refusable

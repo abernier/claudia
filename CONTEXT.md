@@ -110,7 +110,7 @@ _Avoid_: clinical/accusatory labels about the people in it; "dossier", "profile"
 
 **Person fiche**:
 A markdown note per important person (`~/.claudia/people/<name>.md`) following a
-common reflective template, wiki-linked to other fiches, session summaries, themes,
+common reflective template, relative-linked to other fiches, session summaries, themes,
 and the working understanding. A *mirror* of the person's own experience of the
 bond — never a profile of the third party. Defined in ADR-0011.
 _Avoid_: "profile", "dossier", "record" (it is the person's reflective note, not a

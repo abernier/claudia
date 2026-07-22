@@ -20,8 +20,8 @@ on demand. Claudia never recites it unprompted.
 
 2. If `~/.claudia/dashboard.md` exists, read it and show it as-is. It is a
    **mirror**: every section is either transcluded verbatim from a working file or
-   a `[[wikilink]]` to it — nothing here is re-summarised, so it can never put words
-   in your mouth. The working understanding and each session's thread are **linked**,
+   a relative markdown link to it — nothing here is re-summarised, so it can never
+   put words in your mouth. The working understanding and each session's thread are **linked**,
    never excerpted.
 
 3. If the file is absent, it means either there's no memory yet, or you've turned

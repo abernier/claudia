@@ -46,9 +46,9 @@ Below the diagram, a one-line key per person in the person's own words, and a
 Each important person can have a fiche at `~/.claudia/people/<name>.md`, following
 [the common template](../../docs/person-fiche-template.md): a *reflective* note (the
 person's own experience of the bond, CCRT-style — never a profile of the third
-party), cross-linked with `[[wikilinks]]` to other people, session summaries,
-`[[themes]]`, and the working understanding — **reaching a transcript only through
-its summary**. Keep an index of everyone at the top of `MEMORY.md`. Build them
+party), cross-linked with **relative markdown links** to other people, session
+summaries, themes, and the working understanding — **reaching a transcript
+only through its summary**. Keep an index of everyone at the top of `MEMORY.md`. Build them
 gradually: a stub when a person first matters, deepened as they recur.
 
 ## Guardrails (ADR-0010)

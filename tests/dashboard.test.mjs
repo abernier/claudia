@@ -32,10 +32,11 @@ describe("listItems()", () => {
 });
 
 describe("sectionItems()", () => {
-  const todo = "# À faire\n\n## Ouvert\n- [ ] rappeler le médecin · [[2026-07-21-abc]]\n- [ ] écrire à Liliana\n\n## Fait\n- [x] réserver\n";
+  const todo =
+    "# À faire\n\n## Ouvert\n- [ ] rappeler le médecin · [2026-07-21-abc](sessions/2026-07-21-abc.summary.md)\n- [ ] écrire à Liliana\n\n## Fait\n- [x] réserver\n";
   it("scopes to the matched heading, stops at the next heading", () => {
     expect(sectionItems(todo, /ouvert/i)).toEqual([
-      "- [ ] rappeler le médecin · [[2026-07-21-abc]]",
+      "- [ ] rappeler le médecin · [2026-07-21-abc](sessions/2026-07-21-abc.summary.md)",
       "- [ ] écrire à Liliana",
     ]);
   });
@@ -121,7 +122,7 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
   it("links the working understanding, never excerpts its prose", () => {
     const md = buildDashboard(base);
     expect(md).toContain("## Là où on en est");
-    expect(md).toContain("→ [[understanding]]");
+    expect(md).toContain("→ [understanding](understanding.md)");
     expect(md).not.toContain("longue prose thérapeutique");
     expect(md).not.toContain("En ce moment");
   });
@@ -140,7 +141,7 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
 
   it("renders recent fils as date+link, and pending sessions as pending — never an excerpt", () => {
     const md = buildDashboard(base);
-    expect(md).toContain("- 21/07 → [[2026-07-21-bbb]]");
+    expect(md).toContain("- 21/07 → [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)");
     expect(md).toContain("- 22/07 · *en cours de distillation*");
   });
 
@@ -165,11 +166,11 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
     expect(md).toMatch(/^# Vue d'ensemble\n/);
     expect(md).not.toContain("## Repères de vie");
     expect(md).not.toContain("## Ton monde");
-    expect(md).not.toContain("[[timeline]]");
+    expect(md).not.toContain("timeline.md");
   });
 
   it("falls back to a bare link when a present source has no parsable list", () => {
     const md = buildDashboard({ ...base, goals: "on en reparlera, rien d'arrêté encore" });
-    expect(md).toContain("## Objectifs\n→ [[goals]]");
+    expect(md).toContain("## Objectifs\n→ [goals](goals.md)");
   });
 });

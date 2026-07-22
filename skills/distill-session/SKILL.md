@@ -58,9 +58,10 @@ rm -f "$HOME/.claudia/sessions/<stem>.pending-summary"
 Then **sync `~/.claudia/todo.md`** via `todo` (ADR-0018). This is the *authoritative*
 place to tag it: you hold the real session stem here (the `<stem>` you just wrote),
 which a live addition mid-conversation may not have had. Promote this session's concrete,
-*task-shaped* to-do-later items into `## Ouvert`, tagged `[[<stem>]]`; complete any
-provisional or date-only tag a live addition left behind; and tick `[x]` anything this
-session resolved (mirroring the Follow-ups you marked *done*). Promote genuine tasks,
+*task-shaped* to-do-later items into `## Ouvert`, tagged
+`[<stem>](sessions/<stem>.summary.md)`; add that tag to any item a live addition left
+untagged; and tick `[x]` anything this session resolved (mirroring the Follow-ups you
+marked *done*). Promote genuine tasks,
 not every follow-up — `todo.md` is an action list, not a mirror of the summary.
 
 Then update `person.md` / `goals.md` via `remember` if something durable emerged,

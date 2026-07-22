@@ -38,12 +38,12 @@ Life events **broadly** (birth, moves, relationships, work, education, place,
 health, achievements, losses, turning points), **partial by design** (gaps are
 fine). Per-event fields: flexible **date** (exact / year / age / "the hard year" /
 undated), person-authored **title**, optional **valence** (their own felt sense,
-never a clinical severity score), **people** (`[[fiche]]` links), **note**
+never a clinical severity score), **people** (`people/<name>.md` links), **note**
 (meaning / what got them through), **session** backlinks, a **sensitivity** flag,
 and `source: person-stated`.
 
 **Canonical store = a clean, chronological, sectioned dated list** (life stages as
-headings) — it holds every field and the wikilinks. A **mermaid `timeline` is an
+headings) — it holds every field and the links. A **mermaid `timeline` is an
 optional generated "see the shape of it" view only** (short labels, one `section`
 per stage); mermaid nodes can't hold valence, links, or notes, so they are never
 the store.

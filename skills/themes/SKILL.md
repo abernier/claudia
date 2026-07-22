@@ -9,8 +9,7 @@ allowed-tools: Read Write Bash
 Hold the **recurring threads** that cut across sessions and people — the connective
 tissue a single session summary can't carry. They live at `~/.claudia/themes.md` (the
 index) and `~/.claudia/themes/<name>.md` (a note per thread that has earned depth — the
-filename is the thread's name in the person's words, like a fiche, so `[[wikilinks]]`
-resolve).
+filename is the thread's name in the person's words, like a fiche).
 See [ADR-0015](../../docs/adr/0015-the-thread.md). A theme is distinct from the
 [working understanding](../understand/SKILL.md) (the *current direction*), goals (the
 *targets*), and [fiches](../relationships/SKILL.md) (per *person*): it is a **pattern
@@ -41,18 +40,24 @@ A live offer mid-session is rare and never interrupts.
 
 ## Canonical structure — index + graduated notes
 
-`themes.md` is the index/MOC — one line per thread, in the person's words:
+`themes.md` is the index/MOC — one line per thread, in the person's words. It lives at
+the vault root, so it links people as `people/<name>.md`, sessions as
+`sessions/<stem>.summary.md`, and graduated notes as `themes/<name>.md` (wrap any path
+with spaces in angle brackets):
 
 ```markdown
 # Themes
 
-- **[[the inner critic]]** — the voice that says it was never enough · *open* → [[Liliana]], [[2026-07-21]]
-- **[[what steadies me]]** — walking first thing, and Marie · *resource* → [[Marie]]
+- **[the inner critic](<themes/the inner critic.md>)** — the voice that says it was never enough · *open* → [Liliana](people/Liliana.md), [2026-07-21](sessions/2026-07-21-9113d5d7.summary.md)
+- **[what steadies me](<themes/what steadies me.md>)** — walking first thing, and Marie · *resource* → [Marie](people/Marie.md)
 ```
 
 Status: `open` / `quiet` / `eased`, or `resource` for a strength thread. A thread
 **graduates** to its own `themes/<name>.md` only when it gains depth (filename = the
 name in the person's words, e.g. `themes/the inner critic.md`):
+
+A note lives in `themes/`, so from here a session is `../sessions/<stem>.summary.md`, a
+person is `../people/<name>.md`, and a sibling thread is just `<name>.md`:
 
 ```markdown
 ---
@@ -61,7 +66,7 @@ name: the inner critic
 status: open
 first_noticed: 2026-07-21
 last_reflected: 2026-07-22
-people: ["[[Liliana]]"]
+people: [Liliana]
 ---
 
 # the inner critic
@@ -69,10 +74,10 @@ people: ["[[Liliana]]"]
 > In my words: the voice that says whatever I did wasn't enough.
 
 ## Where it shows
-- 2026-07-21 — right after the dinner with Liliana. → [[2026-07-21]]
+- 2026-07-21 — right after the dinner with Liliana. → [2026-07-21](../sessions/2026-07-21-9113d5d7.summary.md)
 
 ## Exceptions / what helps
-- The days I walk first thing, it's quieter. → [[what steadies me]]
+- The days I walk first thing, it's quieter. → [what steadies me](<what steadies me.md>)
 
 ## Tentative reflection (mine to correct)
 - It seems loudest just after I've tried to speak up.
@@ -110,5 +115,5 @@ graph TD
 
 Provisional always — "a working sketch, not a verdict." `/forget` deletes a theme note
 and de-links it everywhere (real deletion, [ADR-0004](../../docs/adr/0004-memory-model.md));
-`/export` rewrites the wikilinks. Index themes in `MEMORY.md`. Surface **one** thread
+`/export` copies them out as-is. Index themes in `MEMORY.md`. Surface **one** thread
 when it matters — never a list, never a recital of the map.

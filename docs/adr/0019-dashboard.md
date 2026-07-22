@@ -23,8 +23,8 @@ A single derived file, `~/.claudia/dashboard.md`, written in the person's langua
 - **A mirror, never a source of truth.** It is produced by a deterministic script
   (`scripts/build-dashboard.mjs` → `src/dashboard.mjs`), not by the model. It only
   ever **transcludes** what a source file already says (a list, the items under a
-  heading, the `people.md` mermaid ecomap) or **points** to it with a `[[wikilink]]`.
-  It **never summarises or paraphrases**: a deterministic script cannot read
+  heading, the `people.md` mermaid ecomap) or **points** to it with a relative
+  markdown link. It **never summarises or paraphrases**: a deterministic script cannot read
   therapeutic prose without risking putting words in the person's mouth, so it does
   not try. The two prose surfaces — the working understanding and each session
   summary — are therefore **linked, never excerpted**. A wrapped bullet is captured
@@ -56,8 +56,8 @@ A single derived file, `~/.claudia/dashboard.md`, written in the person's langua
 
 - **Honours deletion and export.** `/forget` rebuilds the mirror after a partial
   deletion (so it never reflects erased content) and it disappears with the
-  directory on "forget everything"; `/export` already sweeps it up and rewrites its
-  wikilinks (ADR-0011 vault export).
+  directory on "forget everything"; `/export` already sweeps it up (ADR-0011 vault
+  export).
 
 ## Consequences
 
@@ -71,5 +71,5 @@ A single derived file, `~/.claudia/dashboard.md`, written in the person's langua
   `/thread` as a second pull-only orientation aid). README, `/help`, and the
   structure guard track that.
 - A section whose source file is absent is omitted (no dangling link); a
-  present-but-unparsable source falls back to a bare `[[wikilink]]`. The mirror
+  present-but-unparsable source falls back to a bare relative link. The mirror
   degrades to honest pointers rather than guessing.
