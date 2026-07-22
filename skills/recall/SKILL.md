@@ -38,6 +38,10 @@ If `~/.claudia/` exists, read:
 - `MEMORY.md` — the index of what's known.
 - `person.md` — who this person is (context, style, what helps them).
 - `goals.md` — what you're working toward together.
+- `todo.md` — the shared **to-do-later** list (ADR-0018): concrete things either the
+  person or you jotted to pick up later, each tagged with the session that raised it.
+  Scan `## Ouvert` for one still-open, task-shaped item — a possible gentle nudge for
+  the opening. Person-owned: they may have edited or ticked it themselves.
 - `safety.md` — locale and any standing safety flags. **Read this first.**
 - `understanding.md` — the [working understanding](../understand/SKILL.md): the
   current, *provisional* sense of what's going on and the shared direction. Let it
@@ -65,7 +69,8 @@ From what you read, pick out — for a warm, contextualized opening check-in:
 - one **still-open** thread or an **event they were anticipating**, with the
   **concern attached** (e.g. "dinner with Liliana Friday — wanted to raise the
   money thing"),
-- any between-session step they meant to try.
+- any between-session step they meant to try — the `todo.md` `## Ouvert` list is
+  the concrete home for these; a still-open item there is a good candidate.
 
 Let the time layer's `gap_kind` / `since_last` (see your persona's *sense of
 time*) tune the opening's frame — a warm "we were talking late last night…"

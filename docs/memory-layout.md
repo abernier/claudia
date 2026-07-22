@@ -10,6 +10,7 @@ English/universal; **content is written in the person's language**.
 ├── MEMORY.md            one-line-per-entry index of what Claudia knows and where
 ├── person.md            distilled, evolving model of the person (context, what helps, style)
 ├── goals.md             agreed therapy goals (alliance: goal consensus)
+├── todo.md              shared to-do-later list — status-grouped, session-tagged, person-editable (ADR-0018)
 ├── understanding.md     the working understanding — provisional, dated, correctable (ADR-0008)
 ├── people.md            relationship map (mermaid ecomap → genogram), non-judgmental (ADR-0010)
 ├── timeline.md          the life timeline — person-led, trauma-informed dated list (ADR-0014)
@@ -34,7 +35,7 @@ English/universal; **content is written in the person's language**.
 
 | Layer | Files | Who reads it | Default |
 |---|---|---|---|
-| **Working memory** | `person.md`, `goals.md`, `understanding.md`, `people.md`, `timeline.md`, `themes.md`, `themes/*`, `safety.md`, `*.summary.md`, `MEMORY.md` | Claudia, via `recall`, every session | on |
+| **Working memory** | `person.md`, `goals.md`, `todo.md`, `understanding.md`, `people.md`, `timeline.md`, `themes.md`, `themes/*`, `safety.md`, `*.summary.md`, `MEMORY.md` | Claudia, via `recall`, every session | on |
 | **Person's archive** | `*.transcript.jsonl` | the person (via `/export`); **not** Claudia in routine | on (opt-out via `config.json`) |
 
 ## Invariants
@@ -58,7 +59,11 @@ English/universal; **content is written in the person's language**.
   but is normally **deferred**: `recall` detects any `pending-summary` (via
   `scripts/pending-sessions.mjs`) and distills that session at the next open, then
   clears the marker (ADR-0016).
-- `remember` skill → `person.md`, `goals.md`, `safety.md`, `MEMORY.md`.
+- `remember` skill → `person.md`, `goals.md`, `safety.md`, `MEMORY.md`, plus live
+  additions to `todo.md`.
+- `todo.md` → written live by `remember`/persona and **authoritatively tagged** by
+  `distill-session` (which holds the session stem); read by `recall`; hand-editable by
+  the person (ADR-0018).
 - `understand` skill → `understanding.md` (the working understanding).
 - `relationships` skill → `people.md` (the relationship map).
 - `timeline` skill → `timeline.md` (the life timeline).
