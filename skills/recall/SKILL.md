@@ -31,8 +31,26 @@ your presence — never announce "I'm distilling your last session." (This is th
 sanctioned path by which a past transcript is read, and it is `distill-session`'s job, not
 recall's — recall itself still never reads one for continuity.)
 
-Once any catch-up distillation is done, refresh the person's dashboard mirror so it reflects
-the newest summary (ADR-0019) — deterministic, silent, never recited:
+## Then: apply any pending vault migration
+
+If a newer version ships a change to the note format, the person's existing notes are
+brought up to date here — background upkeep, like the distillation above (ADR-0020). Run
+the runner; it self-gates on the `.migrations` ledger, so this is almost always a no-op:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-vault.mjs"
+```
+
+It fails silent (never let it block recall) and runs **once per format change**. Usually
+it prints *"up to date"* and does nothing. **Only when it reports that it migrated
+files** — it will have taken a full backup first (`~/.claudia.bak-<date>`) — **disclose
+that plainly, once, in your opening**, in the person's language: a calm, non-alarming line
+like *"j'ai fait une petite mise à jour du format de tes notes, et j'en ai gardé une
+sauvegarde ici : …"* — never dwell on it, never mention it on a no-op. Transparency about
+touching their data is the floor's rule (ADR-0004); the backup makes it reversible.
+
+Then refresh the person's dashboard mirror so it reflects the newest summary (and any
+migration) (ADR-0019) — deterministic, silent, never recited:
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"

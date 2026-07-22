@@ -56,11 +56,11 @@ describe("components", () => {
     }
   });
 
-  it("ships exactly the five commands", () => {
+  it("ships exactly the six commands", () => {
     const cmds = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
       .map((p) => path.basename(p))
       .sort();
-    expect(cmds).toEqual(["dashboard.md", "export.md", "forget.md", "help-now.md", "thread.md"]);
+    expect(cmds).toEqual(["dashboard.md", "export.md", "forget.md", "help-now.md", "migrate.md", "thread.md"]);
   });
 });
 
@@ -328,6 +328,40 @@ describe("dashboard mirror (ADR-0019)", () => {
     const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
     expect(/\*\*Dashboard\*\*/.test(ctx)).toBe(true);
     expect(/_Avoid_.*(dossier|profile|clinical)/i.test(ctx)).toBe(true);
+  });
+});
+
+describe("vault migrations (ADR-0020)", () => {
+  it("ships the command, the runner, the registry, and the first migration", () => {
+    expect(existsSync(path.join(root, "commands/migrate.md"))).toBe(true);
+    expect(existsSync(path.join(root, "scripts/migrate-vault.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "src/migrations/index.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "src/migrations/0001-wikilinks-to-relative.mjs"))).toBe(true);
+  });
+
+  it("is auto-applied at recall as background upkeep, and disclosed when it acts", () => {
+    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    expect(/migrate-vault\.mjs/.test(recall), "recall should run the migration runner").toBe(true);
+    expect(/disclose/i.test(recall), "recall must disclose when it migrates").toBe(true);
+  });
+
+  it("backs up first and never touches the verbatim transcript", () => {
+    const runner = readFileSync(path.join(root, "scripts/migrate-vault.mjs"), "utf8");
+    expect(/\.bak-/.test(runner), "runner takes a backup before writing").toBe(true);
+    expect(/transcript\.md/.test(runner), "runner excludes *.transcript.md").toBe(true);
+  });
+
+  it("migrations are pure, idempotent transforms behind an ordered registry", () => {
+    const idx = readFileSync(path.join(root, "src/migrations/index.mjs"), "utf8");
+    expect(/migrations\s*=\s*\[/.test(idx), "registry exports an ordered list").toBe(true);
+    const m = readFileSync(path.join(root, "src/migrations/0001-wikilinks-to-relative.mjs"), "utf8");
+    expect(/export function migrate/.test(m) && /idempotent/i.test(m)).toBe(true);
+  });
+
+  it("ships the ADR and is recorded in the layout + glossary", () => {
+    expect(existsSync(path.join(root, "docs/adr/0020-vault-migrations.md"))).toBe(true);
+    expect(/\.migrations/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+    expect(/\*\*Migration\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
   });
 });
 

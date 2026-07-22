@@ -7,6 +7,7 @@ English/universal; **content is written in the person's language**.
 ```
 ~/.claudia/
 ├── config.json          optional — e.g. { "saveTranscripts": false }, { "dashboard": false } to opt out
+├── .migrations          applied vault-migration ids, one per line — the ledger (ADR-0020)
 ├── MEMORY.md            one-line-per-entry index of what Claudia knows and where
 ├── dashboard.md         derived, person-facing mirror — bird's-eye view; transcludes or points, never summarises (ADR-0019)
 ├── person.md            distilled, evolving model of the person (context, what helps, style)
@@ -84,3 +85,7 @@ English/universal; **content is written in the person's language**.
   `SessionEnd` (after `save-session`) and at the tail of `recall` (after deferred
   distillation), and on demand via `/dashboard`. Reads the working files, transcludes or
   links, never summarises; respects `{ "dashboard": false }`.
+- `scripts/migrate-vault.mjs` → the working `.md` files (never `*.transcript.md`) + the
+  `.migrations` ledger, when a versioned format upgrade is pending (ADR-0020). Runs at
+  `recall` (backup first, then disclosed) and on demand via `/migrate`; pure, idempotent
+  transforms live in `src/migrations/`.

@@ -159,6 +159,15 @@ _Avoid_: "dossier", "profile", "clinical record", "report", "case file" (it is a
 reflective mirror the person pulls, not a record kept *on* them); and any
 mood/progress "life chart".
 
+**Migration**:
+A one-time, versioned upgrade of the person's saved notes to a newer format
+(`src/migrations/`, run by `scripts/migrate-vault.mjs`; `/migrate`). Idempotent,
+**backed-up first**, and applied quietly at `recall` — disclosed plainly when it acts,
+silent when there is nothing to do. Never touches the verbatim transcript. Defined in
+ADR-0020.
+_Avoid_: "database migration" framing, "conversion" (to the person it is a small,
+reversible tidy-up of *their* notes, not a data operation done *to* them).
+
 ## Self-authoring
 
 **Authored skill**:
