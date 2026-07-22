@@ -2,7 +2,7 @@
 "claudia": minor
 ---
 
-Add a **life timeline** (ADR-0012): Claudia can keep the arc of the person's life
+Add a **life timeline** (ADR-0014): Claudia can keep the arc of the person's life
 at `~/.claudia/timeline.md` — both a memory of important events and an offered
 life-review tool (grounded in the counselling "lifeline", life-review/reminiscence,
 and narrative re-authoring; *not* the clinical NIMH mood chart). New `timeline`

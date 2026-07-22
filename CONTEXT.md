@@ -121,7 +121,7 @@ The arc of the person's life — the important events, as *they* choose to tell 
 (`~/.claudia/timeline.md`): both a memory of the arc and an offered life-review
 tool. Person-led, partial by design, trauma-informed (painful events titrated,
 never forced), positive events first-class. A dated list is canonical; a mermaid
-`timeline` is an optional view. Defined in ADR-0012.
+`timeline` is an optional view. Defined in ADR-0014.
 _Avoid_: "life chart" (the clinical symptom-tracking method we don't do), "trauma
 inventory".
 

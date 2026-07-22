@@ -217,10 +217,10 @@ describe("person fiches (ADR-0011)", () => {
   });
 });
 
-describe("life timeline (ADR-0012)", () => {
+describe("life timeline (ADR-0014)", () => {
   it("ships the timeline skill and the ADR", () => {
     expect(existsSync(path.join(root, "skills/timeline/SKILL.md"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/adr/0012-life-timeline.md"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/adr/0014-life-timeline.md"))).toBe(true);
   });
 
   it("is person-led, trauma-informed; dated-list canonical, mermaid optional", () => {

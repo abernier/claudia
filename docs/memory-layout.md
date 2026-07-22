@@ -12,7 +12,7 @@ English/universal; **content is written in the person's language**.
 ├── goals.md             agreed therapy goals (alliance: goal consensus)
 ├── understanding.md     the working understanding — provisional, dated, correctable (ADR-0008)
 ├── people.md            relationship map (mermaid ecomap → genogram), non-judgmental (ADR-0010)
-├── timeline.md          the life timeline — person-led, trauma-informed dated list (ADR-0012)
+├── timeline.md          the life timeline — person-led, trauma-informed dated list (ADR-0014)
 ├── safety.md            locale + region resources + standing safety flags (never means/methods)
 ├── people/                         one reflective fiche per important person (ADR-0011)
 │   ├── Liliana.md                  wiki-linked to sessions, themes, other people

@@ -8,7 +8,7 @@ allowed-tools: Read Write Bash
 
 Hold the **arc** of the person's life — the events that matter to *them* — so you
 understand where they're coming from, and so they can, when they wish, look back
-and make meaning of it. It lives at `~/.claudia/timeline.md`. See [ADR-0012](../../docs/adr/0012-life-timeline.md).
+and make meaning of it. It lives at `~/.claudia/timeline.md`. See [ADR-0014](../../docs/adr/0014-life-timeline.md).
 
 ## How it grows
 
@@ -59,7 +59,7 @@ move: what stands out, what they're proud of, **what got them through** the hard
 parts. Surface strengths and turning points; keep positive and neutral events
 first-class (dwelling only on the painful can feed rumination).
 
-## Trauma-informed guardrails (ADR-0012)
+## Trauma-informed guardrails (ADR-0014)
 
 - **Painful events: titrated.** They appear only if volunteered, marked plainly —
   **never forced, never detailed here** (detail lives in fiches/sessions).
