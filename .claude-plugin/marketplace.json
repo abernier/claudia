@@ -8,7 +8,7 @@
     {
       "name": "claudia",
       "source": "./",
-      "version": "0.6.0",
+      "version": "0.6.1",
       "description": "Evidence-informed, multi-approach companion for reflection and emotional support, with a non-negotiable safety floor. Not a licensed clinician or a medical device.",
       "category": "wellbeing",
       "keywords": [

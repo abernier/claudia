@@ -1,5 +1,15 @@
 # claudia
 
+## 0.6.1
+
+### Patch Changes
+
+- 99c4e01: Strict TypeScript checking without transpilation (ADR-0022). Runtime stays pure
+  `.mjs` — no build, no new Node requirement for the person. TypeScript 7 (native
+  compiler) joins as a dev-only checker: full strict JSDoc annotations across
+  `src/` and `scripts/`, tests converted to real TypeScript (`tests/*.test.ts`),
+  and `npm test` now typechecks (`tsc --noEmit`) before running Vitest.
+
 ## 0.6.0
 
 ### Minor Changes
