@@ -31,4 +31,6 @@ conversations actually read.
 - The verbatim `<date>.transcript.md` is saved separately by the Stop hook — that
   is the person's archive, not this.
 
-Then update `person.md` / `goals.md` via `remember` if something durable emerged.
+Then update `person.md` / `goals.md` via `remember` if something durable emerged,
+and — if a pattern crystallised or the direction shifted — invoke `understand` to
+revise the working understanding.

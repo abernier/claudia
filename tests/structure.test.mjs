@@ -121,6 +121,39 @@ describe("delegation (ephemeral specialists)", () => {
   });
 });
 
+describe("working understanding (ADR-0008)", () => {
+  it("ships the understand skill and the ADR", () => {
+    expect(existsSync(path.join(root, "skills/understand/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/adr/0008-working-understanding.md"))).toBe(true);
+  });
+
+  it("recall loads it, held provisionally", () => {
+    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    expect(/understanding\.md/.test(recall)).toBe(true);
+    expect(/provisional|hold it lightly|hypothesis/i.test(recall)).toBe(true);
+  });
+
+  it("the persona holds it lightly, reflects it back, and stays anti-dependency", () => {
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/working understanding/i.test(persona)).toBe(true);
+    expect(/does that fit/i.test(persona)).toBe(true);
+    expect(/need you.{0,8}less/i.test(persona), "must be designed against dependency").toBe(true);
+  });
+
+  it("stays out of clinical framing (glossary + skill)", () => {
+    const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
+    expect(/Working understanding/.test(ctx)).toBe(true);
+    expect(/_Avoid_.*(formulation|dossier|clinical)/i.test(ctx)).toBe(true);
+    const skill = readFileSync(path.join(root, "skills/understand/SKILL.md"), "utf8");
+    expect(/no diagnosis/i.test(skill)).toBe(true);
+  });
+
+  it("is recorded in the memory layout", () => {
+    const layout = readFileSync(path.join(root, "docs/memory-layout.md"), "utf8");
+    expect(/understanding\.md/.test(layout)).toBe(true);
+  });
+});
+
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));

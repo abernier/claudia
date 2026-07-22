@@ -82,8 +82,17 @@ Its summary is what persists into memory.
 
 **Memory**:
 What Claudia carries between sessions, stored under `~/.claudia/` on the person's
-own machine — session summaries, a person model, goals, safety flags. Bounded
-retention, real deletion (safety floor rule 10).
+own machine — session summaries, a person model, goals, safety flags, and the
+[Working understanding](#continuity--outputs). Bounded retention, real deletion
+(safety floor rule 10).
+
+**Working understanding**:
+Claudia's living, dated, *provisional* theory of what the person is navigating,
+what feeds it, what helps, and where they're heading together — a de-clinicalised
+adaptation of case formulation that adapts her direction across sessions. Held
+lightly, reflected back collaboratively, correctable and deletable by the person.
+_Avoid_: "formulation", "case file", "clinical notes", "dossier" (all imply the
+clinical record this is deliberately not). Defined in ADR-0008.
 
 **Deliverable**:
 An artifact Claudia produces *for* the person, written under `~/.claudia/` —

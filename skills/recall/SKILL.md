@@ -17,6 +17,10 @@ If `~/.claudia/` exists, read:
 - `person.md` — who this person is (context, style, what helps them).
 - `goals.md` — what you're working toward together.
 - `safety.md` — locale and any standing safety flags. **Read this first.**
+- `understanding.md` — the [working understanding](../understand/SKILL.md): the
+  current, *provisional* sense of what's going on and the shared direction. Let it
+  gently steer where you are today — but hold it lightly, as a hypothesis, and
+  drop it the moment the person contradicts it.
 - The most recent one or two `sessions/*.summary.md` — the distilled thread.
 
 ## What NOT to read
