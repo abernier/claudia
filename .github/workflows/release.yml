@@ -19,7 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # need the annotated tag object for its subject line
+          fetch-depth: 0 # full history; the tag object itself is restored below
+
+      - name: Restore the annotated tag object
+        # actions/checkout delites annotated tags to lightweight ones, so the
+        # %(contents:subject) read below would fall back to the *commit* subject
+        # ("Release claudia--vX.Y.Z") instead of the tag message. Re-fetch the tag
+        # object itself so its subject can become the Release title.
+        run: git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
 
       - name: Build title + notes
         id: meta
