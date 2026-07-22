@@ -20,9 +20,10 @@ English/universal; **content is written in the person's language**.
 │   └── Marie.md
 ├── themes/                         one note per recurring thread that earned depth (ADR-0015)
 │   └── the inner critic.md         name in the person's words; verbatim kept separate
-└── sessions/
-    ├── 2026-07-21.summary.md        distilled — READ on recall
-    ├── 2026-07-21.transcript.jsonl  verbatim — the person's archive, NOT read in routine
+└── sessions/                        one set of files per SESSION, keyed <date>-<short-session-id> (ADR-0017)
+    ├── 2026-07-21-9113d5d7.summary.md      distilled — READ on recall
+    ├── 2026-07-21-9113d5d7.transcript.md   verbatim — the person's archive, NOT read in routine
+    ├── 2026-07-22-4f0ac1e2.pending-summary dirty flag: needs (re)distilling; cleared by distill-session
     ├── teachings/
     │   └── 2026-07-21-anxiety-cycle.md
     └── exercises/
@@ -49,8 +50,14 @@ English/universal; **content is written in the person's language**.
 
 ## Who writes what
 
-- `hooks/save-session.mjs` (SessionEnd) → `*.transcript.jsonl` (deterministic).
-- `distill-session` skill (close ritual) → `*.summary.md`.
+- `scripts/save-session.mjs` (SessionEnd) → `<date>-<id>.transcript.md`, one file per
+  session, **overwritten** each close (ADR-0017); gated on genuine `claudia`-skill
+  *activation*, not a stray persona string. Also drops a `<date>-<id>.pending-summary`
+  dirty flag every close.
+- `distill-session` skill → `<date>-<id>.summary.md`. Runs live at close when possible,
+  but is normally **deferred**: `recall` detects any `pending-summary` (via
+  `scripts/pending-sessions.mjs`) and distills that session at the next open, then
+  clears the marker (ADR-0016).
 - `remember` skill → `person.md`, `goals.md`, `safety.md`, `MEMORY.md`.
 - `understand` skill → `understanding.md` (the working understanding).
 - `relationships` skill → `people.md` (the relationship map).

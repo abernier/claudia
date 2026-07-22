@@ -1,6 +1,6 @@
 ---
 name: distill-session
-description: Turn a finished conversation into a distilled session summary for ~/.claudia/sessions/. Used at session close (also triggered by the Stop hook). Produces the summary that recall will read — never a verbatim copy.
+description: Turn a finished conversation into a distilled session summary for ~/.claudia/sessions/. Runs at session close when possible, but is normally deferred to the next session's recall (a close is unreliable). Produces the summary that recall will read — never a verbatim copy.
 allowed-tools: Read Write Bash
 ---
 
@@ -26,14 +26,34 @@ conversations actually read.
   offer next time, never stored as fact until the person ratifies it (see
   [`themes`](../themes/SKILL.md)).
 
+## Two ways this runs
+
+- **Live, at close** — the conversation is still in context; distill from what you
+  hold, then write the summary.
+- **Deferred, from the transcript (the common case)** — a previous session left its
+  `<stem>.transcript.md` flagged for distilling. `recall` detects it (via
+  `scripts/pending-sessions.mjs`) and hands you the stem (`<date>-<id>`). Read that one
+  transcript, distill it, write the summary. This is the sanctioned exception to
+  "never read a transcript" — it exists precisely to *build* the summary that spares
+  every future recall from doing so (ADR-0016). Note the flag is a **dirty flag**: it
+  can be present even when a `<stem>.summary.md` already exists, meaning the session was
+  *resumed* since — refresh the existing summary rather than starting blank.
+
+Either way, after writing `<stem>.summary.md`, **clear the marker** so the state
+machine closes:
+
+```bash
+rm -f "$HOME/.claudia/sessions/<stem>.pending-summary"
+```
+
 ## Rules
 
 - **Distill, don't transcribe.** This layer is read on every recall; keep it lean
   and kind.
 - **Person's language.** Write it in the language the conversation happened in.
 - **Respect the floor.** No verbatim harmful content (ADR-0004).
-- The verbatim `<date>.transcript.md` is saved separately by the Stop hook — that
-  is the person's archive, not this.
+- The verbatim `<date>.transcript.md` is saved separately by the `SessionEnd` hook
+  (`save-session.mjs`) — that is the person's archive, not this.
 
 Then update `person.md` / `goals.md` via `remember` if something durable emerged,
 and — if a pattern crystallised or the direction shifted — invoke `understand` to

@@ -9,6 +9,28 @@ allowed-tools: Read Bash
 Bring forward what matters so the person feels remembered — without re-reading a
 word-for-word past.
 
+## First: catch up on any un-distilled session
+
+Distillation is *deferred to here* on purpose: a session's close is unreliable (the
+person just shuts the terminal), so `distill-session` often never ran live and the
+previous conversation was archived as a raw transcript with **no summary** (ADR-0016).
+The reliable moment to catch that up is now — the next conversation can't begin
+without recall.
+
+Run the deterministic check:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/pending-sessions.mjs"
+```
+
+It prints one **session stem** per line (`<date>-<id>`). For each, hand that session to
+[`distill-session`](../distill-session/SKILL.md) **before** loading continuity below — it
+reads that one past transcript once, writes its `<stem>.summary.md`, and clears the marker.
+If it prints nothing, there is nothing to catch up on. Do this quietly, in the background of
+your presence — never announce "I'm distilling your last session." (This is the *only*
+sanctioned path by which a past transcript is read, and it is `distill-session`'s job, not
+recall's — recall itself still never reads one for continuity.)
+
 ## What to read (working memory only)
 
 If `~/.claudia/` exists, read:

@@ -2,17 +2,20 @@
 /**
  * Claudia — save the session (SessionEnd hook entrypoint).
  *
- * Thin wrapper around ../src/session.mjs. Writes the person's dated transcript to
- * their local archive under ~/.claudia/ (default-on; ADR-0004) as readable
- * markdown — but ONLY for real Claudia conversations (the plugin may be enabled
- * at user scope, so this fires for every session). Local-only; nothing uploaded.
- * Opt-out: `{ "saveTranscripts": false }` in ~/.claudia/config.json.
+ * Thin wrapper around ../src/session.mjs. Writes the person's transcript to their
+ * local archive under ~/.claudia/ (default-on; ADR-0004) as readable markdown —
+ * but ONLY for real Claudia conversations (the plugin may be enabled at user scope,
+ * so this fires for every session; the gate now keys on genuine skill *activation*,
+ * not a stray persona string). One file **per session** (`<date>-<session_id>`,
+ * ADR-0017), OVERWRITTEN on each resume/close so a conversation never piles up as
+ * duplicate re-dumps. Local-only; nothing uploaded. Opt-out:
+ * `{ "saveTranscripts": false }` in ~/.claudia/config.json.
  */
 
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { resolveTranscriptPath, isClaudiaSession, renderMarkdown } from "../src/session.mjs";
+import { resolveTranscriptPath, isClaudiaSession, renderMarkdown, sessionIdFrom } from "../src/session.mjs";
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -74,16 +77,31 @@ async function main() {
       /* no config → default-on */
     }
 
+    const sessionId = sessionIdFrom(payload);
+    if (!sessionId) return process.exit(0); // can't key the archive → skip rather than mis-file
+    const shortId = sessionId.slice(0, 8); // enough to disambiguate a person's own sessions; keeps names readable
+
+    // One file per session (ADR-0017), OVERWRITTEN each close. Reuse the stem of an
+    // existing archive for this session so its first-seen date prefix stays stable
+    // across resumes (and across midnight), instead of spawning a new dated file.
     const stamp = todayStamp();
+    const existing = (await fs.readdir(sessionsDir).catch(() => [])).find(
+      (n) => /\.transcript\.(md|jsonl)$/.test(n) && n.slice(0, n.indexOf(".transcript.")).endsWith(`-${shortId}`)
+    );
+    const stem = existing ? existing.slice(0, existing.indexOf(".transcript.")) : `${stamp}-${shortId}`;
+
     const md = renderMarkdown(jsonl, stamp);
     if (md) {
-      await fs.appendFile(path.join(sessionsDir, `${stamp}.transcript.md`), md + "\n\n---\n\n");
+      await fs.writeFile(path.join(sessionsDir, `${stem}.transcript.md`), md);
     } else {
-      await fs.appendFile(path.join(sessionsDir, `${stamp}.transcript.jsonl`), jsonl);
+      await fs.writeFile(path.join(sessionsDir, `${stem}.transcript.jsonl`), jsonl);
     }
 
+    // Deferred distillation (ADR-0016): every close drops the dirty-flag marker.
+    // `recall` distills at the next open and clears it — so a session resumed after
+    // it was distilled is re-distilled, and its stale summary refreshed.
     await fs
-      .writeFile(path.join(sessionsDir, `${stamp}.pending-summary`), "distill-session did not confirm a summary\n")
+      .writeFile(path.join(sessionsDir, `${stem}.pending-summary`), `needs distillation (${stamp})\n`)
       .catch(() => {});
 
     process.exit(0);

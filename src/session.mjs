@@ -25,11 +25,46 @@ export function textFromContent(content) {
   return "";
 }
 
-/** A transcript is a Claudia conversation only if it carries the persona signature. */
-export const CLAUDIA_SIGNATURE = /You are Claudia|unconditional positive regard|skills\/claudia|"name"\s*:\s*"claudia"/;
+/**
+ * A transcript is a *genuine* Claudia conversation only if the `claudia` skill was
+ * actually ACTIVATED — its loader preamble appears as a user-authored message:
+ *   "Base directory for this skill: <plugin>/skills/claudia\n# You are Claudia …"
+ *
+ * The old gate grepped the raw blob for persona strings, which false-positived on
+ * any dev session that merely *read* SOUL.md / a skill file (the text lands in a
+ * `tool_result`) or ran `/grill-me` about Claudia. This gate only fires on true
+ * activation: `textFromContent` drops tool_result/tool_use blocks, so reading a
+ * file never counts, and `/grill-me` loads `…/skills/grilling`, not `…/skills/claudia`.
+ */
+export const CLAUDIA_ACTIVATION = /Base directory for this skill:[^\n]*\/skills\/claudia(?:\/|\b|$)/;
 
 export function isClaudiaSession(jsonl) {
-  return CLAUDIA_SIGNATURE.test(String(jsonl || ""));
+  const lines = String(jsonl || "").split("\n").filter(Boolean);
+  for (const line of lines) {
+    let e;
+    try {
+      e = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    const msg = e.message || e;
+    if ((msg.role || e.type) !== "user") continue;
+    if (CLAUDIA_ACTIVATION.test(textFromContent(msg.content))) return true;
+  }
+  return false;
+}
+
+/**
+ * The stable identity of a session: `session_id` from the hook payload, else the
+ * basename of its transcript path (`<session_id>.jsonl`). Returns null when neither
+ * is available. Used to key the archive by session rather than by date, so a
+ * resumed conversation overwrites its own file instead of piling up duplicates.
+ */
+export function sessionIdFrom(payload) {
+  if (payload && payload.session_id) return String(payload.session_id);
+  const direct = payload && (payload.transcript_path || payload.transcriptPath || payload.transcript);
+  if (direct) return path.basename(String(direct)).replace(/\.jsonl$/i, "");
+  return null;
 }
 
 /**

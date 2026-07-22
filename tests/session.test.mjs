@@ -4,9 +4,12 @@ import {
   projectDirFor,
   textFromContent,
   isClaudiaSession,
+  sessionIdFrom,
   renderMarkdown,
   resolveTranscriptPath,
 } from "../src/session.mjs";
+
+const userMsg = (content) => JSON.stringify({ type: "user", message: { role: "user", content } });
 
 describe("projectDirFor()", () => {
   it("encodes / and . as -", () => {
@@ -24,11 +27,37 @@ describe("textFromContent()", () => {
 });
 
 describe("isClaudiaSession()", () => {
-  it("true when the persona signature is present", () => {
-    expect(isClaudiaSession('...{"content":"You are Claudia"}...')).toBe(true);
+  it("true when the claudia skill was activated (loader preamble as a user message)", () => {
+    const jsonl = [
+      userMsg("claudia?"),
+      userMsg("Base directory for this skill: /plug/skills/claudia\n# You are Claudia\nYour identity is below."),
+    ].join("\n");
+    expect(isClaudiaSession(jsonl)).toBe(true);
+  });
+  it("false when the persona text only appears inside a tool_result (a dev session reading the file)", () => {
+    const jsonl = userMsg([
+      { type: "tool_result", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia" },
+    ]);
+    expect(isClaudiaSession(jsonl)).toBe(false);
+  });
+  it("false when a different skill is activated (e.g. /grill-me)", () => {
+    expect(isClaudiaSession(userMsg("Base directory for this skill: /plug/skills/grilling\nRun a grilling session."))).toBe(false);
   });
   it("false for an unrelated coding transcript", () => {
-    expect(isClaudiaSession("please fix the webpack config")).toBe(false);
+    expect(isClaudiaSession(userMsg("please fix the webpack config"))).toBe(false);
+    expect(isClaudiaSession("not even jsonl")).toBe(false);
+  });
+});
+
+describe("sessionIdFrom()", () => {
+  it("prefers an explicit session_id", () => {
+    expect(sessionIdFrom({ session_id: "abc-123", transcript_path: "/x/other.jsonl" })).toBe("abc-123");
+  });
+  it("falls back to the transcript path basename", () => {
+    expect(sessionIdFrom({ transcript_path: "/home/.claude/projects/p/def-456.jsonl" })).toBe("def-456");
+  });
+  it("returns null when there is nothing to key on", () => {
+    expect(sessionIdFrom({})).toBeNull();
   });
 });
 

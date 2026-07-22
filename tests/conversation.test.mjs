@@ -32,7 +32,8 @@ describe("simulated conversation — safety pipeline (model off)", () => {
 
 describe("simulated conversation — archiving", () => {
   const claudiaTranscript = [
-    { type: "user", message: { role: "user", content: "You are Claudia — become it." } },
+    { type: "user", message: { role: "user", content: "claudia?" } },
+    { type: "user", message: { role: "user", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia\nYour identity is below. Become it fully." } },
     { type: "user", message: { role: "user", content: "j'ai du mal en ce moment" } },
     { type: "assistant", message: { role: "assistant", content: [{ type: "text", text: "Je t'écoute. Qu'est-ce qui pèse le plus ?" }] } },
   ]
@@ -55,5 +56,16 @@ describe("simulated conversation — archiving", () => {
       .map((o) => JSON.stringify(o))
       .join("\n");
     expect(isClaudiaSession(coding)).toBe(false);
+  });
+
+  it("does NOT archive a dev session that merely READS the claudia skill (persona text in a tool_result)", () => {
+    const devReadingSkill = [
+      { type: "user", message: { role: "user", content: "dans ~/.claudia je ne vois pas les fichiers md" } },
+      { type: "assistant", message: { role: "assistant", content: [{ type: "tool_use", name: "Read", input: {} }] } },
+      { type: "user", message: { role: "user", content: [{ type: "tool_result", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia\nYour identity is below." }] } },
+    ]
+      .map((o) => JSON.stringify(o))
+      .join("\n");
+    expect(isClaudiaSession(devReadingSkill)).toBe(false);
   });
 });
