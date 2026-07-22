@@ -29,9 +29,15 @@ const HEADING = /^#{1,6}\s/;
  * text spills onto the next physical line(s) without a blank line — is captured in
  * full, so the mirror never truncates a goal to a dangling half-sentence. An item
  * runs from its `- ` line until the next list item, heading, or blank line.
+ *
+ * @param {string[]} lines
+ * @param {number} [max]
+ * @returns {string[]}
  */
 function collectItems(lines, max = Infinity) {
+  /** @type {string[]} */
   const out = [];
+  /** @type {string | null} */
   let cur = null;
   const flush = () => {
     if (cur != null) out.push(cur.replace(/[ \t\n]+$/, ""));
@@ -50,13 +56,26 @@ function collectItems(lines, max = Infinity) {
   return max === Infinity ? out : out.slice(0, max);
 }
 
-/** Whole markdown list items (bullets, numbered, checkboxes), wrapped lines included, right-trimmed. */
+/**
+ * Whole markdown list items (bullets, numbered, checkboxes), wrapped lines included, right-trimmed.
+ *
+ * @param {string | null | undefined} md
+ * @param {{ max?: number }} [opts]
+ * @returns {string[]}
+ */
 export function listItems(md, { max = Infinity } = {}) {
   if (!md) return [];
   return collectItems(String(md).split(/\r?\n/), max);
 }
 
-/** The whole list items under the first `#…` heading matching `headingRe`, until the next heading. */
+/**
+ * The whole list items under the first `#…` heading matching `headingRe`, until the next heading.
+ *
+ * @param {string | null | undefined} md
+ * @param {RegExp} headingRe
+ * @param {{ max?: number }} [opts]
+ * @returns {string[]}
+ */
 export function sectionItems(md, headingRe, { max = Infinity } = {}) {
   if (!md) return [];
   const section = [];
@@ -72,7 +91,12 @@ export function sectionItems(md, headingRe, { max = Infinity } = {}) {
   return collectItems(section, max);
 }
 
-/** The first fenced ```mermaid block, verbatim (fences included), or null. */
+/**
+ * The first fenced ```mermaid``` block, verbatim (fences included), or null.
+ *
+ * @param {string | null | undefined} md
+ * @returns {string | null}
+ */
 export function mermaidBlock(md) {
   if (!md) return null;
   const m = String(md).match(/```mermaid\b[\s\S]*?```/);
@@ -85,28 +109,51 @@ export function mermaidBlock(md) {
  * than none. Accepts a labelled field (`Nom: …` / `Name: …` / `Prénom: …`,
  * optionally bold), or a short first-line H1 (`# Antoine`, ≤ 4 words, no sentence
  * punctuation — a title, not a sentence).
+ *
+ * @param {string | null | undefined} md
+ * @returns {string | null}
  */
 export function personName(md) {
   if (!md) return null;
   const labelled = String(md).match(
     /^\s*[-*]?\s*\*{0,2}\s*(?:nom|name|pr[ée]nom)\s*\*{0,2}\s*[:：]\s*(.+?)\s*$/im,
   );
-  if (labelled) return clean(labelled[1]);
+  if (labelled) return clean(/** @type {string} */ (labelled[1]));
   const firstLine = String(md).split(/\r?\n/).find((l) => l.trim() !== "");
   const h1 = firstLine && firstLine.match(/^#\s+(.+?)\s*$/);
   if (h1) {
-    const t = clean(h1[1]);
+    const t = clean(/** @type {string} */ (h1[1]));
     if (t && t.split(/\s+/).length <= 4 && !/[.!?:;,]/.test(t)) return t;
   }
   return null;
 }
 
+/**
+ * @param {string} s
+ * @returns {string | null}
+ */
 function clean(s) {
   return String(s).replace(/^\*{1,2}|\*{1,2}$/g, "").replace(/[`_]/g, "").trim() || null;
 }
 
-/** Parse `sessions/` filenames into recent-first session records for the mirror. */
+/**
+ * One `sessions/` record as the mirror shows it.
+ *
+ * @typedef {object} MirrorSession
+ * @property {string} stem — archive key: `<date>-<shortId>` (ADR-0017) or legacy `<date>`
+ * @property {string | null} date — the stem's `YYYY-MM-DD` prefix, or null when it has none
+ * @property {boolean} hasSummary — a `<stem>.summary.md` exists to link to
+ */
+
+/**
+ * Parse `sessions/` filenames into recent-first session records for the mirror.
+ *
+ * @param {string[] | null | undefined} filenames
+ * @param {{ max?: number }} [opts]
+ * @returns {MirrorSession[]}
+ */
 export function sessionsForMirror(filenames, { max = Infinity } = {}) {
+  /** @type {MirrorSession[]} */
   const out = [];
   for (const [stem, rec] of sessionIndex(filenames)) {
     const date = /^(\d{4}-\d{2}-\d{2})/.exec(stem)?.[1] || null;
@@ -116,11 +163,17 @@ export function sessionsForMirror(filenames, { max = Infinity } = {}) {
   return max === Infinity ? out : out.slice(0, max);
 }
 
-/** A coarse, non-clinical cadence label from the gaps between session dates (or null). */
+/**
+ * A coarse, non-clinical cadence label from the gaps between session dates (or null).
+ *
+ * @param {MirrorSession[] | null | undefined} sessions
+ * @returns {string | null}
+ */
 export function cadence(sessions) {
-  const dates = (sessions || []).map((s) => s.date).filter(Boolean).sort();
+  // filter(Boolean) drops the nulls but TS cannot narrow it — hence the cast.
+  const dates = /** @type {string[]} */ ((sessions || []).map((s) => s.date).filter(Boolean)).sort();
   if (dates.length < 2) return null;
-  const span = (Date.parse(dates[dates.length - 1]) - Date.parse(dates[0])) / 86_400_000;
+  const span = (Date.parse(/** @type {string} */ (dates[dates.length - 1])) - Date.parse(/** @type {string} */ (dates[0]))) / 86_400_000;
   const avg = span / (dates.length - 1);
   if (!Number.isFinite(avg) || avg <= 0) return null;
   if (avg <= 1.5) return "~quotidien";
@@ -129,11 +182,33 @@ export function cadence(sessions) {
   return "~espacé";
 }
 
-/** DD/MM from an ISO date prefix (falls back to the input unchanged). */
+/**
+ * DD/MM from an ISO date prefix (falls back to the input unchanged).
+ *
+ * @param {string | null} iso — nullable so `MirrorSession.date` flows in as-is; dated callers pre-filter
+ * @returns {string}
+ */
 function fr(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso));
   return m ? `${m[3]}/${m[2]}` : String(iso);
 }
+
+/**
+ * The already-read source strings {@link buildDashboard} assembles from — all
+ * optional (destructured with defaults). `null` means "the file does not exist"
+ * and is load-bearing: the corresponding section is omitted.
+ *
+ * @typedef {object} DashboardInput
+ * @property {string | null} [name]
+ * @property {MirrorSession[]} [sessions]
+ * @property {string | null} [goals]
+ * @property {string | null} [themes]
+ * @property {string | null} [todo]
+ * @property {string | null} [people]
+ * @property {string | null} [timeline]
+ * @property {boolean} [understandingExists]
+ * @property {string | null} [generatedAt]
+ */
 
 /**
  * Assemble the dashboard markdown from already-read source strings. A `null`
@@ -143,6 +218,9 @@ function fr(iso) {
  *
  * dashboard.md lives at the vault root, so links to root files are bare
  * (`goals.md`) and links to session summaries are `sessions/<stem>.summary.md`.
+ *
+ * @param {DashboardInput} [input]
+ * @returns {string}
  */
 export function buildDashboard(input = {}) {
   const {
@@ -157,8 +235,16 @@ export function buildDashboard(input = {}) {
     generatedAt = null,
   } = input;
 
+  /** @type {string[]} */
   const L = [];
+  /** @param {...string} xs */
   const push = (...xs) => L.push(...xs);
+  /**
+   * @param {string} heading
+   * @param {string | null} source
+   * @param {string[]} items
+   * @param {string} link
+   */
   const emit = (heading, source, items, link) => {
     if (source == null || String(source).trim() === "") return; // file absent → no section
     push(heading, ...(items.length ? [...items, ""] : [`→ ${link}`, ""]));

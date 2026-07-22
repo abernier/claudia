@@ -17,9 +17,11 @@ import os from "node:os";
 import path from "node:path";
 import { pendingSessions } from "../src/pending.mjs";
 
+/** @returns {Promise<void>} always exits 0 itself; never rejects */
 async function main() {
   try {
     const dir = path.join(os.homedir(), ".claudia", "sessions");
+    /** @type {string[]} */
     let names;
     try {
       names = await fs.readdir(dir);

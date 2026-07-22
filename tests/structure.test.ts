@@ -8,8 +8,8 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-function walk(dir, filter) {
-  const out = [];
+function walk(dir: string, filter?: (p: string) => boolean): string[] {
+  const out: string[] = [];
   if (!existsSync(dir)) return out;
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     if (e.name === "node_modules" || e.name === ".git") continue;
@@ -20,26 +20,31 @@ function walk(dir, filter) {
   return out;
 }
 
+// Manifest shapes — only the fields these tests assert on.
+type PluginManifest = { name?: string; hooks?: unknown };
+type MarketplaceManifest = { name?: string; plugins: Array<{ source?: string }> };
+type HooksManifest = { hooks: Record<string, unknown> };
+
 describe("manifests", () => {
   it("plugin.json is valid and names the plugin", () => {
-    const m = JSON.parse(readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"));
+    const m: PluginManifest = JSON.parse(readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"));
     expect(m.name).toBe("claudia");
   });
 
   it("plugin.json does NOT declare hooks (hooks/hooks.json is auto-discovered)", () => {
-    const m = JSON.parse(readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"));
+    const m: PluginManifest = JSON.parse(readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"));
     expect(m.hooks).toBeUndefined();
   });
 
   it("marketplace.json is valid with a single-plugin './' source", () => {
-    const m = JSON.parse(readFileSync(path.join(root, ".claude-plugin/marketplace.json"), "utf8"));
+    const m: MarketplaceManifest = JSON.parse(readFileSync(path.join(root, ".claude-plugin/marketplace.json"), "utf8"));
     expect(m.name).toBe("claudia");
     expect(m.plugins.length).toBeGreaterThan(0);
-    expect(m.plugins[0].source).toBe("./");
+    expect(m.plugins[0]!.source).toBe("./");
   });
 
   it("hooks.json wires UserPromptSubmit + SessionEnd", () => {
-    const h = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
+    const h: HooksManifest = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
     expect(Object.keys(h.hooks)).toEqual(expect.arrayContaining(["UserPromptSubmit", "SessionEnd"]));
   });
 });
@@ -89,7 +94,7 @@ describe("README stays in sync with the command surface", () => {
     expect(expected, `extend words[] past ${commands.length}`).toBeDefined();
     const counts = [...readme.matchAll(
       /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:slash\s+)?commands?\b/gi,
-    )].map((m) => m[1].toLowerCase());
+    )].map((m) => m[1]!.toLowerCase());
     expect(counts.length, "README should state the command count").toBeGreaterThan(0);
     for (const w of counts) expect(w).toBe(expected);
   });
@@ -298,7 +303,7 @@ describe("dashboard mirror (ADR-0019)", () => {
   });
 
   it("is rebuilt at SessionEnd and at the tail of recall (a zero-lag mirror)", () => {
-    const h = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
+    const h: HooksManifest = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
     expect(/build-dashboard\.mjs/.test(JSON.stringify(h.hooks.SessionEnd)), "SessionEnd should rebuild it").toBe(true);
     const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
     expect(/build-dashboard\.mjs/.test(recall), "recall should rebuild after deferred distillation").toBe(true);
@@ -369,15 +374,15 @@ describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));
     const linkRe = /\]\(([^)]+?\.md)(#[^)]*)?\)/g;
-    const broken = [];
+    const broken: string[] = [];
     for (const f of mdFiles) {
       // Strip code (fenced + inline) so example link-syntax isn't link-checked.
       const txt = readFileSync(f, "utf8")
         .replace(/```[\s\S]*?```/g, "")
         .replace(/`[^`]*`/g, "");
-      let m;
+      let m: RegExpExecArray | null;
       while ((m = linkRe.exec(txt))) {
-        const target = m[1];
+        const target = m[1]!;
         if (/^https?:/.test(target)) continue;
         if (!existsSync(path.resolve(path.dirname(f), target))) {
           broken.push(`${path.relative(root, f)} -> ${target}`);

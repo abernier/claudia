@@ -9,16 +9,18 @@ import {
   renderMarkdown,
   resolveTranscriptPath,
 } from "../src/session.mjs";
+import type { ContentBlock } from "../src/session.mjs";
 
 // A tiny 1×1 PNG, base64 — enough to assert extraction round-trips the bytes.
 const PNG_1PX =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
-const imageBlock = (data = PNG_1PX, media_type = "image/png") => ({
+const imageBlock = (data: string = PNG_1PX, media_type: string = "image/png"): ContentBlock => ({
   type: "image",
   source: { type: "base64", media_type, data },
 });
 
-const userMsg = (content) => JSON.stringify({ type: "user", message: { role: "user", content } });
+const userMsg = (content: string | ContentBlock[]): string =>
+  JSON.stringify({ type: "user", message: { role: "user", content } });
 
 describe("projectDirFor()", () => {
   it("encodes / and . as -", () => {
@@ -30,7 +32,8 @@ describe("projectDirFor()", () => {
 describe("textFromContent()", () => {
   it("handles a plain string", () => expect(textFromContent("hi")).toBe("hi"));
   it("joins text blocks and drops tool blocks", () => {
-    expect(textFromContent([{ type: "text", text: "a" }, { type: "tool_use", name: "x" }, { type: "text", text: "b" }])).toBe("a\n\nb");
+    // `as`: tool_use carries a `name` field beyond the loose ContentBlock shape — fed on purpose so it gets dropped.
+    expect(textFromContent([{ type: "text", text: "a" }, { type: "tool_use", name: "x" } as ContentBlock, { type: "text", text: "b" }])).toBe("a\n\nb");
   });
   it("returns empty for unknown shapes", () => expect(textFromContent(null)).toBe(""));
 });
@@ -43,7 +46,8 @@ describe("partsFromContent()", () => {
     const parts = partsFromContent([
       { type: "text", text: "voilà " },
       imageBlock(),
-      { type: "tool_use", name: "x" },
+      // `as`: tool_use carries a `name` field beyond the loose ContentBlock shape — fed on purpose so it gets dropped.
+      { type: "tool_use", name: "x" } as ContentBlock,
     ]);
     expect(parts).toEqual([
       { kind: "text", text: "voilà" },
@@ -72,7 +76,9 @@ describe("isClaudiaSession()", () => {
   });
   it("false when the persona text only appears inside a tool_result (a dev session reading the file)", () => {
     const jsonl = userMsg([
-      { type: "tool_result", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia" },
+      // `as unknown as`: a tool_result whose nested content is a raw *string* — deliberately outside ContentBlock's
+      // declared shape (content?: ContentBlock[]); the gate must not read inside it.
+      { type: "tool_result", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia" } as unknown as ContentBlock,
     ]);
     expect(isClaudiaSession(jsonl)).toBe(false);
   });
@@ -125,7 +131,8 @@ describe("renderMarkdown()", () => {
     // Text then image, in order, linked relative to the session's own assets dir.
     expect(markdown).toContain("regarde ça");
     expect(markdown).toContain("![img-001](2026-07-21-abcd1234.assets/img-001.png)");
-    expect(markdown.indexOf("regarde ça")).toBeLessThan(markdown.indexOf("![img-001]"));
+    // (`!`: the toContain assertions above already proved markdown is non-null.)
+    expect(markdown!.indexOf("regarde ça")).toBeLessThan(markdown!.indexOf("![img-001]"));
   });
 
   it("numbers multiple images sequentially across turns and maps the extension", () => {

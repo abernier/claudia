@@ -20,6 +20,14 @@ import os from "node:os";
 import { resolveTranscriptPath, isClaudiaSession } from "../src/session.mjs";
 import { ANCHOR_SOURCES, shouldAnchor, renderAnchorContext } from "../src/anchor.mjs";
 
+/**
+ * The SessionStart hook payload: the transcript locator plus the start source.
+ * `source` is non-optional — Claude Code always sends it for SessionStart —
+ * which keeps the `ANCHOR_SOURCES.has(source)` gate below cast-free.
+ * @typedef {import('../src/session.mjs').TranscriptHookPayload & { source: string }} SessionStartPayload
+ */
+
+/** @returns {Promise<string>} */
 function readStdin() {
   return new Promise((resolve) => {
     let data = "";
@@ -30,6 +38,7 @@ function readStdin() {
   });
 }
 
+/** @param {string} note  the additionalContext to inject at SessionStart */
 function emit(note) {
   process.stdout.write(
     JSON.stringify({
@@ -41,9 +50,12 @@ function emit(note) {
 async function main() {
   try {
     const raw = await readStdin();
-    let payload = {};
+    // Casts: external hook boundary — stdin is Claude Code's documented
+    // SessionStart payload, and the empty fallback flows into the same
+    // all-guarded reads (`source` simply never matches ANCHOR_SOURCES).
+    let payload = /** @type {SessionStartPayload} */ ({});
     try {
-      payload = JSON.parse(raw || "{}");
+      payload = /** @type {SessionStartPayload} */ (JSON.parse(raw || "{}"));
     } catch {
       /* tolerate */
     }

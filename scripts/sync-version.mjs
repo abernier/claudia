@@ -8,10 +8,28 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 
-const version = JSON.parse(readFileSync("package.json", "utf8")).version;
+/**
+ * The slice of a manifest we rewrite in place — covers both
+ * `.claude-plugin/plugin.json` (top-level `version`) and
+ * `.claude-plugin/marketplace.json` (`plugins[0].version`).
+ *
+ * @typedef {object} Manifest
+ * @property {string} [version]
+ * @property {Array<{ version: string }>} [plugins]
+ */
 
+const version = /** @type {{ version: string }} */ (
+  JSON.parse(readFileSync("package.json", "utf8"))
+).version;
+
+/**
+ * Re-serialize a manifest at `path` after letting `mutate` edit it in place.
+ *
+ * @param {string} path Repo-relative path to the JSON file.
+ * @param {(json: Manifest) => void} mutate
+ */
 function patch(path, mutate) {
-  const json = JSON.parse(readFileSync(path, "utf8"));
+  const json = /** @type {Manifest} */ (JSON.parse(readFileSync(path, "utf8")));
   mutate(json);
   writeFileSync(path, JSON.stringify(json, null, 2) + "\n");
   console.log(`synced ${path} -> ${version}`);

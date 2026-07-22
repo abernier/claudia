@@ -25,17 +25,28 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildDashboard, personName, sessionsForMirror } from "../src/dashboard.mjs";
 
+/**
+ * Local `YYYY-MM-DD` stamp for the mirror footer.
+ *
+ * @returns {string}
+ */
 function todayStamp() {
   const d = new Date();
+  /** @param {number} n */
   const p = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
+// null = "file absent" — load-bearing downstream: buildDashboard omits the section.
+/** @type {(p: string) => Promise<string | null>} */
 const read = (p) => fs.readFile(p, "utf8").catch(() => null);
 
 /**
  * Rebuild `<root>/dashboard.md` from the working files. Honours the opt-out and fails
  * silent (never throws). Returns true if the mirror was written, false if skipped.
+ *
+ * @param {string} root — the vault root (normally `~/.claudia`)
+ * @returns {Promise<boolean>}
  */
 export async function rebuildDashboard(root) {
   try {
@@ -50,7 +61,9 @@ export async function rebuildDashboard(root) {
 
     // Respect the opt-out — and make it real by removing any stale mirror.
     try {
-      const cfg = JSON.parse((await read(path.join(root, "config.json"))) || "{}");
+      const cfg = /** @type {import("./save-session.mjs").ClaudiaConfig} */ (
+        JSON.parse((await read(path.join(root, "config.json"))) || "{}")
+      );
       if (cfg.dashboard === false) {
         await fs.rm(dashboardPath, { force: true }).catch(() => {});
         return false;

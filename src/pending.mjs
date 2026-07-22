@@ -22,21 +22,36 @@
 const SESSION_FILE = /^(.+)\.(transcript\.md|transcript\.jsonl|summary\.md|pending-summary)$/;
 
 /**
+ * The per-stem record of which session artefacts exist — the value type of the
+ * Map returned by {@link sessionIndex}.
+ *
+ * @typedef {object} SessionArtifacts
+ * @property {boolean} transcript - a `transcript.md` or `transcript.jsonl` exists
+ * @property {boolean} summary - a distilled `summary.md` exists
+ * @property {boolean} pending - a `pending-summary` marker exists (distillation owed)
+ */
+
+/**
  * Fold a flat list of `sessions/` filenames into a per-stem record of which
  * artefacts exist. Unrelated files (teachings/, exercises/, dotfiles) are ignored.
  * Returns a Map<stem, {transcript, summary, pending}>.
+ *
+ * @param {string[] | null | undefined} filenames - directory listing of `sessions/`; null-ish is treated as empty
+ * @returns {Map<string, SessionArtifacts>}
  */
 export function sessionIndex(filenames) {
+  /** @type {Map<string, SessionArtifacts>} */
   const byStem = new Map();
   for (const name of filenames || []) {
     const m = SESSION_FILE.exec(String(name));
     if (!m) continue;
+    // Both groups are non-optional in SESSION_FILE, hence the two casts on `stem`.
     const [, stem, kind] = m;
-    const rec = byStem.get(stem) || { transcript: false, summary: false, pending: false };
+    const rec = byStem.get(/** @type {string} */ (stem)) || { transcript: false, summary: false, pending: false };
     if (kind === "summary.md") rec.summary = true;
     else if (kind === "pending-summary") rec.pending = true;
     else rec.transcript = true; // transcript.md | transcript.jsonl
-    byStem.set(stem, rec);
+    byStem.set(/** @type {string} */ (stem), rec);
   }
   return byStem;
 }
@@ -49,6 +64,9 @@ export function sessionIndex(filenames) {
  * is refreshed rather than left behind. Sorted so a caller can distill oldest first
  * (stems begin with the date). Deterministic detection; distillation is the model's
  * job (see `recall` / `distill-session`).
+ *
+ * @param {string[] | null | undefined} filenames - directory listing of `sessions/`; null-ish is treated as empty
+ * @returns {string[]} pending stems, sorted ascending (oldest first)
  */
 export function pendingSessions(filenames) {
   const out = [];

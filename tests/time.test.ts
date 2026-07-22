@@ -58,7 +58,7 @@ describe("daysBetween()", () => {
 });
 
 describe("classifyGap()", () => {
-  const h = (n) => n * 3_600_000;
+  const h = (n: number): number => n * 3_600_000;
   it("first_time when there is no prior timestamp", () => {
     expect(classifyGap({ prevMs: null, nowMs: 1, prevHour: 0, nowHour: 0, dayDiff: 0 })).toEqual({
       since_last: null,

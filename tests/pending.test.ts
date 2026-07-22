@@ -1,9 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { sessionIndex, pendingSessions } from "../src/pending.mjs";
+import type { SessionArtifacts } from "../src/pending.mjs";
 
 describe("sessionIndex()", () => {
   it("folds filenames into per-stem artefact records", () => {
-    const idx = sessionIndex([
+    const idx: Map<string, SessionArtifacts> = sessionIndex([
       "2026-07-21-abc.transcript.md",
       "2026-07-21-abc.summary.md",
       "2026-07-22-def.transcript.md",
@@ -13,15 +14,20 @@ describe("sessionIndex()", () => {
     expect(idx.get("2026-07-22-def")).toEqual({ transcript: true, summary: false, pending: true });
   });
   it("treats a .jsonl transcript the same as a .md one", () => {
-    const idx = sessionIndex(["2026-07-20-xyz.transcript.jsonl"]);
+    const idx: Map<string, SessionArtifacts> = sessionIndex(["2026-07-20-xyz.transcript.jsonl"]);
     expect(idx.get("2026-07-20-xyz")).toEqual({ transcript: true, summary: false, pending: false });
   });
   it("still keys legacy date-only stems", () => {
-    const idx = sessionIndex(["2026-07-21.transcript.md", "2026-07-21.summary.md"]);
+    const idx: Map<string, SessionArtifacts> = sessionIndex(["2026-07-21.transcript.md", "2026-07-21.summary.md"]);
     expect(idx.get("2026-07-21")).toEqual({ transcript: true, summary: true, pending: false });
   });
   it("ignores files that are not session artefacts", () => {
-    const idx = sessionIndex(["teachings", "2026-07-21-thought-record.md", ".DS_Store", "config.json"]);
+    const idx: Map<string, SessionArtifacts> = sessionIndex([
+      "teachings",
+      "2026-07-21-thought-record.md",
+      ".DS_Store",
+      "config.json",
+    ]);
     expect(idx.size).toBe(0);
   });
 });
@@ -41,7 +47,7 @@ describe("pendingSessions()", () => {
     ).toEqual(["2026-07-21-abc"]);
   });
   it("returns oldest-first so a caller can distill chronologically", () => {
-    const files = [
+    const files: string[] = [
       "2026-07-22-c.transcript.md",
       "2026-07-22-c.pending-summary",
       "2026-07-20-a.transcript.md",

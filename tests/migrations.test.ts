@@ -7,7 +7,7 @@ import { migrate, id } from "../src/migrations/0001-wikilinks-to-relative.mjs";
 import { runMigrations } from "../scripts/migrate-vault.mjs";
 
 // A compact fixture vault exercising every resolution branch.
-const fixture = () => ({
+const fixture = (): Record<string, string> => ({
   "MEMORY.md": "← [[MEMORY]]\n- [[Liliana]] · [[themes]] · [[etre-rabaisse]]\n",
   "themes.md": "← [[MEMORY]]\n## Candidats (vus sur [[2026-07-21-abc]])\n- **[[etre-rabaisse]]** — the wound\n- see [[the inner critic]]\n",
   "people/Liliana.md":
@@ -30,7 +30,7 @@ describe("migration registry", () => {
     }
   });
   it("registers 0001 first", () => {
-    expect(migrations[0].id).toBe("0001-wikilinks-to-relative");
+    expect(migrations[0]!.id).toBe("0001-wikilinks-to-relative");
     expect(id).toBe("0001-wikilinks-to-relative");
   });
 });
@@ -90,13 +90,13 @@ describe("0001 — wikilinks → relative links", () => {
 });
 
 describe("runMigrations() — the fs runner", () => {
-  const parents = [];
+  const parents: string[] = [];
   afterEach(async () => {
     for (const p of parents.splice(0)) await fs.rm(p, { recursive: true, force: true });
   });
 
   // A vault at <tmp>/.claudia so its backup sibling (<tmp>/.claudia.bak-*) is cleaned too.
-  async function makeVault(files) {
+  async function makeVault(files: Record<string, string>): Promise<{ parent: string; root: string }> {
     const parent = await fs.mkdtemp(path.join(os.tmpdir(), "claudia-"));
     parents.push(parent);
     const root = path.join(parent, ".claudia");
@@ -108,15 +108,15 @@ describe("runMigrations() — the fs runner", () => {
     return { parent, root };
   }
 
-  const withLinks = () => ({
+  const withLinks = (): Record<string, string> => ({
     "MEMORY.md": "- [[Liliana]] · [[2026-07-21-abc]]\n",
     "people/Liliana.md": "see [[2026-07-21-abc]]\n",
     "sessions/2026-07-21-abc.summary.md": "with [[Liliana]]\n",
     "sessions/2026-07-21-abc.transcript.md": "verbatim [[Liliana]] stays\n",
   });
 
-  const read = (root, rel) => fs.readFile(path.join(root, rel), "utf8");
-  const has = (root, rel) =>
+  const read = (root: string, rel: string): Promise<string> => fs.readFile(path.join(root, rel), "utf8");
+  const has = (root: string, rel: string): Promise<boolean> =>
     fs
       .access(path.join(root, rel))
       .then(() => true)
@@ -144,7 +144,7 @@ describe("runMigrations() — the fs runner", () => {
     // ledger + backup
     expect((await read(root, ".migrations")).trim()).toBe("0001-wikilinks-to-relative");
     expect(r.backup).toBeTruthy();
-    expect(await read(r.backup, "MEMORY.md")).toContain("[[Liliana]]"); // backup keeps the original
+    expect(await read(r.backup!, "MEMORY.md")).toContain("[[Liliana]]"); // backup keeps the original (`!` safe: toBeTruthy above)
   });
 
   it("is a no-op on the second run (ledger + idempotency)", async () => {

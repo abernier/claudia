@@ -17,6 +17,21 @@ import os from "node:os";
 import path from "node:path";
 import { resolveTranscriptPath, isClaudiaSession, renderMarkdown, sessionIdFrom } from "../src/session.mjs";
 
+/**
+ * Shape of ~/.claudia/config.json (external boundary — the person edits this by
+ * hand). Every reader checks `=== false`, so an absent field means default-on.
+ * Also consumed (type-only) by scripts/build-dashboard.mjs for its `dashboard`
+ * opt-out; this script, first in the lifecycle to read the file (ADR-0004), owns it.
+ * @typedef {object} ClaudiaConfig
+ * @property {boolean} [saveTranscripts]  opt-out for transcript archiving
+ * @property {boolean} [dashboard]  opt-out for the dashboard mirror
+ */
+
+/**
+ * Read all of stdin (the hook payload). The 3s timeout resolves with whatever
+ * arrived so a wedged pipe can never hang the hook (a second resolve is a no-op).
+ * @returns {Promise<string>}
+ */
 function readStdin() {
   return new Promise((resolve) => {
     let data = "";
@@ -27,18 +42,29 @@ function readStdin() {
   });
 }
 
+/**
+ * Local date stamp, "YYYY-MM-DD".
+ * @returns {string}
+ */
 function todayStamp() {
   const d = new Date();
+  /** @param {number} n */
   const p = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
+/**
+ * SessionEnd hook entrypoint. Always exits 0 — a hook must never break the host.
+ * @returns {Promise<void>}
+ */
 async function main() {
   try {
     const raw = await readStdin();
+    /** @type {import("../src/session.mjs").TranscriptHookPayload} */
     let payload = {};
     try {
-      payload = JSON.parse(raw || "{}");
+      // SessionEnd sends exactly the transcript-locator subset — no wider typedef needed.
+      payload = /** @type {import("../src/session.mjs").TranscriptHookPayload} */ (JSON.parse(raw || "{}"));
     } catch {
       /* tolerate */
     }
@@ -55,6 +81,7 @@ async function main() {
 
     if (!transcriptPath) return process.exit(0);
 
+    /** @type {string} */
     let jsonl;
     try {
       jsonl = await fs.readFile(transcriptPath, "utf8");
@@ -71,7 +98,7 @@ async function main() {
 
     // Respect the person's opt-out.
     try {
-      const cfg = JSON.parse(await fs.readFile(path.join(root, "config.json"), "utf8"));
+      const cfg = /** @type {ClaudiaConfig} */ (JSON.parse(await fs.readFile(path.join(root, "config.json"), "utf8")));
       if (cfg.saveTranscripts === false) return process.exit(0);
     } catch {
       /* no config → default-on */

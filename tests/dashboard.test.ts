@@ -8,15 +8,16 @@ import {
   cadence,
   buildDashboard,
 } from "../src/dashboard.mjs";
+import type { DashboardInput, MirrorSession } from "../src/dashboard.mjs";
 
 describe("listItems()", () => {
   it("transcludes bullet / numbered / checkbox lines verbatim, right-trimmed", () => {
-    const md = "# Objectifs\n\n- retrouver le sommeil  \n* parler à Liliana\n1. bouger un peu\n- [ ] respirer\n\nprose ignorée";
+    const md: string = "# Objectifs\n\n- retrouver le sommeil  \n* parler à Liliana\n1. bouger un peu\n- [ ] respirer\n\nprose ignorée";
     expect(listItems(md)).toEqual(["- retrouver le sommeil", "* parler à Liliana", "1. bouger un peu", "- [ ] respirer"]);
   });
   it("captures a WRAPPED bullet in full — never truncates to a dangling half-sentence", () => {
     // The real-data bug: a goal spilling onto the next physical line was cut at line 1.
-    const md = "- **Séparer ce que je ressens de l'intention qu'on me prête** — et l'offrir aussi dans\nla relation, pas seulement dans ma tête.\n- **M'autoriser la colère**";
+    const md: string = "- **Séparer ce que je ressens de l'intention qu'on me prête** — et l'offrir aussi dans\nla relation, pas seulement dans ma tête.\n- **M'autoriser la colère**";
     expect(listItems(md)).toEqual([
       "- **Séparer ce que je ressens de l'intention qu'on me prête** — et l'offrir aussi dans\nla relation, pas seulement dans ma tête.",
       "- **M'autoriser la colère**",
@@ -32,7 +33,7 @@ describe("listItems()", () => {
 });
 
 describe("sectionItems()", () => {
-  const todo =
+  const todo: string =
     "# À faire\n\n## Ouvert\n- [ ] rappeler le médecin · [2026-07-21-abc](sessions/2026-07-21-abc.summary.md)\n- [ ] écrire à Liliana\n\n## Fait\n- [x] réserver\n";
   it("scopes to the matched heading, stops at the next heading", () => {
     expect(sectionItems(todo, /ouvert/i)).toEqual([
@@ -47,7 +48,7 @@ describe("sectionItems()", () => {
 
 describe("mermaidBlock()", () => {
   it("returns the first mermaid fence verbatim", () => {
-    const people = "# Mon monde\n\n```mermaid\ngraph TD\n  moi --> Liliana\n```\n\nsuite";
+    const people: string = "# Mon monde\n\n```mermaid\ngraph TD\n  moi --> Liliana\n```\n\nsuite";
     expect(mermaidBlock(people)).toBe("```mermaid\ngraph TD\n  moi --> Liliana\n```");
   });
   it("returns null when there is no mermaid block", () => {
@@ -73,7 +74,7 @@ describe("personName()", () => {
 
 describe("sessionsForMirror()", () => {
   it("parses stems to {stem, date, hasSummary}, most recent first", () => {
-    const files = [
+    const files: string[] = [
       "2026-07-18-aaa.transcript.md",
       "2026-07-18-aaa.summary.md",
       "2026-07-21-bbb.transcript.md",
@@ -88,16 +89,17 @@ describe("sessionsForMirror()", () => {
 
 describe("cadence()", () => {
   it("labels coarse rhythm, or null under two dated sessions", () => {
-    expect(cadence([{ date: "2026-07-20" }])).toBeNull();
-    expect(cadence([{ date: "2026-07-20" }, { date: "2026-07-21" }])).toBe("~quotidien");
-    expect(cadence([{ date: "2026-07-14" }, { date: "2026-07-21" }])).toBe("~hebdo");
-    expect(cadence([{ date: "2026-07-01" }, { date: "2026-07-21" }])).toBe("~mensuel");
+    // Deliberately partial fixtures (no stem/hasSummary): cadence() only reads .date.
+    expect(cadence([{ date: "2026-07-20" }] as MirrorSession[])).toBeNull();
+    expect(cadence([{ date: "2026-07-20" }, { date: "2026-07-21" }] as MirrorSession[])).toBe("~quotidien");
+    expect(cadence([{ date: "2026-07-14" }, { date: "2026-07-21" }] as MirrorSession[])).toBe("~hebdo");
+    expect(cadence([{ date: "2026-07-01" }, { date: "2026-07-21" }] as MirrorSession[])).toBe("~mensuel");
   });
 });
 
 describe("buildDashboard() — transclude or point, never summarise", () => {
-  const understanding = "# Working understanding\n\n## En ce moment\nune longue prose thérapeutique très personnelle…";
-  const base = {
+  const understanding: string = "# Working understanding\n\n## En ce moment\nune longue prose thérapeutique très personnelle…";
+  const base: DashboardInput = {
     name: "Antoine",
     sessions: [
       { stem: "2026-07-21-bbb", date: "2026-07-21", hasSummary: true },
@@ -113,14 +115,14 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
   };
 
   it("titles with the name and shows computed vitals", () => {
-    const md = buildDashboard(base);
+    const md: string = buildDashboard(base);
     expect(md).toMatch(/^# Vue d'ensemble — Antoine/);
     expect(md).toContain("dernière session · 22/07");
     expect(md).toContain("2 sessions");
   });
 
   it("links the working understanding, never excerpts its prose", () => {
-    const md = buildDashboard(base);
+    const md: string = buildDashboard(base);
     expect(md).toContain("## Là où on en est");
     expect(md).toContain("→ [understanding](understanding.md)");
     expect(md).not.toContain("longue prose thérapeutique");
@@ -128,41 +130,41 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
   });
 
   it("transcludes lists verbatim (goals, themes)", () => {
-    const md = buildDashboard(base);
+    const md: string = buildDashboard(base);
     expect(md).toContain("- retrouver le sommeil");
     expect(md).toContain("- l'inner critic");
   });
 
   it("shows only the still-open todos", () => {
-    const md = buildDashboard(base);
+    const md: string = buildDashboard(base);
     expect(md).toContain("- [ ] rappeler le médecin");
     expect(md).not.toContain("réserver");
   });
 
   it("renders recent fils as date+link, and pending sessions as pending — never an excerpt", () => {
-    const md = buildDashboard(base);
+    const md: string = buildDashboard(base);
     expect(md).toContain("- 21/07 → [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)");
     expect(md).toContain("- 22/07 · *en cours de distillation*");
   });
 
   it("transcludes the ecomap block verbatim", () => {
-    const md = buildDashboard(base);
+    const md: string = buildDashboard(base);
     expect(md).toContain("```mermaid\ngraph TD\n  moi --> Liliana\n```");
   });
 
   it("keeps only the last three life markers", () => {
-    const md = buildDashboard(base);
+    const md: string = buildDashboard(base);
     expect(md).toContain("- 2026 — début avec Claudia");
     expect(md).not.toContain("naissance de ma sœur");
   });
 
   it("never mirrors safety content", () => {
-    const md = buildDashboard(base);
+    const md: string = buildDashboard(base);
     expect(md).not.toMatch(/safety|sécurité|risque|crise/i);
   });
 
   it("omits the name when it cannot be found, and omits absent sections (no dangling links)", () => {
-    const md = buildDashboard({ ...base, name: null, timeline: null, people: null });
+    const md: string = buildDashboard({ ...base, name: null, timeline: null, people: null });
     expect(md).toMatch(/^# Vue d'ensemble\n/);
     expect(md).not.toContain("## Repères de vie");
     expect(md).not.toContain("## Ton monde");
@@ -170,7 +172,7 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
   });
 
   it("falls back to a bare link when a present source has no parsable list", () => {
-    const md = buildDashboard({ ...base, goals: "on en reparlera, rien d'arrêté encore" });
+    const md: string = buildDashboard({ ...base, goals: "on en reparlera, rien d'arrêté encore" });
     expect(md).toContain("## Objectifs\n→ [goals](goals.md)");
   });
 });

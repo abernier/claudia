@@ -11,7 +11,27 @@
  * the person last spoke with Claudia so she can wear a real break warmly.
  */
 
-/** Local wall-clock parts for a Date in a given IANA zone (pure; Intl-based). */
+/**
+ * Local wall-clock parts for a Date in a given IANA zone.
+ *
+ * @typedef {object} ZonedParts
+ * @property {number} year
+ * @property {number} month 1-based calendar month.
+ * @property {number} day
+ * @property {number} hour Local hour, 0–23.
+ * @property {number} minute
+ * @property {number} second
+ * @property {string} weekday Long English weekday name (e.g. "Wednesday").
+ * @property {number} offsetMinutes UTC offset at that instant, in minutes (signed).
+ */
+
+/**
+ * Local wall-clock parts for a Date in a given IANA zone (pure; Intl-based).
+ *
+ * @param {Date} date The instant to read.
+ * @param {string} timeZone IANA zone name (e.g. "Europe/Paris").
+ * @returns {ZonedParts}
+ */
 export function zonedParts(date, timeZone) {
   const dtf = new Intl.DateTimeFormat("en-US", {
     timeZone,
@@ -24,6 +44,7 @@ export function zonedParts(date, timeZone) {
     second: "2-digit",
     weekday: "long",
   });
+  /** @type {Record<string, string>} */
   const p = {};
   for (const part of dtf.formatToParts(date)) {
     if (part.type !== "literal") p[part.type] = part.value;
@@ -37,12 +58,19 @@ export function zonedParts(date, timeZone) {
   // Offset = (wall-clock read as if it were UTC) − (the actual instant).
   const asUTC = Date.UTC(year, month - 1, day, hour, minute, second);
   const offsetMinutes = Math.round((asUTC - date.getTime()) / 60000);
-  return { year, month, day, hour, minute, second, weekday: p.weekday, offsetMinutes };
+  // p.weekday is always present: "weekday" is requested in the formatToParts options.
+  return { year, month, day, hour, minute, second, weekday: /** @type {string} */ (p.weekday), offsetMinutes };
 }
 
+/** @param {number} n */
 const pad = (n) => String(n).padStart(2, "0");
 
-/** ISO-8601 with LOCAL offset — never UTC "Z", so no conversion step is implied. */
+/**
+ * ISO-8601 with LOCAL offset — never UTC "Z", so no conversion step is implied.
+ *
+ * @param {ZonedParts} parts
+ * @returns {string}
+ */
 export function isoWithOffset(parts) {
   const sign = parts.offsetMinutes >= 0 ? "+" : "-";
   const abs = Math.abs(parts.offsetMinutes);
@@ -50,7 +78,12 @@ export function isoWithOffset(parts) {
   return `${parts.year}-${pad(parts.month)}-${pad(parts.day)}T${pad(parts.hour)}:${pad(parts.minute)}:${pad(parts.second)}${off}`;
 }
 
-/** Coarse part-of-day from a LOCAL hour (never derive this from UTC). */
+/**
+ * Coarse part-of-day from a LOCAL hour (never derive this from UTC).
+ *
+ * @param {number} hour Local hour, 0–23.
+ * @returns {'night' | 'morning' | 'afternoon' | 'evening'}
+ */
 export function partOfDay(hour) {
   if (hour >= 22 || hour < 6) return "night";
   if (hour < 12) return "morning";
@@ -58,7 +91,12 @@ export function partOfDay(hour) {
   return "evening";
 }
 
-/** Compact ISO-8601 duration ("PT9H12M"); sub-minute collapses to seconds. */
+/**
+ * Compact ISO-8601 duration ("PT9H12M"); sub-minute collapses to seconds.
+ *
+ * @param {number} ms Duration in milliseconds; negatives floor to "PT0S".
+ * @returns {string}
+ */
 export function iso8601Duration(ms) {
   const totalSec = Math.max(0, Math.floor(ms / 1000));
   const h = Math.floor(totalSec / 3600);
@@ -71,12 +109,24 @@ export function iso8601Duration(ms) {
   return out;
 }
 
-/** Whole local calendar days between two zoned-parts (now − prev). */
+/**
+ * Whole local calendar days between two zoned-parts (now − prev).
+ *
+ * @param {ZonedParts} prevParts
+ * @param {ZonedParts} nowParts
+ * @returns {number}
+ */
 export function daysBetween(prevParts, nowParts) {
   const a = Date.UTC(prevParts.year, prevParts.month - 1, prevParts.day);
   const b = Date.UTC(nowParts.year, nowParts.month - 1, nowParts.day);
   return Math.round((b - a) / 86400000);
 }
+
+/**
+ * How the gap since the previous turn is classified (ADR-0012).
+ *
+ * @typedef {'first_time' | 'none' | 'same_day' | 'overnight' | 'multi_day'} GapKind
+ */
 
 /**
  * Classify the gap since the person last spoke with Claudia.
@@ -86,7 +136,9 @@ export function daysBetween(prevParts, nowParts) {
  * day catches the ordinary case (23:00 → 07:00). The persona names only
  * `overnight` / `multi_day`; `none` / `same_day` stay silent.
  *
- * @returns {{ since_last: string|null, gap_kind: 'first_time'|'none'|'same_day'|'overnight'|'multi_day' }}
+ * @param {{ prevMs: number | null, nowMs: number, prevHour: number, nowHour: number, dayDiff: number }} gap
+ *   prevMs is the previous-seen epoch ms (null when none); hours are LOCAL; dayDiff comes from daysBetween.
+ * @returns {{ since_last: string | null, gap_kind: GapKind }}
  */
 export function classifyGap({ prevMs, nowMs, prevHour, nowHour, dayDiff }) {
   if (prevMs == null || !Number.isFinite(prevMs)) {
@@ -104,8 +156,23 @@ export function classifyGap({ prevMs, nowMs, prevHour, nowHour, dayDiff }) {
 }
 
 /**
+ * The full time context for a turn — the object the hook injects.
+ *
+ * @typedef {object} TimeContext
+ * @property {string} now ISO-8601 local time with offset (never UTC "Z").
+ * @property {string} zone IANA zone name.
+ * @property {string} weekday Long English weekday name.
+ * @property {'night' | 'morning' | 'afternoon' | 'evening'} part_of_day
+ * @property {string | null} since_last ISO-8601 duration since last spoken; null on first_time.
+ * @property {GapKind} gap_kind
+ */
+
+/**
  * The full time context for a turn. Pure given (now: Date, prevMs: number|null,
  * timeZone: string). This object is what the hook injects.
+ *
+ * @param {{ now: Date, prevMs: number | null, timeZone: string }} input
+ * @returns {TimeContext}
  */
 export function buildTimeContext({ now, prevMs, timeZone }) {
   const nowParts = zonedParts(now, timeZone);
@@ -132,6 +199,9 @@ export function buildTimeContext({ now, prevMs, timeZone }) {
 /**
  * The note injected into the turn. Facts only — HOW Claudia wears a gap lives in
  * her persona (skills/claudia/SKILL.md), not here, so this stays persona-neutral.
+ *
+ * @param {TimeContext} ctx
+ * @returns {string}
  */
 export function renderTimeContext(ctx) {
   const lead =

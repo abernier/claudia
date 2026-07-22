@@ -29,14 +29,22 @@ import { rebuildDashboard } from "./build-dashboard.mjs";
 
 const LEDGER = ".migrations";
 
+/** @returns {string} timestamp `YYYYMMDD-HHMMSS`, used to name the backup directory */
 function stamp() {
   const d = new Date();
-  const p = (n) => String(n).padStart(2, "0");
+  const p = (/** @type {number} */ n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
 }
 
+/**
+ * @param {string} dir  directory to walk recursively
+ * @param {string} [base]  root the returned paths are made relative to (defaults to `dir`)
+ * @returns {Promise<string[]>} vault-relative POSIX paths of every file under `dir`
+ */
 async function walk(dir, base = dir) {
+  /** @type {string[]} */
   const out = [];
+  /** @type {import("node:fs").Dirent[]} */
   let entries = [];
   try {
     entries = await fs.readdir(dir, { withFileTypes: true });
@@ -51,6 +59,10 @@ async function walk(dir, base = dir) {
   return out;
 }
 
+/**
+ * @param {string} root  vault directory
+ * @returns {Promise<Set<string>>} migration ids already recorded in the ledger
+ */
 async function readLedger(root) {
   try {
     const txt = await fs.readFile(path.join(root, LEDGER), "utf8");
@@ -60,6 +72,10 @@ async function readLedger(root) {
   }
 }
 
+/**
+ * @param {string} root  vault directory
+ * @param {string[]} ids  migration ids to record as applied
+ */
 async function appendLedger(root, ids) {
   const applied = await readLedger(root);
   for (const id of ids) applied.add(id);
@@ -67,8 +83,24 @@ async function appendLedger(root, ids) {
 }
 
 /**
+ * One changed file in a dry-run preview: full before/after content.
+ * @typedef {object} MigrationDiff
+ * @property {string} rel  vault-relative POSIX path
+ * @property {string} before  content on disk
+ * @property {string} after  content the migrations would write
+ */
+
+/**
+ * Outcome of `runMigrations`, discriminated on `status`: `diffs` is always present on
+ * `'dry'` (and also accompanies a dry-run `'nochange'`, possibly empty); `backup` is a
+ * path only for `'applied'`.
+ * @typedef {{status: 'absent'|'noop'|'nochange'|'applied', ran: string[], changed: string[], backup: string|null, diffs?: MigrationDiff[]}
+ *         | {status: 'dry', ran: string[], changed: string[], backup: null, diffs: MigrationDiff[]}} MigrationRunResult
+ */
+
+/**
  * @param {{root: string, dry?: boolean}} opts
- * @returns {Promise<{status: 'absent'|'noop'|'nochange'|'dry'|'applied', ran: string[], changed: string[], backup: string|null, diffs?: Array<{rel:string, before:string, after:string}>}>}
+ * @returns {Promise<MigrationRunResult>}
  */
 export async function runMigrations({ root, dry = false }) {
   try {
@@ -83,11 +115,13 @@ export async function runMigrations({ root, dry = false }) {
 
   // Load markdown files (never the verbatim transcripts) into a { rel: content } map.
   const rels = (await walk(root)).filter((r) => r.endsWith(".md") && !r.endsWith(".transcript.md"));
+  /** @type {Record<string, string>} */
   const original = {};
   for (const rel of rels) original[rel] = await fs.readFile(path.join(root, rel), "utf8");
 
   // Fold pending migrations, each transforming the accumulated content.
   let files = { ...original };
+  /** @type {string[]} */
   const ran = [];
   for (const m of pending) {
     files = { ...files, ...m.migrate(files) };
@@ -96,7 +130,10 @@ export async function runMigrations({ root, dry = false }) {
   const changed = Object.keys(files).filter((rel) => files[rel] !== original[rel]);
 
   if (dry) {
-    const diffs = changed.map((rel) => ({ rel, before: original[rel], after: files[rel] }));
+    // The `before` cast holds while every migration only rewrites existing files. A
+    // migration that *creates* a file would surface `undefined` here — printDiffs must
+    // learn to render "new file" before such a migration ships.
+    const diffs = changed.map((rel) => ({ rel, before: /** @type {string} */ (original[rel]), after: /** @type {string} */ (files[rel]) }));
     return { status: changed.length ? "dry" : "nochange", ran, changed, backup: null, diffs };
   }
 
@@ -113,7 +150,7 @@ export async function runMigrations({ root, dry = false }) {
   for (const rel of changed) {
     const abs = path.join(root, rel);
     await fs.mkdir(path.dirname(abs), { recursive: true });
-    await fs.writeFile(abs, files[rel]);
+    await fs.writeFile(abs, /** @type {string} */ (files[rel]));
   }
   await appendLedger(root, ran);
   await rebuildDashboard(root); // derived mirror: regenerate, never migrate in place
@@ -121,6 +158,7 @@ export async function runMigrations({ root, dry = false }) {
   return { status: "applied", ran, changed, backup };
 }
 
+/** @param {MigrationDiff[]} diffs */
 function printDiffs(diffs) {
   for (const { rel, before, after } of diffs) {
     const b = before.split("\n");

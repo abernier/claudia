@@ -26,8 +26,14 @@ export const UNCERTAIN = [
 ];
 
 /**
+ * Outcome of the synchronous first pass.
+ * @typedef {{ band: 'clear'|'uncertain'|'safe', reason: string|null }} HeuristicResult
+ */
+
+/**
  * Pure, synchronous first pass. Returns the risk band and a reason.
- * @returns {{ band: 'clear'|'uncertain'|'safe', reason: string|null }}
+ * @param {string} text - Prompt text to screen (defensively coerced).
+ * @returns {HeuristicResult}
  */
 export function heuristic(text) {
   const t = String(text || "");
@@ -37,7 +43,11 @@ export function heuristic(text) {
   return { band: "safe", reason: null };
 }
 
-/** The context note injected into the turn when we escalate. */
+/**
+ * The context note injected into the turn when we escalate.
+ * @param {string|null} reason - Why we escalated (a SafetyDecision reason).
+ * @returns {string}
+ */
 export function escalationContext(reason) {
   return (
     `[CLAUDIA SAFETY] The per-turn safety check flagged possible risk (${reason}). ` +
@@ -49,10 +59,28 @@ export function escalationContext(reason) {
 }
 
 /**
+ * Verdict parsed from the model classifier's output. Model output is untrusted,
+ * so every field stays optional.
+ * @typedef {{ risk?: 'none'|'elevated'|'imminent', category?: string }} ClassifierVerdict
+ */
+
+/**
+ * Contract for the injected model stage: ok=false means no usable verdict.
+ * @typedef {{ ok: boolean, verdict?: ClassifierVerdict }} ClassifierResult
+ */
+
+/**
+ * The final call: whether to escalate this turn, and why.
+ * @typedef {{ escalate: boolean, reason: string|null }} SafetyDecision
+ */
+
+/**
  * Full decision. Deterministic except for the optional model stage, which is
  * injected (so tests pass a fake). FAIL-SAFE: an uncertain message with no usable
  * model verdict escalates.
- * @returns {Promise<{ escalate: boolean, reason: string|null }>}
+ * @param {string} text - Prompt text to screen.
+ * @param {{ modelClassifierEnabled?: boolean, classifyWithModel?: ((text: string) => Promise<ClassifierResult>) | null }} [options]
+ * @returns {Promise<SafetyDecision>}
  */
 export async function decide(text, { modelClassifierEnabled = false, classifyWithModel = null } = {}) {
   const h = heuristic(text);

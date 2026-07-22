@@ -14,13 +14,28 @@ import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+/**
+ * Today's local date as `YYYY-MM-DD`, used to name the default export folder.
+ *
+ * @returns {string}
+ */
 function stamp() {
   const d = new Date();
+  /** @type {(n: number) => string} */
   const p = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
+/**
+ * Recursively list every file under `dir` as vault-relative paths. An unreadable
+ * (or absent) directory yields no entries rather than throwing.
+ *
+ * @param {string} dir - directory to descend into
+ * @param {string} [base] - root the returned paths are made relative to (defaults to `dir`)
+ * @returns {Promise<string[]>}
+ */
 async function walk(dir, base = dir) {
+  /** @type {string[]} */
   const out = [];
   let entries = [];
   try {
@@ -36,6 +51,7 @@ async function walk(dir, base = dir) {
   return out;
 }
 
+/** @returns {Promise<void>} */
 async function main() {
   const src = process.argv[2] || path.join(os.homedir(), ".claudia");
   const dest = process.argv[3] || path.join(os.homedir(), "Desktop", `claudia-export-${stamp()}`);

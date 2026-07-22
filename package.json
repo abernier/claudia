@@ -5,13 +5,16 @@
   "type": "module",
   "description": "Dev & test harness for the Claudia Claude Code plugin (the plugin itself needs no runtime deps).",
   "scripts": {
-    "test": "vitest run",
+    "test": "npm run typecheck && vitest run",
     "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
     "changeset": "changeset",
     "release:version": "changeset version && node scripts/sync-version.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2",
     "vitest": "^3.2.4"
   }
 }

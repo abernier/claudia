@@ -7,17 +7,36 @@
 
 import path from "node:path";
 
-/** Claude Code encodes a project dir by replacing "/" and "." with "-". */
+/**
+ * Claude Code encodes a project dir by replacing "/" and "." with "-".
+ * @param {string} cwd
+ * @returns {string}
+ */
 export function projectDirFor(cwd) {
   return String(cwd).replace(/[/.]/g, "-");
 }
 
-/** Best-effort extraction of readable text from a transcript entry's content. */
+/**
+ * One block of a message's `content` array. Deliberately one loose all-optional
+ * shape, not a discriminated union: transcript data is external, and the code
+ * narrows defensively (`b && b.type === "text" && …`) rather than trusting it.
+ * @typedef {object} ContentBlock
+ * @property {string} [type]  "text" | "image" | "tool_result" | anything else (ignored)
+ * @property {string} [text]  present on text blocks
+ * @property {{ type?: string, media_type?: string, data?: string }} [source]  present on image blocks (base64)
+ * @property {ContentBlock[]} [content]  present on tool_result blocks (nested one level)
+ */
+
+/**
+ * Best-effort extraction of readable text from a transcript entry's content.
+ * @param {string | ContentBlock[] | null | undefined} content
+ * @returns {string}
+ */
 export function textFromContent(content) {
   if (typeof content === "string") return content.trim();
   if (Array.isArray(content)) {
     return content
-      .filter((b) => b && b.type === "text" && typeof b.text === "string")
+      .filter(/** @returns {b is ContentBlock & { text: string }} */ (b) => b && b.type === "text" && typeof b.text === "string")
       .map((b) => b.text.trim())
       .join("\n\n")
       .trim();
@@ -25,11 +44,21 @@ export function textFromContent(content) {
   return "";
 }
 
-/** Filename extension for an image block's media type (`image/png` → `png`). */
+/**
+ * Filename extension for an image block's media type (`image/png` → `png`).
+ * @param {string} mediaType
+ * @returns {string}
+ */
 function extFromMediaType(mediaType) {
   const m = /^image\/([a-z0-9.+-]+)$/i.exec(String(mediaType || ""));
-  return m ? m[1].toLowerCase() : "bin";
+  return m ? /** @type {string} */ (m[1]).toLowerCase() : "bin";
 }
+
+/**
+ * One renderable part of a message, discriminated on `kind` (the render loop
+ * switches on it — here a strict union IS right). Image `data` is base64.
+ * @typedef {{ kind: "text", text: string } | { kind: "image", mediaType: string, data: string }} MessagePart
+ */
 
 /**
  * Ordered renderable parts of a message's content: text, and the images the person
@@ -39,6 +68,8 @@ function extFromMediaType(mediaType) {
  * that returns an image). A `tool_result`'s *text* stays dropped on purpose — only
  * its images surface — so this mirrors `textFromContent` and keeps the claudia gate
  * intact (reading a file never counts as a Claudia turn).
+ * @param {string | ContentBlock[] | null | undefined} content
+ * @returns {MessagePart[]}
  */
 export function partsFromContent(content) {
   if (typeof content === "string") {
@@ -46,10 +77,15 @@ export function partsFromContent(content) {
     return t ? [{ kind: "text", text: t }] : [];
   }
   if (!Array.isArray(content)) return [];
+  /**
+   * @param {ContentBlock | null | undefined} b
+   * @returns {MessagePart | null}
+   */
   const asImage = (b) =>
     b && b.type === "image" && b.source && b.source.type === "base64"
       ? { kind: "image", mediaType: b.source.media_type || "", data: b.source.data || "" }
       : null;
+  /** @type {MessagePart[]} */
   const parts = [];
   for (const b of content) {
     if (!b || typeof b !== "object") continue;
@@ -86,12 +122,28 @@ export function partsFromContent(content) {
  */
 export const CLAUDIA_ACTIVATION = /Base directory for this skill:[^\n]*\/skills\/claudia(?:\/|\b|$)/;
 
+/**
+ * One parsed JSONL transcript line. Two shapes exist — the envelope form
+ * (`{ type, message: { role, content } }`) and the flat legacy form
+ * (`{ role, content }`) — and `const msg = e.message || e` must cover both.
+ * @typedef {object} TranscriptEntry
+ * @property {string} [type]  envelope event type ("user", "assistant", …)
+ * @property {{ role?: string, content?: string | ContentBlock[] }} [message]  envelope form
+ * @property {string} [role]  flat form
+ * @property {string | ContentBlock[]} [content]  flat form
+ */
+
+/**
+ * True when the transcript contains a genuine Claudia activation (see the gate above).
+ * @param {string} jsonl  raw JSONL transcript contents
+ * @returns {boolean}
+ */
 export function isClaudiaSession(jsonl) {
   const lines = String(jsonl || "").split("\n").filter(Boolean);
   for (const line of lines) {
     let e;
     try {
-      e = JSON.parse(line);
+      e = /** @type {TranscriptEntry} */ (JSON.parse(line));
     } catch {
       continue;
     }
@@ -103,10 +155,24 @@ export function isClaudiaSession(jsonl) {
 }
 
 /**
+ * The transcript-locator subset of a Claude Code hook payload — SessionEnd sends
+ * exactly this; SessionStart / UserPromptSubmit payloads extend it. All fields
+ * optional: hooks parse external stdin and fall back to `{}`.
+ * @typedef {object} TranscriptHookPayload
+ * @property {string} [session_id]
+ * @property {string} [transcript_path]  canonical field
+ * @property {string} [transcriptPath]  alternate spelling, honoured best-effort
+ * @property {string} [transcript]  alternate spelling, honoured best-effort
+ * @property {string} [cwd]  used with `session_id` to self-locate the transcript
+ */
+
+/**
  * The stable identity of a session: `session_id` from the hook payload, else the
  * basename of its transcript path (`<session_id>.jsonl`). Returns null when neither
  * is available. Used to key the archive by session rather than by date, so a
  * resumed conversation overwrites its own file instead of piling up duplicates.
+ * @param {TranscriptHookPayload | null | undefined} payload
+ * @returns {string | null}
  */
 export function sessionIdFrom(payload) {
   if (payload && payload.session_id) return String(payload.session_id);
@@ -114,6 +180,15 @@ export function sessionIdFrom(payload) {
   if (direct) return path.basename(String(direct)).replace(/\.jsonl$/i, "");
   return null;
 }
+
+/**
+ * An image lifted out of a transcript: `name` is `img-00N.<ext>`, `data` is base64
+ * for the caller to decode and write into the session's assets dir (ADR-0021).
+ * @typedef {object} SessionImage
+ * @property {string} name
+ * @property {string} mediaType
+ * @property {string} data
+ */
 
 /**
  * Render a JSONL transcript into readable markdown plus the images it embeds. Pure:
@@ -130,16 +205,21 @@ export function sessionIdFrom(payload) {
  *
  * Numbering follows position in the append-only JSONL, so re-rendering the same
  * transcript is idempotent: the Nth image is always `img-00N`.
+ * @param {string} jsonl  raw JSONL transcript contents
+ * @param {string} dateStamp  date stamp for the heading (e.g. "2026-07-21")
+ * @param {{ assetsDir?: string }} [options]
+ * @returns {{ markdown: string | null, images: SessionImage[] }}
  */
 export function renderMarkdown(jsonl, dateStamp, { assetsDir = "assets" } = {}) {
   const lines = String(jsonl || "").split("\n").filter(Boolean);
   const out = [`# Session — ${dateStamp}`, ""];
+  /** @type {SessionImage[]} */
   const images = [];
   let rendered = 0;
   for (const line of lines) {
     let e;
     try {
-      e = JSON.parse(line);
+      e = /** @type {TranscriptEntry} */ (JSON.parse(line));
     } catch {
       continue;
     }
@@ -167,6 +247,9 @@ export function renderMarkdown(jsonl, dateStamp, { assetsDir = "assets" } = {}) 
  * Resolve the transcript path from a hook payload: honour any provided field,
  * else self-locate from session id + cwd under the given home directory.
  * Returns null when it cannot be resolved.
+ * @param {TranscriptHookPayload} payload
+ * @param {string} homedir  the base under which `.claude/projects` lives
+ * @returns {string | null}
  */
 export function resolveTranscriptPath(payload, homedir) {
   const direct = payload.transcript_path || payload.transcriptPath || payload.transcript;

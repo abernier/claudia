@@ -12,6 +12,10 @@
  * Return the body of the `## <version>` section — everything between that heading
  * and the next `## ` heading (or end of file), trimmed. `null` if the section is
  * absent. The heading is matched exactly, so `## 0.2` never matches `## 0.2.1`.
+ *
+ * @param {string} changelog - Full CHANGELOG.md contents.
+ * @param {string} version - Version to look up, e.g. `"0.2.1"` (no `v` prefix).
+ * @returns {string | null}
  */
 export function extractSection(changelog, version) {
   const lines = changelog.split("\n");
@@ -20,7 +24,7 @@ export function extractSection(changelog, version) {
 
   let end = lines.length;
   for (let i = start + 1; i < lines.length; i++) {
-    if (lines[i].startsWith("## ")) {
+    if (/** @type {string} */ (lines[i]).startsWith("## ")) {
       end = i;
       break;
     }

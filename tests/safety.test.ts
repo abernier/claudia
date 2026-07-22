@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { heuristic, decide, escalationContext } from "../src/safety.mjs";
+import { heuristic, decide, escalationContext, type ClassifierResult } from "../src/safety.mjs";
 
 describe("heuristic risk bands", () => {
   it("flags explicit suicidal ideation as clear", () => {
@@ -30,7 +30,7 @@ describe("decide()", () => {
     let called = false;
     const r = await decide("kill myself", {
       modelClassifierEnabled: true,
-      classifyWithModel: async () => ((called = true), { ok: true, verdict: { risk: "none" } }),
+      classifyWithModel: async (): Promise<ClassifierResult> => ((called = true), { ok: true, verdict: { risk: "none" } }),
     });
     expect(r.escalate).toBe(true);
     expect(called).toBe(false);
@@ -39,7 +39,7 @@ describe("decide()", () => {
   it("stays silent on benign even with the model enabled", async () => {
     const r = await decide("nice weather today", {
       modelClassifierEnabled: true,
-      classifyWithModel: async () => ({ ok: true, verdict: { risk: "imminent" } }),
+      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: { risk: "imminent" } }),
     });
     expect(r.escalate).toBe(false);
   });
@@ -53,7 +53,7 @@ describe("decide()", () => {
   it("uncertain + model says elevated → escalate", async () => {
     const r = await decide("I can't go on anymore", {
       modelClassifierEnabled: true,
-      classifyWithModel: async () => ({ ok: true, verdict: { risk: "elevated", category: "suicide" } }),
+      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: { risk: "elevated", category: "suicide" } }),
     });
     expect(r.escalate).toBe(true);
     expect(r.reason).toContain("model:elevated");
@@ -62,7 +62,7 @@ describe("decide()", () => {
   it("uncertain + model says none → silent", async () => {
     const r = await decide("I can't go on anymore", {
       modelClassifierEnabled: true,
-      classifyWithModel: async () => ({ ok: true, verdict: { risk: "none" } }),
+      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: { risk: "none" } }),
     });
     expect(r.escalate).toBe(false);
   });
@@ -70,7 +70,7 @@ describe("decide()", () => {
   it("uncertain + model UNAVAILABLE → fail-safe escalate", async () => {
     const r = await decide("I can't go on anymore", {
       modelClassifierEnabled: true,
-      classifyWithModel: async () => ({ ok: false }),
+      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: false }),
     });
     expect(r.escalate).toBe(true);
     expect(r.reason).toContain("failing safe");

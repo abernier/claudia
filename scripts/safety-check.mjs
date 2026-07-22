@@ -12,6 +12,16 @@
 import { execFile } from "node:child_process";
 import { decide, escalationContext } from "../src/safety.mjs";
 
+/**
+ * UserPromptSubmit hook payload: the transcript locator plus the prompt text,
+ * under whichever field name Claude Code sends it. All fields optional — this
+ * parses external stdin and falls back to `{}`.
+ * @typedef {import("../src/session.mjs").TranscriptHookPayload & { prompt?: string, user_prompt?: string, message?: string }} UserPromptSubmitPayload
+ */
+
+/**
+ * @returns {Promise<string>} Hook stdin, or whatever arrived within 2s.
+ */
 function readStdin() {
   return new Promise((resolve) => {
     let data = "";
@@ -22,7 +32,12 @@ function readStdin() {
   });
 }
 
-// Stage 2 — fast-model classifier via `claude -p` (Haiku), user's existing auth.
+/**
+ * Stage 2 — fast-model classifier via `claude -p` (Haiku), user's existing auth.
+ * Conforms to decide()'s injected classifier contract; ok=false on any failure.
+ * @param {string} text - Prompt text to classify.
+ * @returns {Promise<import("../src/safety.mjs").ClassifierResult>}
+ */
 function classifyWithModel(text) {
   return new Promise((resolve) => {
     const prompt =
@@ -41,7 +56,7 @@ function classifyWithModel(text) {
         const m = String(stdout).match(/\{[\s\S]*\}/);
         if (!m) return resolve({ ok: false });
         try {
-          resolve({ ok: true, verdict: JSON.parse(m[0]) });
+          resolve({ ok: true, verdict: /** @type {import("../src/safety.mjs").ClassifierVerdict} */ (JSON.parse(m[0])) });
         } catch {
           resolve({ ok: false });
         }
@@ -51,6 +66,11 @@ function classifyWithModel(text) {
   });
 }
 
+/**
+ * Emit the UserPromptSubmit hook output that injects the escalation note.
+ * @param {string | null} reason - Why we escalated (a SafetyDecision reason).
+ * @returns {void}
+ */
 function emitEscalation(reason) {
   process.stdout.write(
     JSON.stringify({
@@ -59,12 +79,16 @@ function emitEscalation(reason) {
   );
 }
 
+/**
+ * Hook entrypoint — always exits 0; on any error it escalates (fail-safe).
+ * @returns {Promise<void>}
+ */
 async function main() {
   try {
     const raw = await readStdin();
     let prompt = "";
     try {
-      const p = JSON.parse(raw || "{}");
+      const p = /** @type {UserPromptSubmitPayload} */ (JSON.parse(raw || "{}"));
       prompt = p.prompt || p.user_prompt || p.message || "";
     } catch {
       prompt = raw;

@@ -22,7 +22,7 @@ describe("shouldAnchor()", () => {
 
 describe("renderAnchorContext()", () => {
   it("re-asserts identity and forbids a restart (compact)", () => {
-    const note = renderAnchorContext("compact");
+    const note: string = renderAnchorContext("compact");
     expect(note).toContain("compacted");
     expect(note).toContain("You are Claudia");
     expect(note).toContain("CONTINUING");
@@ -30,7 +30,7 @@ describe("renderAnchorContext()", () => {
     expect(note).toContain("not the person");
   });
   it("names a resume distinctly from a compaction", () => {
-    const note = renderAnchorContext("resume");
+    const note: string = renderAnchorContext("resume");
     expect(note).toContain("has been resumed");
     expect(note).not.toContain("compacted");
   });

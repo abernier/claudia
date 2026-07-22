@@ -8,9 +8,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { extractSection } from "../src/changelog.mjs";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const root: string = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-const SAMPLE = `# claudia
+const SAMPLE: string = `# claudia
 
 ## 0.2.1
 
@@ -51,7 +51,10 @@ describe("extractSection", () => {
 describe("the real CHANGELOG.md", () => {
   it("has a non-empty section for the current package version", () => {
     // Guarantees the release workflow always finds notes for what it ships.
-    const version = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8")).version;
+    // Cast at the external-JSON boundary: package.json is parsed, not typed.
+    const version = (
+      JSON.parse(readFileSync(path.join(root, "package.json"), "utf8")) as { version: string }
+    ).version;
     const changelog = readFileSync(path.join(root, "CHANGELOG.md"), "utf8");
     expect(extractSection(changelog, version)).toBeTruthy();
   });

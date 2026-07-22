@@ -14,17 +14,29 @@
 // The only SessionStart sources where the persona may already be loaded but at
 // risk of having faded. `startup` (fresh) has no persona yet — she loads when
 // named; `clear` is a deliberate reset — leave it fresh.
+/** @type {ReadonlySet<string>} */
 export const ANCHOR_SOURCES = new Set(["resume", "compact"]);
 
-/** Anchor only a continuing Claudia session that was resumed or compacted. */
+/**
+ * Anchor only a continuing Claudia session that was resumed or compacted.
+ *
+ * @param {string | undefined} source - SessionStart source from the hook payload; absent means no anchor.
+ * @param {boolean} isClaudia - Whether the transcript reads as a Claudia session.
+ * @returns {boolean}
+ */
 export function shouldAnchor(source, isClaudia) {
-  return Boolean(isClaudia) && ANCHOR_SOURCES.has(source);
+  // Cast: Set#has demands `string`, but an absent source is a legitimate input
+  // here — it is simply never in the set, so the lookup stays safely false.
+  return Boolean(isClaudia) && ANCHOR_SOURCES.has(/** @type {string} */ (source));
 }
 
 /**
  * The note injected at SessionStart. It re-asserts identity WITHOUT restarting the
  * conversation — critical so a mid-session compaction doesn't trigger a fresh
  * greeting or a repeat of the opening check-in.
+ *
+ * @param {string} source - SessionStart source; "compact" gets its own wording, anything else reads as resumed.
+ * @returns {string}
  */
 export function renderAnchorContext(source) {
   const what =

@@ -28,16 +28,27 @@ const WIKILINK = /\[\[\s*([^\]|#]+?)\s*(#[^\]|]+?)?\s*(?:\|\s*([^\]]+?)\s*)?\]\]
 const FM_WIKILINK = /["']?\[\[\s*([^\]|#]+?)\s*\]\]["']?/g;
 const SESSION = /^\d{4}-\d{2}-\d{2}-\S+$/;
 
+/** @param {string} rel */
 const isMd = (rel) => rel.endsWith(".md") && !rel.endsWith(".transcript.md");
 
-/** Relative POSIX path from a file's directory to a vault-relative target. */
+/**
+ * Relative POSIX path from a file's directory to a vault-relative target.
+ * @param {string} fromDir
+ * @param {string} target
+ * @returns {string}
+ */
 function relTo(fromDir, target) {
   const base = fromDir === "." || fromDir === "" ? "" : fromDir;
   return path.posix.relative(base, target) || path.posix.basename(target);
 }
 
-/** Build `basename-no-ext → vault-relative path` for every linkable markdown file. */
+/**
+ * Build `basename-no-ext → vault-relative path` for every linkable markdown file.
+ * @param {Record<string, string>} files
+ * @returns {Map<string, string>}
+ */
 function buildIndex(files) {
+  /** @type {Map<string, string>} */
   const index = new Map();
   for (const rel of Object.keys(files)) {
     if (isMd(rel)) index.set(path.posix.basename(rel.replace(/\.md$/, "")), rel);
@@ -45,10 +56,18 @@ function buildIndex(files) {
   return index;
 }
 
+/**
+ * Rewrite every wikilink in one markdown file.
+ * @param {string} content
+ * @param {string} rel  vault-relative POSIX path of the file being rewritten
+ * @param {Map<string, string>} index  basename-no-ext → vault-relative path
+ * @returns {string} the rewritten content (unchanged text when nothing matched)
+ */
 function rewriteFile(content, rel, index) {
   const fromDir = path.posix.dirname(rel);
   const base = path.posix.basename(rel);
 
+  /** @param {string} text */
   const body = (text) =>
     text.replace(WIKILINK, (_m, target, heading, label) => {
       const name = String(target).trim();
@@ -57,7 +76,7 @@ function rewriteFile(content, rel, index) {
       if (name.includes("<") || name.includes(">")) return "[<stem>](sessions/<stem>.summary.md)";
       let targetRel;
       if (SESSION.test(name)) targetRel = `sessions/${name}.summary.md`;
-      else if (index.has(name)) targetRel = index.get(name);
+      else if (index.has(name)) targetRel = /** @type {string} */ (index.get(name)); // has(name) guarantees present
       else {
         if (base === "themes.md") return display; // define-site → plain text, not a self-link
         targetRel = "themes.md";
@@ -68,7 +87,7 @@ function rewriteFile(content, rel, index) {
     });
 
   const fm = content.match(/^(---\n[\s\S]*?\n---\n)([\s\S]*)$/);
-  return fm ? fm[1].replace(FM_WIKILINK, "$1") + body(fm[2]) : body(content);
+  return fm ? /** @type {string} */ (fm[1]).replace(FM_WIKILINK, "$1") + body(/** @type {string} */ (fm[2])) : body(content);
 }
 
 /**
@@ -78,6 +97,7 @@ function rewriteFile(content, rel, index) {
  */
 export function migrate(files) {
   const index = buildIndex(files);
+  /** @type {Record<string, string>} */
   const out = {};
   for (const [rel, content] of Object.entries(files)) {
     if (!isMd(rel)) continue;

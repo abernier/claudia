@@ -21,10 +21,16 @@ import path from "node:path";
 import { resolveTranscriptPath, isClaudiaSession } from "../src/session.mjs";
 import { buildTimeContext, renderTimeContext } from "../src/time.mjs";
 
+// This hook only ever reads the transcript-locator fields of the UserPromptSubmit
+// payload, so it is consumed as its TranscriptHookPayload subset (not the fuller
+// prompt-bearing shape safety-check.mjs needs).
+/** @typedef {import("../src/session.mjs").TranscriptHookPayload} TranscriptHookPayload */
+
 // The persona signature reliably appears near the top of the transcript (system
 // context / first skill load), so a bounded head-read gates the turn cheaply.
 const SIGNATURE_SCAN_BYTES = 256 * 1024;
 
+/** @returns {Promise<string>} Everything from stdin, or whatever arrived within 2s — a hook must never hang. */
 function readStdin() {
   return new Promise((resolve) => {
     let data = "";
@@ -35,7 +41,14 @@ function readStdin() {
   });
 }
 
+/**
+ * Read at most `bytes` bytes from the head of `file` (utf8).
+ * @param {string} file
+ * @param {number} bytes
+ * @returns {Promise<string>}
+ */
 async function readHead(file, bytes) {
+  /** @type {import("node:fs/promises").FileHandle | undefined} */
   let fh;
   try {
     fh = await fs.open(file, "r");
@@ -47,6 +60,10 @@ async function readHead(file, bytes) {
   }
 }
 
+/**
+ * Emit the hook stdout envelope that injects `note` into the turn.
+ * @param {string} note
+ */
 function emit(note) {
   process.stdout.write(
     JSON.stringify({
@@ -55,12 +72,14 @@ function emit(note) {
   );
 }
 
+/** @returns {Promise<void>} */
 async function main() {
   try {
     const raw = await readStdin();
+    /** @type {TranscriptHookPayload} */
     let payload = {};
     try {
-      payload = JSON.parse(raw || "{}");
+      payload = /** @type {TranscriptHookPayload} */ (JSON.parse(raw || "{}"));
     } catch {
       /* tolerate */
     }
@@ -82,6 +101,7 @@ async function main() {
     const root = path.join(os.homedir(), ".claudia");
     const lastSeenPath = path.join(root, "last-seen");
 
+    /** @type {number | null} */
     let prevMs = null;
     try {
       const parsed = Number.parseInt((await fs.readFile(lastSeenPath, "utf8")).trim(), 10);
