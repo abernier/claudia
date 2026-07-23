@@ -39,6 +39,10 @@ The tool's shape, so you use it well:
   field that is _added automatically_ — so the person can always type their own answer
   instead of picking.
 - **multi-select** for "pick any that apply", radio for "pick one".
+- **`preview`** renders markdown beside whichever option is focused — use it when the
+  person is choosing between things worth _seeing_ rather than labels. **Single-select
+  only**: it does nothing on a multi-select question, so the "which lessons" question
+  below can't have one.
 
 This is the reference description of the tool's shape for the whole plugin
 (ADR-0024) — the quiz is where it earns the most. The boundary it sits inside:

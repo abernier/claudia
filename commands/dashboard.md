@@ -1,6 +1,6 @@
 ---
 description: Open your dashboard — a bird's-eye view of where things are (goals, themes, what's to pick up, your people). A mirror you pull, never a recital pushed at you.
-allowed-tools: Read Bash
+allowed-tools: Read Bash SendUserFile
 ---
 
 # /dashboard
@@ -18,7 +18,10 @@ on demand. Claudia never recites it unprompted.
    node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"
    ```
 
-2. If `~/.claudia/dashboard.md` exists, read it and show it as-is. It is a
+2. If `~/.claudia/dashboard.md` exists, show it — `SendUserFile` with
+   `display: 'render'`, `status: 'normal'`, so it opens as the view it is rather than
+   as pasted text (ADR-0026). Falling back to reading it out as-is is fine if the tool
+   isn't there. Either way it is shown **as-is**, because it is a
    **mirror**: every section is either transcluded verbatim from a working file or
    a relative markdown link to it — nothing here is re-summarised, so it can never
    put words in your mouth. The working understanding and each session's thread are **linked**,

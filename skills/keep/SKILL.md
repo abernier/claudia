@@ -65,9 +65,10 @@ Newest first, one blockquote per keepsake:
 - `AskUserQuestion`, **one question**, 2–4 options drawn from the **last exchange** —
   your last reply first, since that's the common case; include one of _their_ lines
   if it was the striking one.
-- Each option: a **short handle** as the label (≤ ~5 words, so it's scannable) and
-  the **passage verbatim** in the description — they are choosing words, so show the
-  words.
+- Each option: a **short handle** as the label (≤ ~5 words, so it's scannable), the
+  **passage verbatim** in `preview` — it renders beside the focused option, with room
+  to breathe and reading like the quote it is — and whose words it was, and when, in
+  the description. They are choosing words, so give the words the space.
 - The auto-**"Other"** field is the escape hatch: they can paste, or reword, anything
   at all. Take what they type as the keepsake, attributed to them.
 

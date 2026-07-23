@@ -1,7 +1,7 @@
 ---
 name: timeline
 description: Keep and show the person's life timeline — the important events across their life, as they choose to tell them. A gentle memory of the arc of a life, and an offered "life-review" (lifeline / reminiscence) tool. Person-led, trauma-informed, local. Not a symptom chart or a clinical assessment.
-allowed-tools: Read Write Bash
+allowed-tools: Read Write Bash SendUserFile
 ---
 
 # Life timeline
@@ -57,6 +57,12 @@ timeline
 ````
 
 ```
+
+To put the timeline itself in front of them, show the **store** — `SendUserFile` on
+`~/.claudia/timeline.md` with `display: 'render'`, `status: 'normal'` (ADR-0026). The
+generated mermaid above stays **inline in your reply**: it is a regenerated view, not
+a file, and writing one just to send it would leave behind exactly the artifact this
+skill doesn't keep.
 
 ## Offering a life-review
 

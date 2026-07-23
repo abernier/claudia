@@ -90,6 +90,11 @@ the person tells me?_ If yes, it is exploration — ask openly.
 here: see [`skills/quiz/SKILL.md`](../../skills/quiz/SKILL.md) — one question at a
 time, 2–4 options, a short header, radio vs. multi-select, and the auto-"Other"
 field that keeps every menu declinable.
+_(Amended: the tool's `preview` field renders markdown beside the focused option and
+is used where the person is choosing between things worth **seeing** rather than
+labels — the verbatim passage in [`keep`](../../skills/keep/SKILL.md), the worksheet's
+shape in [`exercise`](../../skills/exercise/SKILL.md). It is **single-select only**,
+so a multi-select question cannot carry one.)_
 
 **Declared where used.** A skill or command whose body reaches for
 `AskUserQuestion` must list it in its `allowed-tools` frontmatter. An undeclared

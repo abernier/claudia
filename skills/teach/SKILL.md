@@ -1,7 +1,7 @@
 ---
 name: teach
 description: Create a psychoeducation explainer for the person — a clear, kind explanation of a concept (the cognitive triangle, the anxiety cycle, the window of tolerance, values, rumination, grief) with a mermaid diagram. Use when understanding *why* would help the person, or when they ask to learn something. Saved as a deliverable in their language.
-allowed-tools: Read Write Bash AskUserQuestion
+allowed-tools: Read Write Bash AskUserQuestion SendUserFile
 ---
 
 # Teach
@@ -56,3 +56,8 @@ slug: anxiety-cycle
 exist yet (it is minted at close, ADR-0017), so any value would be invented.
 `distill-session` adds it at close, when the stem is real. Same rule as
 [`exercise`](../exercise/SKILL.md).
+
+Then **show it** rather than naming its path: `SendUserFile` with
+`display: 'render'`, `status: 'normal'` — an explainer exists to be looked at, and the
+diagram only becomes a diagram once rendered (ADR-0026). If the tool isn't there, say
+where it is, as before.

@@ -1,7 +1,7 @@
 ---
 name: relationships
 description: Keep and show a light relationship map of the important people in the person's life — an ecomap (who's around them, and how close/what kind of bond) that can grow into a family genogram. Rendered as a mermaid diagram. Update it as you learn who people are; show it to check you've got it right. Non-judgmental, correctable, local. Not a clinical assessment.
-allowed-tools: Read Write Bash
+allowed-tools: Read Write Bash SendUserFile
 ---
 
 # Relationship map
@@ -17,7 +17,11 @@ The **graph** lives at `~/.claudia/people.md` (mermaid); each person can also ge
 - **Update** it quietly as you learn who someone is (during `intake`, and whenever
   a new person comes up).
 - **Show** it when it would help — _"here's the map of the people you've mentioned,
-  did I get it right?"_ — and take their correction as the truth.
+  did I get it right?"_ — and take their correction as the truth. `people.md` _is_
+  the mermaid, so show the file itself: `SendUserFile` with `display: 'render'`,
+  `status: 'normal'` (ADR-0026). If that isn't available, paste the diagram inline as
+  before. The question that goes with it stays plain text — they're correcting you,
+  not selecting (ADR-0024).
 
 ## Shape (ecomap → genogram, adaptive)
 

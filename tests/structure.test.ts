@@ -382,24 +382,28 @@ describe("vault migrations (ADR-0020)", () => {
   });
 });
 
+// Every skill and command, split into (frontmatter, body) so the allowed-tools
+// declaration itself never counts as a "use" of the tool.
+const surfaces = [
+  ...walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md")),
+  ...walk(path.join(root, "commands"), (p) => p.endsWith(".md")),
+].map((file) => {
+  const txt = readFileSync(file, "utf8");
+  const end = txt.indexOf("\n---", 3);
+  return {
+    rel: path.relative(root, file),
+    frontmatter: end === -1 ? "" : txt.slice(0, end),
+    body: end === -1 ? txt : txt.slice(end),
+  };
+});
+
+/** Surfaces that reach for `tool` in their body without declaring it in allowed-tools. */
+function undeclaredUsers(tool: string): string[] {
+  const declared = new RegExp(`^allowed-tools:.*\\b${tool}\\b`, "m");
+  return surfaces.filter((s) => s.body.includes(tool) && !declared.test(s.frontmatter)).map((s) => s.rel);
+}
+
 describe("the choice UI (ADR-0024)", () => {
-  // Every skill and command, split into (frontmatter, body) so the allowed-tools
-  // declaration itself never counts as a "use" of the tool.
-  const surfaces = [
-    ...walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md")),
-    ...walk(path.join(root, "commands"), (p) => p.endsWith(".md")),
-  ].map((file) => {
-    const txt = readFileSync(file, "utf8");
-    const end = txt.indexOf("\n---", 3);
-    return {
-      rel: path.relative(root, file),
-      frontmatter: end === -1 ? "" : txt.slice(0, end),
-      body: end === -1 ? txt : txt.slice(end),
-    };
-  });
-
-  const declares = (frontmatter: string) => /^allowed-tools:.*\bAskUserQuestion\b/m.test(frontmatter);
-
   it("ships the ADR and the glossary entry", () => {
     expect(existsSync(path.join(root, "docs/adr/0024-the-choice-ui.md"))).toBe(true);
     expect(/\*\*Choice UI\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
@@ -410,9 +414,7 @@ describe("the choice UI (ADR-0024)", () => {
     // allowed-tools said `Read Write Bash`, so the choice UI raised a permission
     // prompt mid-quiz — immersion broken at the worst moment. Same reasoning as the
     // `Task` assertion above, applied to every surface rather than one file.
-    const undeclared = surfaces
-      .filter((s) => /AskUserQuestion/.test(s.body) && !declares(s.frontmatter))
-      .map((s) => s.rel);
+    const undeclared = undeclaredUsers("AskUserQuestion");
     expect(undeclared, `uses AskUserQuestion without declaring it:\n${undeclared.join("\n")}`).toEqual([]);
   });
 
@@ -425,6 +427,12 @@ describe("the choice UI (ADR-0024)", () => {
       const txt = readFileSync(path.join(root, `skills/${name}/SKILL.md`), "utf8");
       expect(/AskUserQuestion/.test(txt), `${name} must ask openly, not with options (ADR-0024)`).toBe(false);
     }
+  });
+
+  it("keep shows the words in the preview pane, not squeezed into a description", () => {
+    // The person is choosing *words*; `preview` is the only field with room for them.
+    const keep = readFileSync(path.join(root, "skills/keep/SKILL.md"), "utf8");
+    expect(/`preview`/.test(keep), "the verbatim passage belongs in preview (ADR-0024)").toBe(true);
   });
 
   it("the persona carries the rule and is pre-approved for it", () => {
@@ -445,6 +453,52 @@ describe("the choice UI (ADR-0024)", () => {
       const txt = readFileSync(path.join(root, `commands/${cmd}.md`), "utf8");
       expect(/AskUserQuestion/.test(txt), `/${cmd} asks in plain text on purpose (ADR-0024)`).toBe(false);
     }
+  });
+});
+
+describe("showing a deliverable (ADR-0026)", () => {
+  it("ships the ADR, and the glossary knows saving from showing", () => {
+    expect(existsSync(path.join(root, "docs/adr/0026-showing-the-deliverable.md"))).toBe(true);
+    const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
+    expect(/\*\*Deliverable\*\*/.test(ctx)).toBe(true);
+    expect(/Showing is not\s+publishing/i.test(ctx), "the Deliverable entry must carry the distinction").toBe(true);
+  });
+
+  it("is declared wherever it is used", () => {
+    const undeclared = undeclaredUsers("SendUserFile");
+    expect(undeclared, `uses SendUserFile without declaring it:\n${undeclared.join("\n")}`).toEqual([]);
+  });
+
+  it("never pushes — 'proactive' may be forbidden, never instructed", () => {
+    // The hard non-goal. `status: 'proactive'` pushes a notification to the person's
+    // phone; Claudia shows a file because they are already here, never to bring them
+    // back. Same refusal as scheduled check-ins (ADR-0012, "Presence, not
+    // surveillance"), and the one a future change is most likely to reach for.
+    //
+    // A flat ban on the word would gag the persona, which has to *name* the thing it
+    // forbids. So the rule is semantic: every mention must be negated close by.
+    const instructed: string[] = [];
+    for (const s of surfaces) {
+      for (const m of s.body.matchAll(/proactive/gi)) {
+        const preceding = s.body.slice(Math.max(0, m.index - 60), m.index);
+        if (!/\bnever\b|\bnot\b|\bno\b/i.test(preceding)) instructed.push(`${s.rel}:${m.index}`);
+      }
+    }
+    expect(instructed, `Claudia never initiates contact (ADR-0026):\n${instructed.join("\n")}`).toEqual([]);
+  });
+
+  it("crisis never sends a file", () => {
+    const crisis = readFileSync(path.join(root, "skills/crisis/SKILL.md"), "utf8");
+    expect(/SendUserFile/.test(crisis), "stay with the person; a download card is a detour").toBe(false);
+  });
+
+  it("Artifact stays refused — showing is not publishing", () => {
+    // Artifact mints a durable, shareable URL: a persistent copy outside the machine,
+    // which is exactly what ADR-0007 rejected with the remote connector.
+    const publishing = surfaces.filter((s) => /\bArtifact\b/.test(s.body)).map((s) => s.rel);
+    expect(publishing, `nothing leaves the machine (ADR-0007):\n${publishing.join("\n")}`).toEqual([]);
+    const adr = readFileSync(path.join(root, "docs/adr/0026-showing-the-deliverable.md"), "utf8");
+    expect(/Artifact/.test(adr), "the ADR must record why it is refused").toBe(true);
   });
 });
 

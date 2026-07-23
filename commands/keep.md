@@ -14,8 +14,9 @@ and the limits (ADR-0023).
   (verbatim if it's yours; theirs if they reworded it), and confirm in one warm line.
 - **With nothing** — they mean _"something you just said"_. Offer 2–4 candidate
   passages from the last exchange on `AskUserQuestion` (short handle as the label,
-  the passage verbatim in the description), and let the auto-"Other" field carry
-  anything they'd rather paste or reword. Never pick for them.
+  the passage verbatim in `preview` so it renders with room), and let the
+  auto-"Other" field carry anything they'd rather paste or reword. Never pick for
+  them.
 
 Prepend it to `~/.claudia/keepsakes.md`, in their language. Then let it go — no
 receipt, no count, no encouragement to keep more.

@@ -157,7 +157,12 @@ person-authored map, not a clinical record).
 **Deliverable**:
 An artifact Claudia produces _for_ the person, written under `~/.claudia/` —
 a session summary, an exercise/worksheet, a `/teach` explainer (with diagrams),
-progress notes.
+progress notes. A deliverable can also be **shown** — rendered inline while they are
+here, or attached to take away — not only saved and named in prose. Showing is not
+publishing: the file stays on their machine and Claudia never pushes one at them.
+Defined in ADR-0026.
+_Avoid_: "publish", "share", "send" in the outward sense (nothing leaves the machine);
+and any framing where Claudia surfaces a file to draw the person back.
 
 **Keepsake**:
 A passage the person chose to keep **verbatim** — a sentence Claudia said that
