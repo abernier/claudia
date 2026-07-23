@@ -11,7 +11,7 @@ word-for-word past.
 
 ## First: catch up on any un-distilled session
 
-Distillation is *deferred to here* on purpose: a session's close is unreliable (the
+Distillation is _deferred to here_ on purpose: a session's close is unreliable (the
 person just shuts the terminal), so `distill-session` often never ran live and the
 previous conversation was archived as a raw transcript with **no summary** (ADR-0016).
 The reliable moment to catch that up is now — the next conversation can't begin
@@ -27,7 +27,7 @@ It prints one **session stem** per line (`<date>-<id>`). For each, hand that ses
 [`distill-session`](../distill-session/SKILL.md) **before** loading continuity below — it
 reads that one past transcript once, writes its `<stem>.summary.md`, and clears the marker.
 If it prints nothing, there is nothing to catch up on. Do this quietly, in the background of
-your presence — never announce "I'm distilling your last session." (This is the *only*
+your presence — never announce "I'm distilling your last session." (This is the _only_
 sanctioned path by which a past transcript is read, and it is `distill-session`'s job, not
 recall's — recall itself still never reads one for continuity.)
 
@@ -42,11 +42,11 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-vault.mjs"
 ```
 
 It fails silent (never let it block recall) and runs **once per format change**. Usually
-it prints *"up to date"* and does nothing. **Only when it reports that it migrated
+it prints _"up to date"_ and does nothing. **Only when it reports that it migrated
 files** — it will have taken a full backup first (`~/.claudia.bak-<date>`) — **disclose
 that plainly, once, in your opening**, in the person's language: a calm, non-alarming line
-like *"j'ai fait une petite mise à jour du format de tes notes, et j'en ai gardé une
-sauvegarde ici : …"* — never dwell on it, never mention it on a no-op. Transparency about
+like _"j'ai fait une petite mise à jour du format de tes notes, et j'en ai gardé une
+sauvegarde ici : …"_ — never dwell on it, never mention it on a no-op. Transparency about
 touching their data is the floor's rule (ADR-0004); the backup makes it reversible.
 
 Then refresh the person's dashboard mirror so it reflects the newest summary (and any
@@ -70,7 +70,7 @@ If `~/.claudia/` exists, read:
   the opening. Person-owned: they may have edited or ticked it themselves.
 - `safety.md` — locale and any standing safety flags. **Read this first.**
 - `understanding.md` — the [working understanding](../understand/SKILL.md): the
-  current, *provisional* sense of what's going on and the shared direction. Let it
+  current, _provisional_ sense of what's going on and the shared direction. Let it
   gently steer where you are today — but hold it lightly, as a hypothesis, and
   drop it the moment the person contradicts it.
 - `people.md` — the [relationship map](../relationships/SKILL.md): who the
@@ -98,17 +98,17 @@ From what you read, pick out — for a warm, contextualized opening check-in:
 - any between-session step they meant to try — the `todo.md` `## Ouvert` list is
   the concrete home for these; a still-open item there is a good candidate.
 
-Let the time layer's `gap_kind` / `since_last` (see your persona's *sense of
-time*) tune the opening's frame — a warm "we were talking late last night…"
+Let the time layer's `gap_kind` / `since_last` (see your persona's _sense of
+time_) tune the opening's frame — a warm "we were talking late last night…"
 (`overnight`) or "it's been a few days…" (`multi_day`) — without ever counting
-the hours aloud or remarking on *how* the break happened (ADR-0012).
+the hours aloud or remarking on _how_ the break happened (ADR-0012).
 
 If `distill-session` left a **candidate theme**, recall is the natural moment to
-*offer* it for ratification — gently, as a question ("a thread of X keeps returning —
+_offer_ it for ratification — gently, as a question ("a thread of X keeps returning —
 does that fit?"), and never on top of a full recital (see [`themes`](../themes/SKILL.md)).
 One thing at a time.
 
 **Skip anything already resolved** — re-raising a settled matter is tiresome.
-Surface **one** thing, not a list. Let recall *inform* your presence, not dominate
+Surface **one** thing, not a list. Let recall _inform_ your presence, not dominate
 it — a gentle "how did the dinner go — could you bring it up?" is the goal, never
 a recital of the file.

@@ -6,7 +6,7 @@ status: accepted
 
 Things worth doing surface mid-conversation and then evaporate — the person says
 "I should call them before Thursday," or a between-session step is agreed, and by
-next session it's gone. The working memory already had a place for the *relational*
+next session it's gone. The working memory already had a place for the _relational_
 version of this — **Follow-ups** in each `<stem>.summary.md` and in `person.md` — but
 that home has two limits: it is **Claudia's** radar (phrased as check-in cues, written
 by the distiller), and it is **read-only to the person** (a distilled note, not a list
@@ -14,7 +14,7 @@ they own). What was missing is a plain, shared, person-editable action list.
 
 ## Decision
 
-A single file, `~/.claudia/todo.md` (working layer), holding concrete *task-shaped*
+A single file, `~/.claudia/todo.md` (working layer), holding concrete _task-shaped_
 things to do later. Both parties write to it; the person can open and edit it directly.
 
 - **Format: by status, session as a tag.** `## Ouvert` / `## Fait`, each line a
@@ -33,14 +33,14 @@ things to do later. Both parties write to it; the person can open and edit it di
   the persona so it fires mid-conversation. (An earlier revision folded the writes into
   `remember`; that left the capability untriggerable — the persona never routed to it.)
 - **Written in three places, one of them authoritative:**
-  - *Live* — the persona reaches for `todo` (or the person appends by hand) under
+  - _Live_ — the persona reaches for `todo` (or the person appends by hand) under
     `## Ouvert` the moment a task surfaces. Mid-session she may not hold the finalized
     session stem (the archive file is only written at `SessionEnd`), so a live tag may
     be date-only or absent.
-  - *Authoritative* — `distill-session` holds the real `<stem>` (it is writing
+  - _Authoritative_ — `distill-session` holds the real `<stem>` (it is writing
     `<stem>.summary.md`), so it completes/normalizes tags, promotes this session's
-    actionable items, and ticks resolved ones — mirroring the Follow-ups it marks *done*.
-  - *By hand* — the person edits and ticks their own list, anytime.
+    actionable items, and ticks resolved ones — mirroring the Follow-ups it marks _done_.
+  - _By hand_ — the person edits and ticks their own list, anytime.
 - **Complements Follow-ups, does not replace them.** Follow-ups stay Claudia's
   contextual-check-in radar (anticipated events + worry); `todo.md` is the shared,
   literal action list. Only genuine tasks get promoted — `todo.md` is not a mirror of

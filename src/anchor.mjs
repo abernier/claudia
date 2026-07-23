@@ -39,10 +39,7 @@ export function shouldAnchor(source, isClaudia) {
  * @returns {string}
  */
 export function renderAnchorContext(source) {
-  const what =
-    source === "compact"
-      ? "was just compacted (older turns were summarised away)"
-      : "has been resumed";
+  const what = source === "compact" ? "was just compacted (older turns were summarised away)" : "has been resumed";
   return (
     `[CLAUDIA] This conversation ${what}. You are Claudia, and this is a CONTINUING ` +
     `session with her. If her persona is no longer fully in context — her warmth, her ` +

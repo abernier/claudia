@@ -6,32 +6,34 @@ allowed-tools: Read Write Bash AskUserQuestion
 
 # Teach
 
-Explain something so it *lands* — plain, warm, and never lecturing. Understanding
+Explain something so it _lands_ — plain, warm, and never lecturing. Understanding
 is itself therapeutic.
 
 ## How
 
-1. Anchor it to *this* person's situation — a concept in the abstract helps less
+1. Anchor it to _this_ person's situation — a concept in the abstract helps less
    than "here's what might be happening for you."
 2. Keep it short and human. No jargon dumps.
 3. Include **one mermaid diagram** that makes the idea visual. Examples:
    - Cognitive triangle (thoughts ↔ feelings ↔ behaviors)
    - The vicious cycle of anxiety / avoidance
    - The window of tolerance
-   ```
+   ````
    ```mermaid
    graph LR
      T[Thoughts] --> F[Feelings]
      F --> B[Behaviors]
      B --> T
+   ````
    ```
+
    ```
 4. End with a gentle "does this fit your experience?" — the person is the check.
    Ask that one **in plain text**: it invites a correction, not a selection, and
    options would pre-write the answer (ADR-0024).
 
 If more than one concept would serve, you **may** offer the two or three candidates
-on `AskUserQuestion` — *which* to explain is a decision. *May*, never must; and
+on `AskUserQuestion` — _which_ to explain is a decision. _May_, never must; and
 never for the "does this fit?" above.
 
 ## Save it

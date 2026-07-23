@@ -18,8 +18,10 @@ const line = (o: object): string => JSON.stringify(o) + "\n";
 // Passes the genuine-activation gate (loader preamble as a user message) and
 // renders to markdown (a text turn), so the script takes the `.transcript.md` path.
 const activationJsonl =
-  line({ type: "user", message: { role: "user", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia" } }) +
-  line({ type: "assistant", message: { role: "assistant", content: [{ type: "text", text: "Bonjour." }] } });
+  line({
+    type: "user",
+    message: { role: "user", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia" },
+  }) + line({ type: "assistant", message: { role: "assistant", content: [{ type: "text", text: "Bonjour." }] } });
 
 describe("save-session (SessionEnd hook) — deferred-distillation dirty flag", () => {
   const tmps: string[] = [];
@@ -65,7 +67,11 @@ describe("save-session (SessionEnd hook) — deferred-distillation dirty flag", 
         timestamp: "2026-07-21T09:00:00Z",
         message: { role: "user", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia" },
       }) +
-        line({ type: "assistant", timestamp: "2026-07-22T11:00:00Z", message: { role: "assistant", content: [{ type: "text", text: "Bonjour." }] } })
+        line({
+          type: "assistant",
+          timestamp: "2026-07-22T11:00:00Z",
+          message: { role: "assistant", content: [{ type: "text", text: "Bonjour." }] },
+        }),
     );
 
     const sessionId = "abcdef12-3456-7890-abcd-ef1234567890";
@@ -78,14 +84,19 @@ describe("save-session (SessionEnd hook) — deferred-distillation dirty flag", 
 
     expect(r.status).toBe(0);
     const marker = await fs.readFile(path.join(home, ".claudia", "sessions", `${stem}.pending-summary`), "utf8");
-    expect(marker).toBe(`---\ntype: session\nsession: ${stem}\ndates: [2026-07-21, 2026-07-22]\n---\nneeds distillation — see ADR-0016 (flagged ${stamp})\n`);
+    expect(marker).toBe(
+      `---\ntype: session\nsession: ${stem}\ndates: [2026-07-21, 2026-07-22]\n---\nneeds distillation — see ADR-0016 (flagged ${stamp})\n`,
+    );
   });
 
   it("writes no marker for a non-Claudia session (the gate precedes the flag)", async () => {
     const home = await fs.mkdtemp(path.join(os.tmpdir(), "claudia-home-"));
     tmps.push(home);
     const transcript = path.join(home, "session.jsonl");
-    await fs.writeFile(transcript, line({ type: "user", message: { role: "user", content: "just a normal coding session" } }));
+    await fs.writeFile(
+      transcript,
+      line({ type: "user", message: { role: "user", content: "just a normal coding session" } }),
+    );
 
     const r = spawnSync(process.execPath, [script], {
       encoding: "utf8",

@@ -9,7 +9,7 @@ person's life — the tool a therapist knows as the **ecomap** (social-support m
 and **genogram** (family map; McGoldrick), and the "important people" domain of the
 biopsychosocial intake (ADR-0009). It is **adaptive**: an ecomap by default (the
 person at the centre, key people around, each edge labelled with the relationship
-and closeness *as the person frames it*), extending toward a **family genogram**
+and closeness _as the person frames it_), extending toward a **family genogram**
 when family history is explored. Rendered in **mermaid**, stored at
 `~/.claudia/people.md`. It powers continuity — knowing who Liliana or "your sister"
 is — and is part of the [Working understanding](0008-working-understanding.md)'s
@@ -21,14 +21,14 @@ A named graph of someone's relationships is **third-party PII of the most sensit
 kind** — names, dynamics, sometimes conflict or abuse. So:
 
 - **Local-only, deletable, exportable** (inherits the memory floor, ADR-0004).
-- **Transparent & correctable.** Claudia shows it — *"here's the map of the people
-  you've mentioned, did I get it right?"* — and takes correction as truth. Not a
+- **Transparent & correctable.** Claudia shows it — _"here's the map of the people
+  you've mentioned, did I get it right?"_ — and takes correction as truth. Not a
   hidden dossier.
-- **Non-judgmental — never clinical or accusatory labels.** It records *who a person
-  is to them* and *the person's own experience* of the relationship, never verdicts
+- **Non-judgmental — never clinical or accusatory labels.** It records _who a person
+  is to them_ and _the person's own experience_ of the relationship, never verdicts
   on third parties ("abuser", "narcissist") or third-party allegations as fact. This
   is the anti-labeling line of ADR-0008 applied to other people.
-- **Deliberately non-clinical mermaid** — plain labelled nodes/edges, *not* formal
+- **Deliberately non-clinical mermaid** — plain labelled nodes/edges, _not_ formal
   genogram symbols. A warm aid to keep track of who matters, not an intelligence
   file.
 

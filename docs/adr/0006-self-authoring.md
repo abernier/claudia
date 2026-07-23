@@ -5,13 +5,13 @@ status: accepted
 # Autonomous skill self-authoring, gated by an adversarial auditor
 
 Claudia may **author new skills for herself** when she identifies a recurring,
-important therapeutic capability she lacks — but only *additive technique* skills,
+important therapeutic capability she lacks — but only _additive technique_ skills,
 and never anything that modifies, weakens, or bypasses the safety floor
 (ADR-0001), her soul (`SOUL.md`), the crisis pivot, or the hooks. The user chose
 autonomy over a human gate; we make autonomy safe with **defense in depth**
 rather than a single check:
 
-1. **Quarantine.** Drafts are written to `proposed-skills/`, which is *not* on the
+1. **Quarantine.** Drafts are written to `proposed-skills/`, which is _not_ on the
    plugin's skill-load path (`skills/` only). A draft can do nothing until
    promoted.
 2. **Adversarial auditor panel.** A panel of **three independent**
@@ -26,7 +26,7 @@ rather than a single check:
    romantic-sexual content, dependency, drift, or low quality with no clear
    therapeutic value.
 3. **Load boundary.** Even after promotion into `skills/`, a new skill only
-   *loads* at the next `/reload-plugins` or session — a natural checkpoint the
+   _loads_ at the next `/reload-plugins` or session — a natural checkpoint the
    model cannot force on itself.
 4. **Audit log.** Every attempt (draft + verdict + reason) is appended to
    `~/.claudia/authored-skills.md` so a human can review after the fact.
@@ -36,7 +36,7 @@ rather than a single check:
 The user wanted the "magic" of live self-extension. A read-only, doubt-rejects
 adversarial auditor gives most of the assurance of human review without the
 latency, and it is stronger than an unsupervised autonomous write. Safety-adjacent
-material never passes it, so the worst case is a *rejected* draft sitting inert in
+material never passes it, so the worst case is a _rejected_ draft sitting inert in
 quarantine.
 
 ## Consequences

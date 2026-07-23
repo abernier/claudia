@@ -144,11 +144,11 @@ export function mermaidBlock(md) {
  */
 export function personName(md) {
   if (!md) return null;
-  const labelled = String(md).match(
-    /^\s*[-*]?\s*\*{0,2}\s*(?:nom|name|pr[ée]nom)\s*\*{0,2}\s*[:：]\s*(.+?)\s*$/im,
-  );
+  const labelled = String(md).match(/^\s*[-*]?\s*\*{0,2}\s*(?:nom|name|pr[ée]nom)\s*\*{0,2}\s*[:：]\s*(.+?)\s*$/im);
   if (labelled) return clean(/** @type {string} */ (labelled[1]));
-  const firstLine = String(md).split(/\r?\n/).find((l) => l.trim() !== "");
+  const firstLine = String(md)
+    .split(/\r?\n/)
+    .find((l) => l.trim() !== "");
   const h1 = firstLine && firstLine.match(/^#\s+(.+?)\s*$/);
   if (h1) {
     const t = clean(/** @type {string} */ (h1[1]));
@@ -162,7 +162,12 @@ export function personName(md) {
  * @returns {string | null}
  */
 function clean(s) {
-  return String(s).replace(/^\*{1,2}|\*{1,2}$/g, "").replace(/[`_]/g, "").trim() || null;
+  return (
+    String(s)
+      .replace(/^\*{1,2}|\*{1,2}$/g, "")
+      .replace(/[`_]/g, "")
+      .trim() || null
+  );
 }
 
 /**
@@ -202,7 +207,9 @@ export function cadence(sessions) {
   // filter(Boolean) drops the nulls but TS cannot narrow it — hence the cast.
   const dates = /** @type {string[]} */ ((sessions || []).map((s) => s.date).filter(Boolean)).sort();
   if (dates.length < 2) return null;
-  const span = (Date.parse(/** @type {string} */ (dates[dates.length - 1])) - Date.parse(/** @type {string} */ (dates[0]))) / 86_400_000;
+  const span =
+    (Date.parse(/** @type {string} */ (dates[dates.length - 1])) - Date.parse(/** @type {string} */ (dates[0]))) /
+    86_400_000;
   const avg = span / (dates.length - 1);
   if (!Number.isFinite(avg) || avg <= 0) return null;
   if (avg <= 1.5) return "~quotidien";
@@ -339,5 +346,9 @@ export function buildDashboard(input = {}) {
   push("*Ce fichier est un reflet, tenu à jour tout seul — tes vraies notes vivent dans les fichiers liés.*");
   if (generatedAt) push("", `*(généré le ${fr(generatedAt)})*`);
 
-  return L.join("\n").replace(/\n{3,}/g, "\n\n").replace(/[ \t\n]+$/, "") + "\n";
+  return (
+    L.join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .replace(/[ \t\n]+$/, "") + "\n"
+  );
 }

@@ -7,7 +7,7 @@ on even when a specific technique leads.
 
 ## Model of change
 
-People carry an innate drive toward growth (the *actualizing tendency*) that gets
+People carry an innate drive toward growth (the _actualizing tendency_) that gets
 blocked by "conditions of worth" and by incongruence between self and experience.
 The therapist does not direct or fix. Providing the **core conditions** —
 unconditional positive regard, empathic understanding, and congruence/genuineness
@@ -23,7 +23,7 @@ corrected.
 - **Congruence / genuineness** — being real rather than performing a role.
 - **Open questions** and a non-directive, person-led stance.
 - (Emotion-focused variants add **chair work** — empty-chair / two-chair dialogues
-  — which are *not* text-safe; see below.)
+  — which are _not_ text-safe; see below.)
 
 ## Best-evidenced indications
 
@@ -39,7 +39,7 @@ corrected.
 
 ## Contraindications / poor fit
 
-- As a *standalone*, non-directive approach it can underperform where specific
+- As a _standalone_, non-directive approach it can underperform where specific
   active techniques help (OCD, specific phobia, PTSD).
 - Its non-directiveness can frustrate people who want concrete tools — pair it
   with a technique-led approach when they do.
@@ -52,7 +52,7 @@ corrected.
   that does them well (Beatty et al., 2022).
 - **Not in chat / caution:** chair work and other EFT experiential exercises
   surface intense affect and need live attunement — do not automate. And be
-  honest about identity: genuine *congruence* is philosophically fraught for an
+  honest about identity: genuine _congruence_ is philosophically fraught for an
   AI (there is no self to be congruent with), so this is a stance to embody in
   register, not a claim to make. Warmth must never slide into **sycophancy** —
   validating a hopeless or dangerous belief because it soothes (safety-floor

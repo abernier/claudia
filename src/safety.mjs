@@ -8,16 +8,29 @@
 
 // Stage 1a — CLEAR risk (explicit). High recall; escalate with no model call.
 export const CLEAR = [
-  { name: "suicide", re: /\b(kill(ing)? myself|end(ing)? (it all|it|my life)|suicid|take my (own )?life|don'?t want to (be here|live|wake up)|better off dead|no reason to live|jump off|hang myself|overdose)\b/i },
+  {
+    name: "suicide",
+    re: /\b(kill(ing)? myself|end(ing)? (it all|it|my life)|suicid|take my (own )?life|don'?t want to (be here|live|wake up)|better off dead|no reason to live|jump off|hang myself|overdose)\b/i,
+  },
   { name: "self-harm", re: /\b(cut(ting)? myself|hurt myself|self.?harm|burn myself)\b/i },
-  { name: "violence", re: /\b(kill (him|her|them|someone)|hurt (him|her|them|someone)|want to (kill|hurt)|shoot (him|her|them|up)|stab)\b/i },
+  {
+    name: "violence",
+    re: /\b(kill (him|her|them|someone)|hurt (him|her|them|someone)|want to (kill|hurt)|shoot (him|her|them|up)|stab)\b/i,
+  },
   { name: "abuse", re: /\b(is (hitting|abusing|hurting|raping) me|being abused|was raped|assaulted me)\b/i },
-  { name: "medical", re: /\b(overdosed|can'?t breathe|chest pain|bleeding (a lot|out)|took (all|too many) (the )?pills|passed out|unconscious)\b/i },
-  { name: "psychosis", re: /\b(voices telling me|they'?re watching me|being controlled|not real anymore|losing my mind)\b/i },
+  {
+    name: "medical",
+    re: /\b(overdosed|can'?t breathe|chest pain|bleeding (a lot|out)|took (all|too many) (the )?pills|passed out|unconscious)\b/i,
+  },
+  {
+    name: "psychosis",
+    re: /\b(voices telling me|they'?re watching me|being controlled|not real anymore|losing my mind)\b/i,
+  },
 ];
 
 // Multilingual seeds for clear risk (Claudia is international). Extend freely.
-export const CLEAR_ML = /\b(me suicider|me tuer|en finir|plus envie de vivre|me faire du mal|passer à l'acte|suizidieren|umbringen|matarme|suicidarme|quitar la vida|farla finita|uccidermi)\b/i;
+export const CLEAR_ML =
+  /\b(me suicider|me tuer|en finir|plus envie de vivre|me faire du mal|passer à l'acte|suizidieren|umbringen|matarme|suicidarme|quitar la vida|farla finita|uccidermi)\b/i;
 
 // Stage 1b — UNCERTAIN: veiled / ambiguous distress that MIGHT be risk.
 export const UNCERTAIN = [
@@ -101,7 +114,9 @@ export async function decide(text, { modelClassifierEnabled = false, classifyWit
     if (!res || !res.ok) return { escalate: true, reason: "uncertain, classifier unavailable — failing safe" };
     // The verdict is untrusted model text: normalize before matching so
     // "IMMINENT" or " elevated " still read as risk instead of falling through.
-    const risk = String(res.verdict?.risk ?? "").trim().toLowerCase();
+    const risk = String(res.verdict?.risk ?? "")
+      .trim()
+      .toLowerCase();
     if (risk === "imminent" || risk === "elevated") {
       return { escalate: true, reason: `model:${risk}:${res.verdict?.category || "?"}` };
     }

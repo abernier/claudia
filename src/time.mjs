@@ -164,8 +164,7 @@ export function classifyGap({ prevMs, nowMs, prevHour, nowHour, dayDiff }) {
   const hours = deltaMs / 3_600_000;
   if (hours < 1) return { since_last, gap_kind: "none" };
   if (dayDiff >= 2) return { since_last, gap_kind: "multi_day" };
-  const slept =
-    hours >= 4 && hours <= 18 && (prevHour >= 20 || prevHour < 4) && nowHour >= 4 && nowHour < 12;
+  const slept = hours >= 4 && hours <= 18 && (prevHour >= 20 || prevHour < 4) && nowHour >= 4 && nowHour < 12;
   if (dayDiff >= 1 || slept) return { since_last, gap_kind: "overnight" };
   return { since_last, gap_kind: "same_day" };
 }

@@ -27,7 +27,7 @@ themes: [the inner critic]        # ┘
 from the transcript by code and stamped when you close the distillation below — so you
 never have to reconstruct a stem or work out which days a conversation touched.
 
-- **`people:`** — those the person actually talked *about* this session, by the name
+- **`people:`** — those the person actually talked _about_ this session, by the name
   their fiche uses (`people/<name>.md`), so the graph points both ways.
 - **`themes:`** — **ratified** threads only, never a candidate. A thread the person has
   not yet recognised as theirs stays in the body, phrased as a question (ADR-0015).
@@ -47,7 +47,7 @@ never have to reconstruct a stem or work out which days a conversation touched.
   or discussed this session, so it isn't raised again.
 - **Safety**: note if a safety flag was raised (kind, and what was offered) —
   never the means/method.
-- **Recurring threads**: if something the person raised has *returned* across
+- **Recurring threads**: if something the person raised has _returned_ across
   sessions, note it as a **candidate theme** — tentative, for `recall` to gently
   offer next time, never stored as fact until the person ratifies it (see
   [`themes`](../themes/SKILL.md)).
@@ -60,10 +60,10 @@ never have to reconstruct a stem or work out which days a conversation touched.
   `<stem>.transcript.md` flagged for distilling. `recall` detects it (via
   `scripts/pending-sessions.mjs`) and hands you the stem (`<date>-<id>`). Read that one
   transcript, distill it, write the summary. This is the sanctioned exception to
-  "never read a transcript" — it exists precisely to *build* the summary that spares
+  "never read a transcript" — it exists precisely to _build_ the summary that spares
   every future recall from doing so (ADR-0016). Note the flag is a **dirty flag**: it
   can be present even when a `<stem>.summary.md` already exists, meaning the session was
-  *resumed* since — refresh the existing summary rather than starting blank.
+  _resumed_ since — refresh the existing summary rather than starting blank.
 
 Either way, after writing `<stem>.summary.md`, **close the distillation**:
 
@@ -72,7 +72,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/finish-distillation.mjs" "<stem>" \
   sessions/exercises/<date>-<slug>.md   # any exercise/teaching this session wrote
 ```
 
-That one command stamps the identity frontmatter onto the summary you just wrote *and*
+That one command stamps the identity frontmatter onto the summary you just wrote _and_
 clears the marker, in that order — so a summary is never left un-identified, and a
 session is never marked done without one. It is silent when it works. If it says there
 is no summary, the file was not written where it expected: fix that and run it again
@@ -93,13 +93,13 @@ real one. You supply the path, the script supplies the identity.
 - The verbatim `<stem>.transcript.md` is saved separately by the `SessionEnd` hook
   (`save-session.mjs`) — that is the person's archive, not this.
 
-Then **sync `~/.claudia/todo.md`** via `todo` (ADR-0018). This is the *authoritative*
+Then **sync `~/.claudia/todo.md`** via `todo` (ADR-0018). This is the _authoritative_
 place to tag it: you hold the real session stem here (the `<stem>` you just wrote),
 which a live addition mid-conversation may not have had. Promote this session's concrete,
-*task-shaped* to-do-later items into `## Ouvert`, tagged
+_task-shaped_ to-do-later items into `## Ouvert`, tagged
 `[<stem>](sessions/<stem>.summary.md)`; add that tag to any item a live addition left
 untagged; and tick `[x]` anything this session resolved (mirroring the Follow-ups you
-marked *done*). Promote genuine tasks,
+marked _done_). Promote genuine tasks,
 not every follow-up — `todo.md` is an action list, not a mirror of the summary.
 
 Same pass, same reason: **complete the session tag on any keepsake** the person kept
@@ -109,6 +109,6 @@ promote a line you liked into their collection: what they keep is theirs to choo
 
 Then update `person.md` / `goals.md` via `remember` if something durable emerged,
 and — if a pattern crystallised or the direction shifted — invoke `understand` to
-revise the working understanding. If a thread has *recurred*, hand a **candidate
+revise the working understanding. If a thread has _recurred_, hand a **candidate
 theme** to [`themes`](../themes/SKILL.md) — tentative, never stored until the person
 ratifies it.

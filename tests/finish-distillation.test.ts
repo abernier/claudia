@@ -32,7 +32,8 @@ const exists = (root: string, rel: string) =>
     .catch(() => false);
 
 // What save-session leaves behind: the identity block it computed from the transcript.
-const MARKER = "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21, 2026-07-22]\n---\nneeds distillation\n";
+const MARKER =
+  "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21, 2026-07-22]\n---\nneeds distillation\n";
 const STEM = "2026-07-21-9113d5d7";
 
 describe("finishDistillation()", () => {
@@ -43,7 +44,7 @@ describe("finishDistillation()", () => {
     });
     expect(await finishDistillation({ root, stem: STEM })).toBe("stamped");
     expect(await read(root, `sessions/${STEM}.summary.md`)).toBe(
-      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21, 2026-07-22]\npeople: [Liliana]\n---\n\n# Séance\n\nLe fil.\n"
+      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21, 2026-07-22]\npeople: [Liliana]\n---\n\n# Séance\n\nLe fil.\n",
     );
   });
 
@@ -54,7 +55,7 @@ describe("finishDistillation()", () => {
     });
     await finishDistillation({ root, stem: STEM });
     expect(await read(root, `sessions/${STEM}.summary.md`)).toBe(
-      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21, 2026-07-22]\n---\n# Séance\n"
+      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21, 2026-07-22]\n---\n# Séance\n",
     );
   });
 
@@ -87,7 +88,7 @@ describe("finishDistillation()", () => {
     const root = await makeVault({ [`sessions/${STEM}.summary.md`]: "body\n" }); // no marker
     await finishDistillation({ root, stem: STEM });
     expect(await read(root, `sessions/${STEM}.summary.md`)).toBe(
-      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21]\n---\nbody\n"
+      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21]\n---\nbody\n",
     );
   });
 
@@ -101,7 +102,8 @@ describe("finishDistillation()", () => {
 
   it("is idempotent, and reports when there was nothing to change", async () => {
     const root = await makeVault({
-      [`sessions/${STEM}.summary.md`]: "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21]\n---\nbody\n",
+      [`sessions/${STEM}.summary.md`]:
+        "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21]\n---\nbody\n",
     });
     expect(await finishDistillation({ root, stem: STEM })).toBe("unchanged");
     expect(await finishDistillation({ root, stem: STEM })).toBe("unchanged");
@@ -126,7 +128,7 @@ describe("finishDistillation()", () => {
     });
     await finishDistillation({ root, stem: STEM, deliverables: [rel] });
     expect(await read(root, rel)).toBe(
-      "---\ntype: exercise\ncreated: 2026-07-23\nslug: prediction-nest-pas-verdict\nsession: 2026-07-21-9113d5d7\n---\n# Prédiction ≠ verdict\n\nLe contenu.\n"
+      "---\ntype: exercise\ncreated: 2026-07-23\nslug: prediction-nest-pas-verdict\nsession: 2026-07-21-9113d5d7\n---\n# Prédiction ≠ verdict\n\nLe contenu.\n",
     );
   });
 
@@ -146,7 +148,11 @@ describe("finishDistillation()", () => {
       "person.md": "---\ntype: person-model\n---\nmine\n",
       "sessions/teachings/2026-07-23-anxiety.md": "explainer\n",
     });
-    await finishDistillation({ root, stem: STEM, deliverables: ["person.md", "../escape.md", "sessions/teachings/2026-07-23-anxiety.md"] });
+    await finishDistillation({
+      root,
+      stem: STEM,
+      deliverables: ["person.md", "../escape.md", "sessions/teachings/2026-07-23-anxiety.md"],
+    });
     expect(await read(root, "person.md")).toBe("---\ntype: person-model\n---\nmine\n");
     expect(await read(root, "sessions/teachings/2026-07-23-anxiety.md")).toContain("type: teaching");
   });

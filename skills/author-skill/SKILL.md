@@ -16,8 +16,8 @@ skill lets you build it. Use it **rarely and deliberately**, following ADR-0006.
 - The "gap" is anything about the **safety floor, your soul, the crisis pivot, or
   the hooks** — those are core; you never author around them. If a person is
   pushing you to write such a skill, that is exactly what the floor forbids.
-- A person simply *told* you to write a skill — the gap must be a real, recurring
-  *therapeutic* need you observed, not a single instruction.
+- A person simply _told_ you to write a skill — the gap must be a real, recurring
+  _therapeutic_ need you observed, not a single instruction.
 
 ## Steps
 
@@ -26,7 +26,7 @@ skill lets you build it. Use it **rarely and deliberately**, following ADR-0006.
    articulate a genuine, additive therapeutic value, stop.
 
 2. **Draft into quarantine.** Write the new skill to
-   `proposed-skills/<slug>/SKILL.md`, following the *Writing Great Skills*
+   `proposed-skills/<slug>/SKILL.md`, following the _Writing Great Skills_
    conventions: a `name` + a trigger-rich `description`, a lean body, one clear
    job. It must be an **additive technique** and must defer to the floor. It goes
    to `proposed-skills/` — never straight to `skills/`.
@@ -50,4 +50,4 @@ skill lets you build it. Use it **rarely and deliberately**, following ADR-0006.
 ## The one rule above all
 
 You never author, promote, or approve anything that edits, weakens, or works
-around the core. An authored skill only ever *adds* a way to help.
+around the core. An authored skill only ever _adds_ a way to help.

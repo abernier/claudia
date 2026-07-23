@@ -30,7 +30,7 @@ runtime contract changes.
 - **No escape hatches.** No `@ts-nocheck`, no `@ts-ignore`;
   `@ts-expect-error` only with a written justification. External JSON is cast
   once, at its parse site, to a documented typedef.
-- **Shared types are collocated.** The module that *parses* a shape owns its
+- **Shared types are collocated.** The module that _parses_ a shape owns its
   exported `@typedef` — hook payloads in the script that reads that event,
   `config.json` in its reader, migration records in `src/migrations/index.mjs`.
   Consumers write `import('./x.mjs').TypeName`. No central `types.d.ts`:
@@ -45,7 +45,7 @@ runtime contract changes.
 ## Alternatives considered
 
 - **Native `.mts` + Node type stripping.** Stable since Node 22.18/24.3 and
-  default in every maintained Node line — but the person's *installed* Node is
+  default in every maintained Node line — but the person's _installed_ Node is
   uncontrolled and unenforceable: Claude Code plugins have no `engines`
   mechanism, no install-time validation, and hooks run whatever `node` is on
   PATH. On an older Node, a `.mts` file dies **at parse time**, before a single

@@ -18,9 +18,7 @@ import { readFileSync, writeFileSync } from "node:fs";
  * @property {Array<{ version: string }>} [plugins]
  */
 
-const version = /** @type {{ version: string }} */ (
-  JSON.parse(readFileSync("package.json", "utf8"))
-).version;
+const version = /** @type {{ version: string }} */ (JSON.parse(readFileSync("package.json", "utf8"))).version;
 
 /**
  * Re-serialize a manifest at `path` after letting `mutate` edit it in place.

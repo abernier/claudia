@@ -10,7 +10,7 @@ maps to files on disk.
 
 ## Bug 1 — the gate false-positived on dev sessions
 
-`isClaudiaSession` decided a transcript was Claudia's if the raw JSONL *contained*
+`isClaudiaSession` decided a transcript was Claudia's if the raw JSONL _contained_
 persona strings (`You are Claudia`, `skills/claudia`, …). But the plugin runs at
 user scope, so the hook fires for every session — and any session that **works on
 Claudia** carries those strings: reading `SOUL.md`, opening a skill file, or
@@ -20,7 +20,7 @@ therapy vault (and would keep being, including the session doing this cleanup).
 ## Bug 2 — date-keyed, append-only archiving
 
 `save-session` wrote `<date>.transcript.md` and **appended** on every close. A
-resumed conversation re-dumps its *entire* transcript each time, so one Liliana
+resumed conversation re-dumps its _entire_ transcript each time, so one Liliana
 session appeared **three times** (growing) in a single day's file; and because the
 gate was loose, three unrelated dev `/grill-me` sessions were concatenated after
 it. One day-file, six sessions, two of them real.
@@ -28,10 +28,10 @@ it. One day-file, six sessions, two of them real.
 ## Decision
 
 **A genuine-session gate (`src/session.mjs`).** A transcript is Claudia's only if
-the `claudia` skill was actually *activated* — its loader preamble appears as a
+the `claudia` skill was actually _activated_ — its loader preamble appears as a
 **user-authored message**: `Base directory for this skill: …/skills/claudia\n# You
 are Claudia …`. `textFromContent` drops `tool_result`/`tool_use` blocks, so merely
-*reading* a skill file never counts, and `/grill-me` loads `…/skills/grilling`, not
+_reading_ a skill file never counts, and `/grill-me` loads `…/skills/grilling`, not
 `…/skills/claudia`. Validated against real transcripts: all five repo-dir dev
 sessions (incl. the live one) → excluded; the one genuine session run from the
 person's own dir → kept.
@@ -53,7 +53,7 @@ legacy plain `<date>`), so both schemes coexist.
   documented coupling for the strongest available signal.
 - Keying by session also **fixes distillation granularity** (the same-day limitation
   noted in ADR-0016): two conversations on one day are now two files with two
-  summaries, and a session resumed across days is *one* file, not two.
+  summaries, and a session resumed across days is _one_ file, not two.
 - **Migration (one-off).** The existing date-files were rebuilt: the genuine Liliana
   session (spanning 07-21→07-22) was re-rendered from its source JSONL to a single
   session-keyed transcript + one consolidated summary; the polluted/triplicated

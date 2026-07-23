@@ -43,7 +43,7 @@ describe("pendingSessions()", () => {
   });
   it("re-flags a distilled session that was resumed (summary present AND marker back)", () => {
     expect(
-      pendingSessions(["2026-07-21-abc.transcript.md", "2026-07-21-abc.summary.md", "2026-07-21-abc.pending-summary"])
+      pendingSessions(["2026-07-21-abc.transcript.md", "2026-07-21-abc.summary.md", "2026-07-21-abc.pending-summary"]),
     ).toEqual(["2026-07-21-abc"]);
   });
   it("returns oldest-first so a caller can distill chronologically", () => {

@@ -79,7 +79,8 @@ function rewriteFile(content, rel, index) {
       else {
         const hit = index.get(name);
         if (hit !== undefined) targetRel = hit;
-        else if (base === "themes.md") return display; // define-site → plain text, not a self-link
+        else if (base === "themes.md")
+          return display; // define-site → plain text, not a self-link
         else targetRel = "themes.md";
       }
       let dest = relTo(fromDir, targetRel);
@@ -88,7 +89,9 @@ function rewriteFile(content, rel, index) {
     });
 
   const fm = content.match(/^(---\n[\s\S]*?\n---\n)([\s\S]*)$/);
-  return fm ? /** @type {string} */ (fm[1]).replace(FM_WIKILINK, "$1") + body(/** @type {string} */ (fm[2])) : body(content);
+  return fm
+    ? /** @type {string} */ (fm[1]).replace(FM_WIKILINK, "$1") + body(/** @type {string} */ (fm[2]))
+    : body(content);
 }
 
 /**

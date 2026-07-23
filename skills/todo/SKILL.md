@@ -13,8 +13,8 @@ this is a plain checkbox list the person can open and edit themselves.
 
 ## When to reach for it
 
-- The person asks to note something to do later — *"remind me to…"*, *"note ça pour
-  plus tard"*, *"crée une todo"*, *"add that to my list"*.
+- The person asks to note something to do later — _"remind me to…"_, _"note ça pour
+  plus tard"_, _"crée une todo"_, _"add that to my list"_.
 - You and the person agree a concrete **between-session step**.
 - Something on the list got done → tick it.
 

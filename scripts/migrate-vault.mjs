@@ -67,7 +67,12 @@ async function walk(dir, base = dir) {
 async function readLedger(root) {
   try {
     const txt = await fs.readFile(path.join(root, LEDGER), "utf8");
-    return new Set(txt.split(/\r?\n/).map((s) => s.trim()).filter(Boolean));
+    return new Set(
+      txt
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean),
+    );
   } catch {
     return new Set();
   }
@@ -136,7 +141,11 @@ export async function runMigrations({ root, dry = false, migrations: list = migr
     // A file a migration *creates* has no on-disk original: `original[rel]` is undefined
     // there, and `?? ""` maps it to the empty string so printDiffs renders the whole file
     // as pure additions — exactly what "new file" should look like in a preview.
-    const diffs = changed.map((rel) => ({ rel, before: original[rel] ?? "", after: /** @type {string} */ (files[rel]) }));
+    const diffs = changed.map((rel) => ({
+      rel,
+      before: original[rel] ?? "",
+      after: /** @type {string} */ (files[rel]),
+    }));
     return { status: changed.length ? "dry" : "nochange", ran, changed, backup: null, diffs };
   }
 

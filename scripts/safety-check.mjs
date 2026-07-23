@@ -56,11 +56,14 @@ function classifyWithModel(text) {
         const m = String(stdout).match(/\{[\s\S]*\}/);
         if (!m) return resolve({ ok: false });
         try {
-          resolve({ ok: true, verdict: /** @type {import("../src/safety.mjs").ClassifierVerdict} */ (JSON.parse(m[0])) });
+          resolve({
+            ok: true,
+            verdict: /** @type {import("../src/safety.mjs").ClassifierVerdict} */ (JSON.parse(m[0])),
+          });
         } catch {
           resolve({ ok: false });
         }
-      }
+      },
     );
     child.on("error", () => resolve({ ok: false }));
   });
@@ -76,7 +79,7 @@ function emitEscalation(reason) {
   process.stdout.write(
     JSON.stringify({
       hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: escalationContext(reason) },
-    })
+    }),
   );
 }
 

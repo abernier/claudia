@@ -30,7 +30,10 @@ describe("decide()", () => {
     let called = false;
     const r = await decide("kill myself", {
       modelClassifierEnabled: true,
-      classifyWithModel: async (): Promise<ClassifierResult> => ((called = true), { ok: true, verdict: { risk: "none" } }),
+      classifyWithModel: async (): Promise<ClassifierResult> => (
+        (called = true),
+        { ok: true, verdict: { risk: "none" } }
+      ),
     });
     expect(r.escalate).toBe(true);
     expect(called).toBe(false);
@@ -53,7 +56,10 @@ describe("decide()", () => {
   it("uncertain + model says elevated → escalate", async () => {
     const r = await decide("I can't go on anymore", {
       modelClassifierEnabled: true,
-      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: { risk: "elevated", category: "suicide" } }),
+      classifyWithModel: async (): Promise<ClassifierResult> => ({
+        ok: true,
+        verdict: { risk: "elevated", category: "suicide" },
+      }),
     });
     expect(r.escalate).toBe(true);
     expect(r.reason).toContain("model:elevated");
@@ -82,7 +88,10 @@ describe("decide()", () => {
   it('uncertain + model says "IMMINENT" (uppercase) → escalates', async () => {
     const r = await decide("I can't go on anymore", {
       modelClassifierEnabled: true,
-      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: { risk: "IMMINENT", category: "suicide" } }),
+      classifyWithModel: async (): Promise<ClassifierResult> => ({
+        ok: true,
+        verdict: { risk: "IMMINENT", category: "suicide" },
+      }),
     });
     expect(r.escalate).toBe(true);
     expect(r.reason).toBe("model:imminent:suicide");

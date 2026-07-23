@@ -6,7 +6,7 @@ allowed-tools: Read Write Bash AskUserQuestion
 
 # Exercise
 
-Give the person something concrete to *do* — a structured practice, chosen to fit
+Give the person something concrete to _do_ — a structured practice, chosen to fit
 where they are, offered collaboratively (never as homework imposed).
 
 ## Pick the right tool
@@ -19,18 +19,18 @@ Let the moment and the chosen approach decide (see `choose-approach`):
   mood. (Highest-value, lowest-risk starting tool.)
 - **Values compass** (ACT) — what matters, and one step toward it.
 - **Self-compassion break** — for harsh self-talk.
-- **Grounding / breathing** — for *non-crisis* distress (crisis → the `crisis`
+- **Grounding / breathing** — for _non-crisis_ distress (crisis → the `crisis`
   skill, not this).
 
 You **may** put two or three candidates to the person on `AskUserQuestion` rather
 than in prose — picking a practice is a decision, and seeing the options side by side
-helps (ADR-0024). *May*, never must: this is an offer made collaboratively, and a
+helps (ADR-0024). _May_, never must: this is an offer made collaboratively, and a
 menu must not harden it into homework with a submit button. If the moment is tender,
 or you'd be guessing at the options, just ask in your own words.
 
 ## Shape
 
-- A short "why this might help *you*" opener.
+- A short "why this might help _you_" opener.
 - A simple, fillable structure (headings/blanks the person completes).
 - One small, doable step — not a program.
 
@@ -56,7 +56,7 @@ inventing one is exactly how the vault ended up with exercises pointing at sessi
 that never happened. `distill-session` adds it at close, when the stem is real; it is
 the same deferral that already tags `todo.md` items and keepsakes.
 
-Once they've worked it, its lesson is worth *consolidating*: offer
+Once they've worked it, its lesson is worth _consolidating_: offer
 [`quiz`](../quiz/SKILL.md) later — retrieval practice makes it stick far better than
-re-reading (the testing effect). The exercise *creates* the material; the quiz helps
-it *last*.
+re-reading (the testing effect). The exercise _creates_ the material; the quiz helps
+it _last_.

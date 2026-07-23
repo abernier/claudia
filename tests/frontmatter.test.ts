@@ -80,7 +80,7 @@ describe("stampIdentity()", () => {
   it("creates the block on a summary that has none", () => {
     const body = "# Séance — 2026-07-23 (042d64f7)\n\nSéance courte.\n";
     expect(stampIdentity(body, identity)).toBe(
-      `---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21]\n---\n${body}`
+      `---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21]\n---\n${body}`,
     );
   });
 
@@ -100,12 +100,14 @@ describe("stampIdentity()", () => {
 
   it("inserts a missing key next to the siblings that are already there", () => {
     const out = stampIdentity("---\ntype: session\npeople: [Liliana]\n---\nbody\n", identity);
-    expect(out).toBe("---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21]\npeople: [Liliana]\n---\nbody\n");
+    expect(out).toBe(
+      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21]\npeople: [Liliana]\n---\nbody\n",
+    );
   });
 
   it("inserts at the top when no sibling is present yet", () => {
     expect(stampIdentity("---\npeople: [Liliana]\n---\nbody\n", { type: "exercise" })).toBe(
-      "---\ntype: exercise\npeople: [Liliana]\n---\nbody\n"
+      "---\ntype: exercise\npeople: [Liliana]\n---\nbody\n",
     );
   });
 

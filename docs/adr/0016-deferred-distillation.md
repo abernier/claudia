@@ -26,13 +26,13 @@ So the fragile half of the design sat on the unreliable half of the lifecycle.
 
 ## Decision
 
-**Move the distillation trigger from session *close* to the next session's *open*.**
+**Move the distillation trigger from session _close_ to the next session's _open_.**
 Open is structurally reliable: a Claudia conversation cannot begin without `recall`
 (loaded by the `claudia` skill when she is named). Concretely:
 
 - `save-session.mjs` (SessionEnd) drops a `<stem>.pending-summary` marker on **every**
   close — a **dirty flag**, not just a placeholder. `distill-session` clears it once it
-  has (re)written the summary, so a session that was distilled and then *resumed* is
+  has (re)written the summary, so a session that was distilled and then _resumed_ is
   re-distilled and its now-stale summary refreshed.
 - New pure module `src/pending.mjs` (`pendingSessions`) + CLI `scripts/pending-sessions.mjs`
   give `recall` a **deterministic** list of sessions carrying that marker (keyed by
@@ -43,7 +43,7 @@ Open is structurally reliable: a Claudia conversation cannot begin without `reca
 
 ## Why not a `SessionStart` hook
 
-A hook *is* reliable, but at `startup` the new transcript is empty, so it cannot tell
+A hook _is_ reliable, but at `startup` the new transcript is empty, so it cannot tell
 a Claudia session from a coding one — and the plugin runs at user scope. ADR-0013
 deliberately gates the persona anchor on `isClaudiaSession` to never touch coding
 sessions; a blind startup nudge would violate that. `recall` only runs inside a real
@@ -55,7 +55,7 @@ Claudia conversation, so it is the correctly-scoped home for the catch-up.
   conversation you just had is distilled at the start of the next one. Acceptable —
   continuity is what matters, not immediacy.
 - `distill-session` gains an explicit **deferred / from-transcript** path. Reading a
-  past transcript to *build* its summary is the one sanctioned exception to recall's
+  past transcript to _build_ its summary is the one sanctioned exception to recall's
   "never read a transcript" invariant (ADR-0004) — it exists precisely to spare every
   future recall from doing so.
 - `remember` / `understand` / `relationships` / `themes` are still model-invoked from

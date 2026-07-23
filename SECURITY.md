@@ -1,6 +1,6 @@
 # Security & safety
 
-Claudia is a mental-health *support companion*, so "security" here means two
+Claudia is a mental-health _support companion_, so "security" here means two
 things: ordinary software vulnerabilities **and** safety failures in how Claudia
 responds to people. Both matter; please report either.
 

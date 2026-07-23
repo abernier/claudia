@@ -7,7 +7,7 @@ status: accepted
 The working memory is spread across many files — `goals.md`, `themes.md`,
 `understanding.md`, `todo.md`, `people.md`, `timeline.md`, the session summaries.
 Each is the right home for its own thing, but there was no single place a person
-could open to see, at a glance, *where things are*. This is that place:
+could open to see, at a glance, _where things are_. This is that place:
 `~/.claudia/dashboard.md`, a bird's-eye view of the person's own journey.
 
 The tension is real: Claudia's whole design resists making the person feel like a

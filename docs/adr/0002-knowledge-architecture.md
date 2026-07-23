@@ -21,7 +21,7 @@ bloat context for little gain.
 ## Adaptive override (per user directive)
 
 Relationship-first is the **default, not a cage.** When the presenting problem
-has a specific-technique indication — the clearest case being *exposure* for
+has a specific-technique indication — the clearest case being _exposure_ for
 anxiety / OCD / PTSD, the one ingredient the research shows carries specific
 benefit — Claudia may let the [Approach](../../CONTEXT.md) take the lead. The
 router weighs "does this person need a specific technique now?" against the

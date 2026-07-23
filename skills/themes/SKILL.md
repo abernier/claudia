@@ -11,15 +11,15 @@ tissue a single session summary can't carry. They live at `~/.claudia/themes.md`
 index) and `~/.claudia/themes/<name>.md` (a note per thread that has earned depth — the
 filename is the thread's name in the person's words, like a fiche).
 See [ADR-0015](../../docs/adr/0015-the-thread.md). A theme is distinct from the
-[working understanding](../understand/SKILL.md) (the *current direction*), goals (the
-*targets*), and [fiches](../relationships/SKILL.md) (per *person*): it is a **pattern
+[working understanding](../understand/SKILL.md) (the _current direction_), goals (the
+_targets_), and [fiches](../relationships/SKILL.md) (per _person_): it is a **pattern
 that returns**.
 
 ## Propose tentatively — the person names it
 
-You may **offer** a candidate thread as a *question*, never a verdict:
+You may **offer** a candidate thread as a _question_, never a verdict:
 
-> "There's a thread of *stepping back so others aren't upset* that keeps returning —
+> "There's a thread of _stepping back so others aren't upset_ that keeps returning —
 > does that fit, or would you name it differently?"
 
 - It becomes a **stored theme only once the person accepts or reshapes it.** Nothing
@@ -33,9 +33,9 @@ You may **offer** a candidate thread as a *question*, never a verdict:
 
 ## When a theme is noticed
 
-A theme is *recurring* by nature — caught **looking back across sessions**, not from
+A theme is _recurring_ by nature — caught **looking back across sessions**, not from
 one. [`distill-session`](../distill-session/SKILL.md) flags a candidate when a thread
-returns; the *next* [`recall`](../recall/SKILL.md) surfaces it gently for ratification.
+returns; the _next_ [`recall`](../recall/SKILL.md) surfaces it gently for ratification.
 A live offer mid-session is rare and never interrupts.
 
 ## Canonical structure — index + graduated notes
@@ -95,11 +95,11 @@ problem-saturated map feeds rumination — surface what holds the person up, too
 
 ## Optional "see the shape of it" view
 
-When it would help, *generate* a mermaid `graph` of the threads (nodes = themes, edges
+When it would help, _generate_ a mermaid `graph` of the threads (nodes = themes, edges
 = theme↔theme / theme↔person, `click` linking each to its note) — the "arbre de pensée"
 at the scale where it earns its place. A regenerated view, **never** the store:
 
-```
+````
 ```mermaid
 graph TD
   IC["the inner critic"]
@@ -108,7 +108,8 @@ graph TD
   IC ---|"loudest after"| LIL
   WS -.->|"quiets"| IC
   click IC "themes/the inner critic.md"
-```
+````
+
 ```
 
 ## Theirs
@@ -117,3 +118,4 @@ Provisional always — "a working sketch, not a verdict." `/forget` deletes a th
 and de-links it everywhere (real deletion, [ADR-0004](../../docs/adr/0004-memory-model.md));
 `/export` copies them out as-is. Index themes in `MEMORY.md`. Surface **one** thread
 when it matters — never a list, never a recital of the map.
+```

@@ -29,9 +29,9 @@ crystallises, or at close. Most turns don't need it.
 
 - **A living hypothesis.** Date entries. **Revise, don't overwrite** — when new
   information contradicts the theory, update it and note the shift. Mark it
-  *provisional*.
+  _provisional_.
 - **Centre their agency.** Lead with the person's own strengths and resources, not
-  deficits. The understanding should help them need you *less*, not more.
+  deficits. The understanding should help them need you _less_, not more.
 - **Collaborative & correctable.** This is not a secret file. Reflect it back —
   "here's how I'm making sense of things, does that fit?" — and take their
   correction as the truth. They can view (`/export`), edit, or delete (`/forget`).

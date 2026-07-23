@@ -10,7 +10,7 @@ Then the conversation moves on and the sentence is gone — scrolled past, and b
 next session unrecoverable.
 
 Nothing in the memory model catches it. The working layer is **distilled by
-design** (ADR-0004): a summary says *what helped*, never the words that helped. The
+design** (ADR-0004): a summary says _what helped_, never the words that helped. The
 `<stem>.transcript.md` holds every word but is the person's archive, deliberately
 unread and unnavigable — nobody re-reads a transcript to find a half-remembered
 line. So the most re-readable thing a session produces has nowhere to live.
@@ -22,7 +22,7 @@ its size (White & Epston, 1990; White, 2007). CBT does the same with **coping ca
 / therapy notes** — the conclusion the person reached, written in their own words,
 re-read when the moment they wrote it for actually arrives (Beck, 2011). Both exist
 because recall of what was said in a session is genuinely poor (Kessels, 2003), and
-because what carries a session into the week is what happens *between* sessions
+because what carries a session into the week is what happens _between_ sessions
 (Kazantzis et al., 2010).
 
 ## Decision
@@ -39,24 +39,24 @@ command that pull it into reach mid-conversation.
   language, like every working file, and no heading grammar to parse — a keepsake
   is a quote, which is what it already looks like.
 
-- **Either voice, honestly attributed.** Claudia's words *or* the person's own
+- **Either voice, honestly attributed.** Claudia's words _or_ the person's own
   ("pin n'importe quoi"). A keepsake attributed to Claudia is **exactly** what she
   said; if the person reshapes the wording — which they may, it is theirs — the
   attribution follows the words (`— moi`, or `— moi, d'après Claudia`). Never put a
   sentence in someone's mouth, not even a flattering one.
 
 - **Verbatim on purpose — a bounded exception** to "summaries are distilled, never
-  verbatim". Bounded by: *person-initiated*, *one short passage at a time*, and the
+  verbatim". Bounded by: _person-initiated_, _one short passage at a time_, and the
   floor unchanged — **never** a means or a method on a line (ADR-0001 rule 4), and
   nothing lifted out of a crisis moment to be re-read later.
 
 - **The asymmetry that guards against dependency.** Claudia may **offer** to keep
-  *the person's* words — "that sentence you just said — want to keep it?" — which is
+  _the person's_ words — "that sentence you just said — want to keep it?" — which is
   the narrative-therapy move (catching a unique outcome as the person voices it).
   She **never proposes keeping her own**; hers are kept only when the person pulls
   `/keep`. A companion that curates her own greatest hits is building a following,
-  not an ally, and the point of a written keepsake is precisely that it works *when
-  she is not there* (the coping-card rationale).
+  not an ally, and the point of a written keepsake is precisely that it works _when
+  she is not there_ (the coping-card rationale).
 
 - **`/keep [passage]`, with a no-argument path built on the choice UI.** With an
   argument, keep it. Without one, offer 2–4 candidate passages from the **last
@@ -65,8 +65,8 @@ command that pull it into reach mid-conversation.
   The person picks the words; Claudia never decides for them what mattered.
 
 - **A dedicated `keep` skill owns the behavior**, as every memory surface does
-  (`todo`, `understand`, `themes`…), so the natural-language triggers — *"garde
-  ça"*, *"épingle cette phrase"*, *"pin that"* — fire mid-conversation without the
+  (`todo`, `understand`, `themes`…), so the natural-language triggers — _"garde
+  ça"_, _"épingle cette phrase"_, _"pin that"_ — fire mid-conversation without the
   slash command. The command is the discoverable door, not the only one.
 
 - **Read where it earns its place, never recited.** The

@@ -27,6 +27,7 @@ right and it must be reliable.
    ```bash
    node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"
    ```
+
 5. Confirm gently what was removed. Do not editorialise or resist the person's
    choice — deletion is theirs.
 

@@ -26,7 +26,7 @@ transfers out of the session.
 - The **broadest evidence base of any psychotherapy.** Hofmann et al. (2012), a
   review of 269 meta-analyses, found the strongest support for **anxiety
   disorders, somatoform disorders, bulimia, anger/aggression, and general
-  stress**; support for depression is solid but with *smaller* effects than for
+  stress**; support for depression is solid but with _smaller_ effects than for
   anxiety.
 - First-line in **NICE NG222 (2022)** for depression and across anxiety
   disorders; **APA Division 12** "strong research support" across depression,

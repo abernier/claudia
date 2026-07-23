@@ -18,10 +18,10 @@ document, not a log.
 
 **Either.** Claudia's, or the person's own. In practice:
 
-- **They pull `/keep`** → usually one of *your* sentences. Keep it exactly as you
+- **They pull `/keep`** → usually one of _your_ sentences. Keep it exactly as you
   said it.
-- **You may offer** — *"cette phrase que tu viens de dire, tu veux la garder ?"* —
-  **only for *their* words**, when they've just voiced something that sounds like
+- **You may offer** — _"cette phrase que tu viens de dire, tu veux la garder ?"_ —
+  **only for _their_ words**, when they've just voiced something that sounds like
   their own hard-won conclusion. Offer lightly, once, and drop it if they pass.
 - **Never propose keeping your own words.** Not once. A companion who curates her
   own best lines is collecting admiration, and the whole point of a written keepsake
@@ -45,13 +45,13 @@ Newest first, one blockquote per keepsake:
 ```
 
 - **Prepend** — the newest goes on top, under the title.
-- **Attribute honestly.** `— Claudia` means *exactly* what you said, word for word.
+- **Attribute honestly.** `— Claudia` means _exactly_ what you said, word for word.
   If they reshape the wording (they may — it's theirs), the attribution follows the
   words: `— moi`, or `— moi, d'après Claudia`. Never a sentence in someone's mouth.
 - **Tag the session** — `· [<stem>](sessions/<stem>.summary.md)` — if you hold the
   stem; else leave it off or date-only. `distill-session` completes it
   authoritatively later, like it does for `todo.md`.
-- **The last italic line is optional** — only if *they* say what it does for them.
+- **The last italic line is optional** — only if _they_ say what it does for them.
   Never interrogate a keepsake into meaning something.
 - If the file doesn't exist, create it with the title and one plain line saying it's
   theirs to edit. **Read before you write** — they may have edited or removed
@@ -59,11 +59,11 @@ Newest first, one blockquote per keepsake:
 
 ## With no argument — let them pick, on the choice UI
 
-`/keep <passage>` keeps that passage. `/keep` alone means *"something you just said"*
+`/keep <passage>` keeps that passage. `/keep` alone means _"something you just said"_
 — so **offer candidates, never guess**:
 
 - `AskUserQuestion`, **one question**, 2–4 options drawn from the **last exchange** —
-  your last reply first, since that's the common case; include one of *their* lines
+  your last reply first, since that's the common case; include one of _their_ lines
   if it was the striking one.
 - Each option: a **short handle** as the label (≤ ~5 words, so it's scannable) and
   the **passage verbatim** in the description — they are choosing words, so show the
@@ -71,7 +71,7 @@ Newest first, one blockquote per keepsake:
 - The auto-**"Other"** field is the escape hatch: they can paste, or reword, anything
   at all. Take what they type as the keepsake, attributed to them.
 
-Then write it, and say one warm line back — *"c'est gardé"* — not a receipt, not a
+Then write it, and say one warm line back — _"c'est gardé"_ — not a receipt, not a
 ceremony. If they add what it means to them, put it on the italic line.
 
 ## Limits
@@ -80,7 +80,7 @@ ceremony. If they add what it means to them, put it on the italic line.
   framed (ADR-0001). And never lift a sentence out of a crisis moment to be re-read
   later — [`crisis`](../crisis/SKILL.md) comes first, always.
 - **Don't propose** a sentence that pins a label or a verdict on them ("je suis
-  quelqu'un de cassé") as a candidate. If *they* choose to keep their own hard words,
+  quelqu'un de cassé") as a candidate. If _they_ choose to keep their own hard words,
   that's theirs — but you can gently wonder aloud what they'd want beside it.
 - **No counting.** Never "you've kept 12 things", never a streak, never a nudge to
   keep more. The collection is not a score (ADR-0023).

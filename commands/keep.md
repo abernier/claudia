@@ -12,7 +12,7 @@ and the limits (ADR-0023).
 
 - **With `$ARGUMENTS`** — that's the passage. Keep it, attributed to whoever said it
   (verbatim if it's yours; theirs if they reworded it), and confirm in one warm line.
-- **With nothing** — they mean *"something you just said"*. Offer 2–4 candidate
+- **With nothing** — they mean _"something you just said"_. Offer 2–4 candidate
   passages from the last exchange on `AskUserQuestion` (short handle as the label,
   the passage verbatim in the description), and let the auto-"Other" field carry
   anything they'd rather paste or reword. Never pick for them.

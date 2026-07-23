@@ -2,7 +2,7 @@
 
 Claudia is a Claude plugin: a warm, immersive, **generalist** conversational
 companion that draws on evidence-based psychotherapy to support a person's
-emotional life and self-reflection. It is *informed by* the clinical literature
+emotional life and self-reflection. It is _informed by_ the clinical literature
 but is **not** a licensed clinician, and never presents itself as a substitute
 for professional care.
 
@@ -21,11 +21,11 @@ still say "an AI" for honest disclosure).
 **Person**:
 The human Claudia is with. Canonical term in code and docs.
 _Avoid_: "patient" (implies medical treatment we don't provide — see the safety
-floor), "user", "client". "Patient" is tolerated only inside Claudia's *immersive
-voice*, never in the codebase.
+floor), "user", "client". "Patient" is tolerated only inside Claudia's _immersive
+voice_, never in the codebase.
 
 **Generalist**:
-Claudia is deliberately *not* specialised to one school. She draws on whichever
+Claudia is deliberately _not_ specialised to one school. She draws on whichever
 [Approach](#therapeutic-content) fits the moment. We resist premature
 classification into a narrow niche.
 
@@ -43,11 +43,11 @@ A concrete, nameable therapeutic move belonging to one or more approaches
 scaling questions, validation).
 
 **Competency**:
-A skill a good therapist *does* — attending, reflecting, summarising, asking open
+A skill a good therapist _does_ — attending, reflecting, summarising, asking open
 questions, repairing ruptures. Behavioural and observable.
 
 **Quality**:
-A relational stance a good therapist *embodies* — empathy, unconditional positive
+A relational stance a good therapist _embodies_ — empathy, unconditional positive
 regard, congruence/genuineness. Dispositional, not a discrete action.
 _Note_: Competency = what she does; Quality = how she is. Kept distinct on
 purpose.
@@ -81,7 +81,7 @@ _Avoid_: "handoff" alone (too cold), "disclaimer dump".
 
 **Safety floor**:
 The set of non-negotiable never/always rules that hold regardless of persona,
-immersion, or "adapting to the person". Immersion and adaptation operate *above*
+immersion, or "adapting to the person". Immersion and adaptation operate _above_
 the floor, never through it. (Defined in ADR-0001.)
 
 ## Continuity & outputs
@@ -97,7 +97,7 @@ own machine — session summaries, a person model, goals, safety flags, and the
 (safety floor rule 10).
 
 **Working understanding**:
-Claudia's living, dated, *provisional* theory of what the person is navigating,
+Claudia's living, dated, _provisional_ theory of what the person is navigating,
 what feeds it, what helps, and where they're heading together — a de-clinicalised
 adaptation of case formulation that adapts her direction across sessions. Held
 lightly, reflected back collaboratively, correctable and deletable by the person.
@@ -105,7 +105,7 @@ _Avoid_: "formulation", "case file", "clinical notes", "dossier" (all imply the
 clinical record this is deliberately not). Defined in ADR-0008.
 
 **Intake**:
-The gentle "getting to know you" Claudia *offers* at the start — a short,
+The gentle "getting to know you" Claudia _offers_ at the start — a short,
 declinable series of questions that seeds the [Working understanding](#continuity--outputs).
 A skill invocable by both the person (`/intake`) and Claudia. Offered, never
 imposed; not a clinical assessment. Defined in ADR-0009.
@@ -113,7 +113,7 @@ _Avoid_: "assessment", "screening", "questionnaire".
 
 **Relationship map**:
 A light, living map of the important people in the person's life — a mermaid
-ecomap (who's around them, how each bond feels *as they frame it*) that can grow
+ecomap (who's around them, how each bond feels _as they frame it_) that can grow
 into a family genogram. Non-judgmental, correctable, local (`~/.claudia/people.md`).
 Defined in ADR-0010.
 _Avoid_: clinical/accusatory labels about the people in it; "dossier", "profile".
@@ -121,13 +121,13 @@ _Avoid_: clinical/accusatory labels about the people in it; "dossier", "profile"
 **Person fiche**:
 A markdown note per important person (`~/.claudia/people/<name>.md`) following a
 common reflective template, relative-linked to other fiches, session summaries, themes,
-and the working understanding. A *mirror* of the person's own experience of the
+and the working understanding. A _mirror_ of the person's own experience of the
 bond — never a profile of the third party. Defined in ADR-0011.
 _Avoid_: "profile", "dossier", "record" (it is the person's reflective note, not a
-file kept *on* someone).
+file kept _on_ someone).
 
 **Life timeline**:
-The arc of the person's life — the important events, as *they* choose to tell them
+The arc of the person's life — the important events, as _they_ choose to tell them
 (`~/.claudia/timeline.md`): both a memory of the arc and an offered life-review
 tool. Person-led, partial by design, trauma-informed (painful events titrated,
 never forced), positive events first-class. A dated list is canonical; a mermaid
@@ -137,7 +137,7 @@ inventory".
 
 **The thread**:
 The felt through-line of a conversation, and the person-pulled `/thread` command
-that reflects it — a short *fil-de-sens* in a dim `※` meta-channel, close to the
+that reflects it — a short _fil-de-sens_ in a dim `※` meta-channel, close to the
 person's own words, so they can gather the conversation back or keep wandering.
 Person-triggered only, descriptive never directive, ephemeral (nothing stored; the
 session summary captures the durable thread). Defined in ADR-0015.
@@ -155,16 +155,16 @@ _Avoid_: "formulation", "diagnosis", "problem list", "case file" (it is a
 person-authored map, not a clinical record).
 
 **Deliverable**:
-An artifact Claudia produces *for* the person, written under `~/.claudia/` —
+An artifact Claudia produces _for_ the person, written under `~/.claudia/` —
 a session summary, an exercise/worksheet, a `/teach` explainer (with diagrams),
 progress notes.
 
 **Keepsake**:
 A passage the person chose to keep **verbatim** — a sentence Claudia said that
 landed, or one of their own they want to hold on to — collected newest-first in
-`~/.claudia/keepsakes.md` (`/keep`). A *therapeutic document* in the narrative sense:
+`~/.claudia/keepsakes.md` (`/keep`). A _therapeutic document_ in the narrative sense:
 the written line that goes home and gets re-read, not a log. Person-initiated;
-Claudia may offer to keep *their* words but never proposes her own. Honestly
+Claudia may offer to keep _their_ words but never proposes her own. Honestly
 attributed (reworded → attributed to them), never counted, floor unchanged (no
 means/methods, nothing lifted from a crisis moment). Defined in ADR-0023.
 _Avoid_: "favourite", "highlight reel", "collection" as something to grow; and any
@@ -172,23 +172,23 @@ count/streak framing — the keepsake is re-read, not scored.
 
 **Quiz**:
 A warm, one-at-a-time **retrieval-practice** activity — Claudia tests the person on
-the reframes and coping moves *they* co-created, so the lessons last (the testing
-effect). It runs *over* their [Deliverables](#continuity--outputs) and
+the reframes and coping moves _they_ co-created, so the lessons last (the testing
+effect). It runs _over_ their [Deliverables](#continuity--outputs) and
 [Keepsakes](#continuity--outputs) (saved exercises, agreed lessons, kept passages)
 but is **not** one itself: it produces no kept worksheet, only
-consolidation — `exercise` *creates* the material, the quiz makes it *last*.
+consolidation — `exercise` _creates_ the material, the quiz makes it _last_.
 Person-led, gentle.
 _Avoid_: "exam", "assessment", "score" (it never grades the person — a missed answer
 is a lesson to revisit, not a verdict on them).
 
 **Dashboard**:
 A person-facing, derived **mirror** of the working memory — a single bird's-eye
-view (`~/.claudia/dashboard.md` + `/dashboard`) that only *transcludes or points*,
+view (`~/.claudia/dashboard.md` + `/dashboard`) that only _transcludes or points_,
 never summarises, so it cannot put words in the person's mouth. Background-refreshed
 but **never recited** by Claudia — pulled, like [the thread](#continuity--outputs).
 Omits `safety.md` entirely; refusable via `config.json`. Defined in ADR-0019.
 _Avoid_: "dossier", "profile", "clinical record", "report", "case file" (it is a
-reflective mirror the person pulls, not a record kept *on* them); and any
+reflective mirror the person pulls, not a record kept _on_ them); and any
 mood/progress "life chart".
 
 **Frontmatter contract**:
@@ -198,7 +198,7 @@ stamped by code, and **judgment** (`people`, `themes`), which only a reader of t
 conversation can write. Dates are days, never timestamps; `session:` is always the stem;
 there is no safety key. Defined in ADR-0025.
 _Avoid_: "metadata", "schema", "record fields" (these are the person's own notes, and
-the block is there so *their* files cross-link, not so a system can index them).
+the block is there so _their_ files cross-link, not so a system can index them).
 
 **Migration**:
 A one-time, versioned upgrade of the person's saved notes to a newer format
@@ -207,12 +207,12 @@ A one-time, versioned upgrade of the person's saved notes to a newer format
 silent when there is nothing to do. Never touches the verbatim transcript. Defined in
 ADR-0020.
 _Avoid_: "database migration" framing, "conversion" (to the person it is a small,
-reversible tidy-up of *their* notes, not a data operation done *to* them).
+reversible tidy-up of _their_ notes, not a data operation done _to_ them).
 
 ## Self-authoring
 
 **Authored skill**:
-A new *additive technique* skill Claudia writes for herself when she identifies a
+A new _additive technique_ skill Claudia writes for herself when she identifies a
 recurring capability gap. Never touches the core (floor, soul, crisis, hooks).
 Defined in ADR-0006.
 
@@ -222,7 +222,7 @@ The independent, read-only, adversarial subagent that must clear an
 draft is unsafe and rejects on any doubt.
 
 **Quarantine**:
-The `proposed-skills/` directory where drafts wait. Deliberately *not* on the
+The `proposed-skills/` directory where drafts wait. Deliberately _not_ on the
 plugin's skill-load path, so a draft is inert until an auditor clears it and it is
 promoted into `skills/`.
 _Avoid_: "staging" alone (too neutral — the point is that it cannot act).

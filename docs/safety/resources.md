@@ -3,7 +3,7 @@
 When Claudia performs the [Crisis pivot](./crisis-protocol.md) she must surface
 **the correct line for the person's country and language** — not a US default.
 A 988 number is useless to someone in Berlin. This file covers how resources are
-localised and how Claudia knows the locale *before* it is needed
+localised and how Claudia knows the locale _before_ it is needed
 ([ADR-0001](../adr/0001-safety-floor.md) consequence: "we detect or ask locale
 before it is needed").
 
@@ -23,8 +23,8 @@ before it is needed").
   crisis-response protocols with immediate contact information" (APA Health
   Advisory, 2025). Resources are surfaced clearly at the moment of risk and kept
   persistent across following turns (see the post-response step in
-  [crisis-protocol.md](./crisis-protocol.md)) — *but per the enforcement
-  principle they are not sprayed into ordinary conversation.*
+  [crisis-protocol.md](./crisis-protocol.md)) — _but per the enforcement
+  principle they are not sprayed into ordinary conversation._
 - **One-touch where the surface allows.** Present call/text targets so the person
   can act with minimal friction.
 - **Emergency number always available.** For an active [medical
@@ -61,19 +61,19 @@ A small seed set. This is illustrative, not exhaustive — the full table lives 
 the localisation data the hook reads, and should be clinician-reviewed and kept
 current.
 
-| Region | Suicide / crisis line | Emergency | Notes |
-|---|---|---|---|
-| **United States** | **988** Suicide & Crisis Lifeline — call or text **988**; chat at 988lifeline.org. Crisis Text Line: text **HOME to 741741** | **911** | 24/7; English, Spanish + 240+ languages via interpretation; routes the Veterans Crisis Line. |
-| **Canada** | **988** — call or text **988** | **911** | Launched Nov 2023. |
-| **United Kingdom & ROI** | **Samaritans 116 123**; text **SHOUT to 85258** | **999** (UK) / **112** | 116 123 is free, 24/7. |
-| **Australia** | **Lifeline 13 11 14** | **000** / **112** | 24/7. |
-| **European Union** | Use **findahelpline.com** for the national line | **112** | 112 is the EU-wide emergency number. |
-| **Anywhere / locale unknown** | **findahelpline.com** (verified helplines in 130+ countries); IASP directory; Befrienders Worldwide | **112** (worldwide GSM) / local | The default fallback when region is not yet known. |
+| Region                        | Suicide / crisis line                                                                                                        | Emergency                       | Notes                                                                                        |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------- |
+| **United States**             | **988** Suicide & Crisis Lifeline — call or text **988**; chat at 988lifeline.org. Crisis Text Line: text **HOME to 741741** | **911**                         | 24/7; English, Spanish + 240+ languages via interpretation; routes the Veterans Crisis Line. |
+| **Canada**                    | **988** — call or text **988**                                                                                               | **911**                         | Launched Nov 2023.                                                                           |
+| **United Kingdom & ROI**      | **Samaritans 116 123**; text **SHOUT to 85258**                                                                              | **999** (UK) / **112**          | 116 123 is free, 24/7.                                                                       |
+| **Australia**                 | **Lifeline 13 11 14**                                                                                                        | **000** / **112**               | 24/7.                                                                                        |
+| **European Union**            | Use **findahelpline.com** for the national line                                                                              | **112**                         | 112 is the EU-wide emergency number.                                                         |
+| **Anywhere / locale unknown** | **findahelpline.com** (verified helplines in 130+ countries); IASP directory; Befrienders Worldwide                          | **112** (worldwide GSM) / local | The default fallback when region is not yet known.                                           |
 
 ### Specialised lines (US examples — surface by category)
 
 For [abuse disclosure](./crisis-protocol.md#3-abuse-disclosure) and specific
-populations, surface a *specialised* line rather than the general one:
+populations, surface a _specialised_ line rather than the general one:
 
 - **Sexual assault** — RAINN National Sexual Assault Hotline: **1-800-656-HOPE (4673)**.
 - **Domestic violence** — National DV Hotline: **1-800-799-7233**, or text **START to 88788**.

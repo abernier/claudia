@@ -5,7 +5,7 @@ status: accepted
 # Life timeline — a person-led lifeline, trauma-informed
 
 Claudia can keep a **life timeline** at `~/.claudia/timeline.md`: both a memory
-structure (the *arc* of a life, feeding the [working understanding](0008-working-understanding.md)
+structure (the _arc_ of a life, feeding the [working understanding](0008-working-understanding.md)
 and warm openings) and an **offered life-review tool**. The healthy analogue is the
 counselling **"lifeline"** exercise plus **life-review / reminiscence** (Butler,
 1963; Pinquart & Forstmeier, 2012 — ego-integrity g≈0.64, depression g≈0.57) and
@@ -16,7 +16,7 @@ forbids.
 ## Trauma-informed guardrails (non-negotiable)
 
 Behave as if permanently in Herman's **Phase 1 (safety/stabilisation)** — the
-timeline is *not* a container for processing trauma.
+timeline is _not_ a container for processing trauma.
 
 - **Opt-in, never imposed.** Painful events appear only if the person volunteers
   them, marked plainly ("loss of my father · 2019") — **never forced, never

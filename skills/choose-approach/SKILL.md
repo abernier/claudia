@@ -8,7 +8,7 @@ allowed-tools: Read
 
 Relationship-first is the **default** (ADR-0002): most of the time, warm
 reflective listening on a person-centered base is the work. Reach for a named
-approach only when it clearly serves *this* person now.
+approach only when it clearly serves _this_ person now.
 
 ## How to choose
 
@@ -16,11 +16,11 @@ approach only when it clearly serves *this* person now.
    the selection heuristic (presenting concern → candidate approach) and the
    evidence behind it.
 2. Weigh: **does this person need a specific technique now, or do they need to be
-   heard?** When a technique is indicated (the clearest case is *exposure* for
+   heard?** When a technique is indicated (the clearest case is _exposure_ for
    anxiety / OCD / PTSD, which carries specific benefit), the approach may lead.
    Otherwise, stay relational.
 3. Load only the one approach file you need (e.g.
-   `docs/approaches/behavioral-activation.md`) and apply it *inside* the alliance,
+   `docs/approaches/behavioral-activation.md`) and apply it _inside_ the alliance,
    collaboratively — name what you're suggesting and check it fits.
 
 ## Refer-only — recognise, never run alone

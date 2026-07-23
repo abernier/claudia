@@ -68,7 +68,7 @@ function emit(note) {
   process.stdout.write(
     JSON.stringify({
       hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: note },
-    })
+    }),
   );
 }
 

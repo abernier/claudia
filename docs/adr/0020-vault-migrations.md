@@ -6,7 +6,7 @@ status: accepted
 
 The person's `~/.claudia/` note format evolves. When it does — the first case was
 Obsidian `[[wikilinks]]` → plain relative markdown links (ADR-0011) — the notes a person
-*already* wrote need bringing up to date. The derived `dashboard.md` self-heals (it is
+_already_ wrote need bringing up to date. The derived `dashboard.md` self-heals (it is
 rebuilt every session), but the hand-written working files — fiches, `themes.md` +
 `themes/`, `timeline.md`, `todo.md`, the session summaries — do not. Doing that by hand,
 per person, per change, is exactly the kind of one-off surgery that goes wrong on someone's
@@ -21,7 +21,7 @@ one-vault-per-person** plugin — a registry, a small runner, and a ledger.
 - **A numbered migration registry.** `src/migrations/NNNN-<slug>.mjs`, each exporting a
   **pure, idempotent** `migrate(files)` — `{ relPath: content } → { relPath: newContent }`,
   changed files only — plus `id` and `description`. `src/migrations/index.mjs` is the
-  ordered list. **A future migration is one new file + one registry line.** That *is* the
+  ordered list. **A future migration is one new file + one registry line.** That _is_ the
   reusable pattern.
 
 - **Idempotency is the source of truth; the ledger is audit/optimization.** A transform
@@ -31,7 +31,7 @@ one-vault-per-person** plugin — a registry, a small runner, and a ledger.
 
 - **The runner does the fs work, safely.** `scripts/migrate-vault.mjs`: read → (dry-run
   preview | **full backup** → apply → append ledger → rebuild dashboard). It **never reads
-  or writes `*.transcript.md`** (the verbatim archive), and takes the backup *before*
+  or writes `*.transcript.md`** (the verbatim archive), and takes the backup _before_
   writing anything, to `~/.claudia.bak-<timestamp>` beside the vault — so every migration
   is reversible.
 

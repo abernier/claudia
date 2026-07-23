@@ -8,7 +8,7 @@ low-interpretation, low-risk, and a natural match for check-ins.
 Rooted in operant/respondent learning theory. Depression is maintained by reduced
 contact with positive reinforcement and by avoidance/withdrawal that gives
 short-term relief but deepens low mood. Change comes from **acting outward** —
-re-engaging with valued, rewarding, and mastery activities *regardless of mood* —
+re-engaging with valued, rewarding, and mastery activities _regardless of mood_ —
 breaking the avoidance cycle. Notably makes **no** claim that you must change
 thoughts first.
 

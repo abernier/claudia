@@ -26,23 +26,23 @@ adapts to the person in front of her.
   [ADR-0003](docs/adr/0003-plugin-runtime-shape.md).
 - **Your data, your machine.** Memory lives under `~/.claudia/` on your own
   computer. Nothing is uploaded. See [ADR-0004](docs/adr/0004-memory-model.md).
-- **Speaks your language.** The codebase is English; Claudia speaks *your*
+- **Speaks your language.** The codebase is English; Claudia speaks _your_
   language and writes her deliverables in it. See [ADR-0005](docs/adr/0005-language-policy.md).
 
 ## Commands
 
 Claudia deliberately ships only eight commands — the rest is conversation:
 
-| Command | What it does |
-|---|---|
-| `/help-now` | Immediately surface crisis resources for your region. |
-| `/forget` | Really delete a memory, a session, or everything. |
-| `/export` | Export your memory and deliverables. |
-| `/save` | Checkpoint your memory now — update the notes for where this conversation got to, without waiting for the session to close. |
-| `/migrate` | Update your saved notes to the latest format — with a preview and a backup first. Normally automatic. |
-| `/thread` | Show the thread of the conversation so far — a light, person-pulled reflection you can gather back or keep wandering from. |
-| `/dashboard` | Open a bird's-eye view of where things are — a person-pulled mirror (goals, themes, what's to pick up, your people), never recited at you. |
-| `/keep` | Keep a passage that landed — something Claudia said, or something you said yourself — word for word, to re-read whenever. With no argument, she offers you what to keep. |
+| Command      | What it does                                                                                                                                                             |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/help-now`  | Immediately surface crisis resources for your region.                                                                                                                    |
+| `/forget`    | Really delete a memory, a session, or everything.                                                                                                                        |
+| `/export`    | Export your memory and deliverables.                                                                                                                                     |
+| `/save`      | Checkpoint your memory now — update the notes for where this conversation got to, without waiting for the session to close.                                              |
+| `/migrate`   | Update your saved notes to the latest format — with a preview and a backup first. Normally automatic.                                                                    |
+| `/thread`    | Show the thread of the conversation so far — a light, person-pulled reflection you can gather back or keep wandering from.                                               |
+| `/dashboard` | Open a bird's-eye view of where things are — a person-pulled mirror (goals, themes, what's to pick up, your people), never recited at you.                               |
+| `/keep`      | Keep a passage that landed — something Claudia said, or something you said yourself — word for word, to re-read whenever. With no argument, she offers you what to keep. |
 
 ## Install (CLI)
 
@@ -86,8 +86,8 @@ Once installed, in any new session:
 - **Guaranteed entry:** type `/` and pick **Claudia** (`claudia:claudia`) from the
   menu.
 
-Claudia runs in your **main session** — deliberately *not* as an `@`-mentioned
-subagent. An `@`-mention targets a subagent, which would run *outside* the
+Claudia runs in your **main session** — deliberately _not_ as an `@`-mentioned
+subagent. An `@`-mention targets a subagent, which would run _outside_ the
 per-turn safety hook; the whole point is that Claudia stays where that safety
 layer applies. So there is no `@Claudia` agent — name her in plain language
 instead, and the persona comes to you.
@@ -116,7 +116,7 @@ The plugin itself needs no runtime dependencies. Tests (Vitest) cover the
 deterministic logic — the safety classifier, session archiving, and repo
 integrity — plus a deterministic "simulated conversation" that runs scripted
 turns through the real safety/archiving pipeline (no model call). The model's
-natural-language *quality* is out of scope here; that belongs in a separate,
+natural-language _quality_ is out of scope here; that belongs in a separate,
 non-deterministic eval.
 
 ```
@@ -143,12 +143,12 @@ your edits are picked up with no reinstall.
 `dev-link.sh` also removes any cached CLI install first, to avoid duplicate hooks.
 How "hot" each edit is:
 
-| You changed | To apply |
-|---|---|
-| `scripts/*.mjs`, `src/*.mjs` (hook logic) | nothing — run fresh on the next turn / session end |
-| `SOUL.md` | re-invoke the `claudia` skill (new session) — it's read on load |
-| a `SKILL.md` / `commands/*.md` body | `/reload-plugins` |
-| `hooks/hooks.json` wiring or `plugin.json` | restart Claude Code |
+| You changed                                | To apply                                                        |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| `scripts/*.mjs`, `src/*.mjs` (hook logic)  | nothing — run fresh on the next turn / session end              |
+| `SOUL.md`                                  | re-invoke the `claudia` skill (new session) — it's read on load |
+| a `SKILL.md` / `commands/*.md` body        | `/reload-plugins`                                               |
+| `hooks/hooks.json` wiring or `plugin.json` | restart Claude Code                                             |
 
 Ship for real with the marketplace install (README top); use the link for dev.
 

@@ -13,12 +13,19 @@ import type { DashboardInput, MirrorSession } from "../src/dashboard.mjs";
 
 describe("listItems()", () => {
   it("transcludes bullet / numbered / checkbox lines verbatim, right-trimmed", () => {
-    const md: string = "# Objectifs\n\n- retrouver le sommeil  \n* parler à Liliana\n1. bouger un peu\n- [ ] respirer\n\nprose ignorée";
-    expect(listItems(md)).toEqual(["- retrouver le sommeil", "* parler à Liliana", "1. bouger un peu", "- [ ] respirer"]);
+    const md: string =
+      "# Objectifs\n\n- retrouver le sommeil  \n* parler à Liliana\n1. bouger un peu\n- [ ] respirer\n\nprose ignorée";
+    expect(listItems(md)).toEqual([
+      "- retrouver le sommeil",
+      "* parler à Liliana",
+      "1. bouger un peu",
+      "- [ ] respirer",
+    ]);
   });
   it("captures a WRAPPED bullet in full — never truncates to a dangling half-sentence", () => {
     // The real-data bug: a goal spilling onto the next physical line was cut at line 1.
-    const md: string = "- **Séparer ce que je ressens de l'intention qu'on me prête** — et l'offrir aussi dans\nla relation, pas seulement dans ma tête.\n- **M'autoriser la colère**";
+    const md: string =
+      "- **Séparer ce que je ressens de l'intention qu'on me prête** — et l'offrir aussi dans\nla relation, pas seulement dans ma tête.\n- **M'autoriser la colère**";
     expect(listItems(md)).toEqual([
       "- **Séparer ce que je ressens de l'intention qu'on me prête** — et l'offrir aussi dans\nla relation, pas seulement dans ma tête.",
       "- **M'autoriser la colère**",
@@ -120,7 +127,8 @@ describe("cadence()", () => {
 });
 
 describe("buildDashboard() — transclude or point, never summarise", () => {
-  const understanding: string = "# Working understanding\n\n## En ce moment\nune longue prose thérapeutique très personnelle…";
+  const understanding: string =
+    "# Working understanding\n\n## En ce moment\nune longue prose thérapeutique très personnelle…";
   const base: DashboardInput = {
     name: "Antoine",
     sessions: [
@@ -133,7 +141,8 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
     keepsakes:
       "# Ce que je garde\n\n> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)\n\n> Dire non, ce n'était pas trahir.\n>\n> — moi\n",
     people: "```mermaid\ngraph TD\n  moi --> Liliana\n```",
-    timeline: "- 2001 — naissance de ma sœur\n- 2019 — déménagement\n- 2024 — nouveau poste\n- 2026 — début avec Claudia",
+    timeline:
+      "- 2001 — naissance de ma sœur\n- 2019 — déménagement\n- 2024 — nouveau poste\n- 2026 — début avec Claudia",
     understandingExists: true,
     generatedAt: "2026-07-22",
   };
@@ -174,7 +183,9 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
   it("mirrors the newest keepsake verbatim — one only, and never a count", () => {
     const md: string = buildDashboard(base);
     expect(md).toContain("## Ce que tu gardes");
-    expect(md).toContain("> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)");
+    expect(md).toContain(
+      "> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)",
+    );
     expect(md).not.toContain("Dire non"); // the collection is not the glance
     expect(md).not.toMatch(/\d+\s+(keepsakes?|citations?|phrases? gardées?)/i);
   });

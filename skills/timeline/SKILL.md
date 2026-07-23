@@ -6,7 +6,7 @@ allowed-tools: Read Write Bash
 
 # Life timeline
 
-Hold the **arc** of the person's life — the events that matter to *them* — so you
+Hold the **arc** of the person's life — the events that matter to _them_ — so you
 understand where they're coming from, and so they can, when they wish, look back
 and make meaning of it. It lives at `~/.claudia/timeline.md`. See [ADR-0014](../../docs/adr/0014-life-timeline.md).
 
@@ -34,17 +34,17 @@ sessions as `sessions/<stem>.summary.md`:
 ```
 
 Per event: flexible **date** (exact / year / age / "the hard year" / undated is
-fine), the person's own **title**, optional **valence** (*their* felt sense, never
+fine), the person's own **title**, optional **valence** (_their_ felt sense, never
 a clinical score), **people** (`people/<name>.md` links), a short **note** (meaning /
-what got them through), **session** backlink, a *sensitive* flag when apt. Only ever
+what got them through), **session** backlink, a _sensitive_ flag when apt. Only ever
 `person-stated` — **never infer** an event they didn't tell you.
 
 ## Optional "see the shape of it" view
 
-When it would help, *generate* a mermaid `timeline` (short labels only) — a picture
+When it would help, _generate_ a mermaid `timeline` (short labels only) — a picture
 of the arc, never the store:
 
-```
+````
 ```mermaid
 timeline
   section Childhood
@@ -52,7 +52,8 @@ timeline
   section Twenties
     2019 : Lost my father
     2021 : Moved to Paris
-```
+````
+
 ```
 
 ## Offering a life-review
@@ -70,3 +71,4 @@ first-class (dwelling only on the painful can feed rumination).
 - **Titrate & pace.** If distress rises, **ground and defer** — don't push. If risk
   appears, [crisis](../crisis/SKILL.md) comes first, never "continue the timeline".
 - **Theirs.** They can edit, redact, or delete anything.
+```

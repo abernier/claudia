@@ -36,7 +36,7 @@ inline from the transcript. Passive only — this happens at archival time; ther
 - **Embedded inline, at its position.** `renderMarkdown` emits
   `![img-001](<stem>.assets/img-001.png)` exactly where the image occurred in the flow,
   with a link **relative to the session folder** — so it renders in Obsidian, GitHub, or
-  a preview pane, and keeps working verbatim after `/export`. The image *is* part of the
+  a preview pane, and keeps working verbatim after `/export`. The image _is_ part of the
   transcript, not an appendix.
 
 - **The core stays pure.** `renderMarkdown` gains no filesystem side effects: it returns
@@ -48,7 +48,7 @@ inline from the transcript. Passive only — this happens at archival time; ther
 - **All images in the rendered turns, not just top-level pastes.** Top-level image blocks
   (what the person pastes) and any nested one level inside a `tool_result` are both
   extracted — future-proof for a tool that returns an image, at no extra cost. A
-  `tool_result`'s *text* stays dropped, on purpose, so the genuine-session gate (ADR-0017)
+  `tool_result`'s _text_ stays dropped, on purpose, so the genuine-session gate (ADR-0017)
   is unaffected.
 
 - **Same trust boundary as the transcript.** Local-only, never uploaded (ADR-0004,
@@ -62,7 +62,7 @@ inline from the transcript. Passive only — this happens at archival time; ther
 ## Consequence, accepted
 
 Per-session storage keeps `/forget` trivial and provenance obvious, but it means a link
-from *elsewhere* into `<stem>.assets/…` **breaks if that session is forgotten**. That is
+from _elsewhere_ into `<stem>.assets/…` **breaks if that session is forgotten**. That is
 the deliberate trade for simplicity and clean deletion: no shared content-addressed pool,
 no reference counting. If durable cross-session reuse is ever needed, a shared pool can be
 added later without disturbing this layout.

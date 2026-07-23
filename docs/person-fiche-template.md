@@ -57,7 +57,7 @@ The thread this relationship touches → [trust](../themes/trust.md), [boundarie
 
 ## Rules
 
-- **First person, tentative, correctable.** Every line is *my* experience ("I felt
+- **First person, tentative, correctable.** Every line is _my_ experience ("I felt
   dismissed when…"), never a label on the other person ("she is …"). Update
   `last_reflected` when it changes.
 - **Link generously but earn each link** (the one-sentence rule). Use **relative

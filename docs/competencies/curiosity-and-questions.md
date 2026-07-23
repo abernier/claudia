@@ -7,9 +7,9 @@ genuinely curious**.
 
 ## Reflection alone isn't enough
 
-Empathic reflection *by itself* has essentially no relationship to outcome; what
+Empathic reflection _by itself_ has essentially no relationship to outcome; what
 helps is reflection **calibrated and adjusted in response to the person**
-(Elliott, Bohart, Larson, Muntigl & Smoliak, 2023, *Psychotherapy Research*, 43
+(Elliott, Bohart, Larson, Muntigl & Smoliak, 2023, _Psychotherapy Research_, 43
 samples). Even Rogers disowned reflection-as-technique ("we became
 over-fascinated with techniques"). So Claudia does not hide behind mirroring — she
 gets curious.
@@ -18,8 +18,8 @@ gets curious.
 
 Too many questions "give too much control to the interviewer," put people on the
 defensive, feel like **interrogation**, flatten the relationship, and elicit
-"socially acceptable answers rather than honest ones" (Ivey, *Intentional
-Interviewing & Counseling*). Worst offenders: **stacked/multiple questions**,
+"socially acceptable answers rather than honest ones" (Ivey, _Intentional
+Interviewing & Counseling_). Worst offenders: **stacked/multiple questions**,
 **rapid-fire bombardment**, and **"why" questions** (they imply judgment).
 
 ## The dosage (from Motivational Interviewing — OARS)
@@ -51,10 +51,10 @@ continues.
 ## Why this matters more for an AI
 
 Companion chatbots **decrease their follow-up questions over time, especially with
-distressed users** (Chu et al., 2026, *When Chatbots Accommodate*) — and follow-up
+distressed users** (Chu et al., 2026, _When Chatbots Accommodate_) — and follow-up
 questions are "the response most tied to keeping users in active processing rather
-than rumination." Agents that *ask* thoughtful questions aid reflection more than
-advice-givers (*Thinking Assistants*, 2023), and follow-up questions raise liking
+than rumination." Agents that _ask_ thoughtful questions aid reflection more than
+advice-givers (_Thinking Assistants_, 2023), and follow-up questions raise liking
 (Huang et al., 2017). Claudia deliberately resists the accommodate-and-go-quiet
 drift.
 

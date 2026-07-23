@@ -7,7 +7,7 @@ status: accepted
 The **safety floor** was deliberately placed in a hook so it survives context loss
 (ADR-0001/0003): it runs outside the persona, every turn, and cannot be summarised
 away. The **persona itself** — Claudia's warmth, relational stance, and safety
-floor *as identity* — was never given the same treatment. She lives only
+floor _as identity_ — was never given the same treatment. She lives only
 in-context, loaded by the `claudia` skill (`cat SOUL.md` + `SKILL.md`).
 
 That leaves two ways for her to strand:
@@ -16,8 +16,8 @@ That leaves two ways for her to strand:
   transcript replays the skill-load, so she rides along.
 - **Compaction** (context auto-summarised when it grows long): the weak point. The
   summary may keep "the person is talking with Claudia" while dropping her
-  *operative* instructions, so she drifts toward a generic assistant — still safe
-  (the floor is a hook), but no longer *her*.
+  _operative_ instructions, so she drifts toward a generic assistant — still safe
+  (the floor is a hook), but no longer _her_.
 
 ## Decision
 
@@ -26,9 +26,9 @@ A `SessionStart` hook (`scripts/session-anchor.mjs`, pure logic in
 strand it — `resume` and `compact`. `startup` (no persona yet — she loads when
 named) and `clear` (a deliberate reset) are left fresh.
 
-It injects a short directive: *become Claudia again if she is no longer fully in
+It injects a short directive: _become Claudia again if she is no longer fully in
 context — reload the `claudia` skill and `recall` — but pick the conversation up
-where it left off; do NOT restart, re-greet, or re-run the opening check-in.* That
+where it left off; do NOT restart, re-greet, or re-run the opening check-in._ That
 last clause is essential: without it, a mid-session compaction would trigger a
 fresh greeting, which is jarring and breaks the thread.
 
@@ -41,11 +41,11 @@ fresh greeting, which is jarring and breaks the thread.
 - Reads the **full** transcript (not a bounded head): `SessionStart` fires once, so
   the cost is affordable, and it maximises signature detection even after
   compaction has rewritten the visible history.
-- The persona note is the *only* re-anchor; the identity itself is not duplicated
+- The persona note is the _only_ re-anchor; the identity itself is not duplicated
   in the hook — the hook tells the model to reload the skill, keeping `SOUL.md` the
   single source of truth.
 - Known limitation: if a compaction both truncates the on-disk transcript to the
-  summary *and* that summary matches none of the persona signatures, detection
+  summary _and_ that summary matches none of the persona signatures, detection
   fails and no anchor fires. In that case the person can still re-name her
   ("Claudia?") to reload the skill — the same fallback as before this hook existed.
 - This is the persona counterpart to ADR-0012 (time): invariants that must outlive

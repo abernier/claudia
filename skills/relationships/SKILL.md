@@ -6,7 +6,7 @@ allowed-tools: Read Write Bash
 
 # Relationship map
 
-Keep a light, living map of the people who matter to the person — so you *know*
+Keep a light, living map of the people who matter to the person — so you _know_
 who Liliana or "your sister" is, and can hold their world in mind across sessions.
 The **graph** lives at `~/.claudia/people.md` (mermaid); each person can also get a
 **fiche** at `~/.claudia/people/<name>.md`. It feeds the
@@ -16,8 +16,8 @@ The **graph** lives at `~/.claudia/people.md` (mermaid); each person can also ge
 
 - **Update** it quietly as you learn who someone is (during `intake`, and whenever
   a new person comes up).
-- **Show** it when it would help — *"here's the map of the people you've mentioned,
-  did I get it right?"* — and take their correction as the truth.
+- **Show** it when it would help — _"here's the map of the people you've mentioned,
+  did I get it right?"_ — and take their correction as the truth.
 
 ## Shape (ecomap → genogram, adaptive)
 
@@ -26,7 +26,7 @@ labelled with the relationship and the closeness **as they frame it**. Grow towa
 a **family genogram** (parents, siblings, generations) only if family history is
 what you're exploring. Keep it plain mermaid — **no clinical genogram symbols**.
 
-```
+````
 ```mermaid
 graph TD
   ME(["You"])
@@ -35,7 +35,8 @@ graph TD
   ME ---|"manager · draining"| BOSS["Sam"]
   click SIS "people/Marie.md"
   click LIL "people/Liliana.md"
-```
+````
+
 ```
 
 Below the diagram, a one-line key per person in the person's own words, and a
@@ -59,3 +60,4 @@ gradually: a stub when a person first matters, deepened as they recur.
 - **Correctable & theirs.** Show it, let them fix it; they can view (`/export`) or
   delete (`/forget`) it anytime. It's a warm aid, not a dossier.
 - **Local-only**, like all of `~/.claudia/`.
+```

@@ -7,7 +7,7 @@ allowed-tools: Read Write Bash
 # Remember
 
 Keep the working memory current so future conversations have continuity — as
-*distilled notes*, never verbatim.
+_distilled notes_, never verbatim.
 
 ## First run — disclose once, plainly
 
@@ -24,11 +24,11 @@ bird's-eye view they can open whenever they like — `~/.claudia/dashboard.md`, 
 - `person.md` — a short, evolving model: the person's **name**, context, what
   they're navigating, what helps them, communication style — plus a **Follow-ups**
   list: events they're anticipating (with the date and the **concern attached**)
-  and between-session steps, each marked *open* or *done*. This is what lets the
+  and between-session steps, each marked _open_ or _done_. This is what lets the
   next session open with a contextualized check-in. Distilled, kind, non-clinical.
 - `goals.md` — what you've agreed to work toward (alliance: goal consensus).
 - `todo.md` — the **shared, person-owned to-do-later list** (ADR-0018), maintained by
-  its own skill (`todo`). Distinct from the Follow-ups above: those are *your* radar of
+  its own skill (`todo`). Distinct from the Follow-ups above: those are _your_ radar of
   anticipated events (with the worry attached); `todo.md` is a plain checkbox action
   list the person can open and edit themselves. Reach for `todo` to add or tick an
   item; keep only genuine, task-shaped things there.

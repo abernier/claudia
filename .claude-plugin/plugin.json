@@ -7,13 +7,5 @@
     "name": "Antoine Bernier"
   },
   "license": "MIT",
-  "keywords": [
-    "therapy",
-    "companion",
-    "mental-health",
-    "cbt",
-    "act",
-    "counseling",
-    "wellbeing"
-  ]
+  "keywords": ["therapy", "companion", "mental-health", "cbt", "act", "counseling", "wellbeing"]
 }

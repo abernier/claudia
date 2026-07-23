@@ -12,7 +12,8 @@ import { runMigrations } from "../scripts/migrate-vault.mjs";
 // A compact fixture vault exercising every resolution branch.
 const fixture = (): Record<string, string> => ({
   "MEMORY.md": "← [[MEMORY]]\n- [[Liliana]] · [[themes]] · [[etre-rabaisse]]\n",
-  "themes.md": "← [[MEMORY]]\n## Candidats (vus sur [[2026-07-21-abc]])\n- **[[etre-rabaisse]]** — the wound\n- see [[the inner critic]]\n",
+  "themes.md":
+    "← [[MEMORY]]\n## Candidats (vus sur [[2026-07-21-abc]])\n- **[[etre-rabaisse]]** — the wound\n- see [[the inner critic]]\n",
   "people/Liliana.md":
     '---\ntype: person\nthemes: ["[[etre-rabaisse]]", "[[trust]]"]\n---\n← [[MEMORY]]\nsee [[2026-07-21-abc]] and [[Marie]]\n',
   "people/Marie.md": "# Marie\n",
@@ -43,7 +44,9 @@ describe("migration registry", () => {
 describe("0001 — wikilinks → relative links", () => {
   it("resolves root files, people, and themes-index fallback", () => {
     const out = migrate(fixture());
-    expect(out["MEMORY.md"]).toBe("← [MEMORY](MEMORY.md)\n- [Liliana](people/Liliana.md) · [themes](themes.md) · [etre-rabaisse](themes.md)\n");
+    expect(out["MEMORY.md"]).toBe(
+      "← [MEMORY](MEMORY.md)\n- [Liliana](people/Liliana.md) · [themes](themes.md) · [etre-rabaisse](themes.md)\n",
+    );
   });
 
   it("computes paths from each file's own directory", () => {
@@ -112,7 +115,7 @@ describe("0002 — identity frontmatter", () => {
   it("gives a summary that had no block one derived from its filename", () => {
     const out = migrate0002(drifted());
     expect(out["sessions/2026-07-23-042d64f7.summary.md"]).toBe(
-      "---\ntype: session\nsession: 2026-07-23-042d64f7\ndates: [2026-07-23]\n---\n# Séance — 2026-07-23 (042d64f7)\n\nSéance courte.\n"
+      "---\ntype: session\nsession: 2026-07-23-042d64f7\ndates: [2026-07-23]\n---\n# Séance — 2026-07-23 (042d64f7)\n\nSéance courte.\n",
     );
   });
 
@@ -148,10 +151,14 @@ describe("0002 — identity frontmatter", () => {
     const ambiguous = {
       "sessions/2026-07-21-abc.summary.md": "---\n---\n",
       "sessions/2026-07-22-abc.summary.md": "---\n---\n",
-      "sessions/exercises/2026-07-23-e.md": "---\ntype: exercise\ncreated: 2026-07-23\nslug: e\nsession: 2026-07-30-abc\n---\n",
+      "sessions/exercises/2026-07-23-e.md":
+        "---\ntype: exercise\ncreated: 2026-07-23\nslug: e\nsession: 2026-07-30-abc\n---\n",
     };
     expect(migrate0002(ambiguous)["sessions/exercises/2026-07-23-e.md"]).toBeUndefined();
-    const unknown = { "sessions/exercises/2026-07-23-e.md": "---\ntype: exercise\ncreated: 2026-07-23\nslug: e\nsession: 2026-07-30-zzz\n---\n" };
+    const unknown = {
+      "sessions/exercises/2026-07-23-e.md":
+        "---\ntype: exercise\ncreated: 2026-07-23\nslug: e\nsession: 2026-07-30-zzz\n---\n",
+    };
     expect(migrate0002(unknown)).toEqual({});
   });
 
@@ -227,7 +234,9 @@ describe("runMigrations() — the fs runner", () => {
     const r = await runMigrations({ root });
     expect(r.status).toBe("applied");
     // rewritten
-    expect(await read(root, "MEMORY.md")).toBe("- [Liliana](people/Liliana.md) · [2026-07-21-abc](sessions/2026-07-21-abc.summary.md)\n");
+    expect(await read(root, "MEMORY.md")).toBe(
+      "- [Liliana](people/Liliana.md) · [2026-07-21-abc](sessions/2026-07-21-abc.summary.md)\n",
+    );
     expect(/\[\[/.test(await read(root, "people/Liliana.md"))).toBe(false);
     // transcript untouched
     expect(await read(root, "sessions/2026-07-21-abc.transcript.md")).toBe("verbatim [[Liliana]] stays\n");

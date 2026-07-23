@@ -37,7 +37,10 @@ export function textFromContent(content) {
   if (typeof content === "string") return content.trim();
   if (Array.isArray(content)) {
     return content
-      .filter(/** @returns {b is ContentBlock & { text: string }} */ (b) => b && b.type === "text" && typeof b.text === "string")
+      .filter(
+        /** @returns {b is ContentBlock & { text: string }} */ (b) =>
+          b && b.type === "text" && typeof b.text === "string",
+      )
       .map((b) => b.text.trim())
       .join("\n\n")
       .trim();
@@ -141,7 +144,9 @@ export const CLAUDIA_ACTIVATION = /Base directory for this skill:[^\n]*\/skills\
  * @returns {boolean}
  */
 export function isClaudiaSession(jsonl) {
-  const lines = String(jsonl || "").split("\n").filter(Boolean);
+  const lines = String(jsonl || "")
+    .split("\n")
+    .filter(Boolean);
   for (const line of lines) {
     let e;
     try {
@@ -181,7 +186,9 @@ export function isClaudiaSession(jsonl) {
 export function sessionDays(jsonl, timeZone) {
   /** @type {Set<string>} */
   const days = new Set();
-  for (const line of String(jsonl || "").split("\n").filter(Boolean)) {
+  for (const line of String(jsonl || "")
+    .split("\n")
+    .filter(Boolean)) {
     let e;
     try {
       e = /** @type {TranscriptEntry} */ (JSON.parse(line));
@@ -256,7 +263,9 @@ export function sessionIdFrom(payload) {
  * @returns {{ markdown: string | null, images: SessionImage[] }}
  */
 export function renderMarkdown(jsonl, dateStamp, { assetsDir = "assets" } = {}) {
-  const lines = String(jsonl || "").split("\n").filter(Boolean);
+  const lines = String(jsonl || "")
+    .split("\n")
+    .filter(Boolean);
   const out = [`# Session — ${dateStamp}`, ""];
   /** @type {SessionImage[]} */
   const images = [];

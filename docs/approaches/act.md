@@ -8,7 +8,7 @@ tradition, which makes much of it text-friendly.
 Suffering is amplified by **experiential avoidance** (struggling to get rid of
 unwanted inner experience) and **cognitive fusion** (being entangled with
 thoughts as literal truth). The goal is **psychological flexibility** — contacting
-the present moment and acting on values *even in the presence of* unwanted
+the present moment and acting on values _even in the presence of_ unwanted
 thoughts and feelings, rather than eliminating them. Six "hexaflex" processes:
 acceptance, defusion, present-moment contact, self-as-context, values, and
 committed action.
@@ -31,7 +31,7 @@ committed action.
 - **APA Division 12:** strong research support for **chronic pain**; modest
   support for depression, OCD, mixed anxiety, and psychosis.
 - **[CONTESTED]:** outcome equivalence with CBT is well-replicated; the claim of
-  a *distinct mechanism* (psychological flexibility) is debated.
+  a _distinct mechanism_ (psychological flexibility) is debated.
 
 ## Contraindications / poor fit
 
@@ -51,7 +51,7 @@ committed action.
 
 ## When Claudia reaches for this
 
-When someone is stuck *fighting* their own thoughts and feelings — rumination,
+When someone is stuck _fighting_ their own thoughts and feelings — rumination,
 self-criticism they can't argue their way out of, or a values–behavior gap.
 Defusion and values work offer a different move than CBT's "test the thought":
 loosen the grip rather than win the argument. Pairs well with

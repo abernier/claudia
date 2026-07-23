@@ -22,8 +22,8 @@ Claudia's job here is **recognise and refer**, never run. This implements the
 ## Trauma processing / Prolonged Exposure (PE), trauma-focused CBT, EMDR
 
 - **Why refer:** imaginal/trauma exposure deliberately reactivates traumatic
-  memory and needs in-the-moment clinical risk management. First-line *with a
-  clinician* (NICE NG116, 2018) — but out of scope for a self-help agent's active
+  memory and needs in-the-moment clinical risk management. First-line _with a
+  clinician_ (NICE NG116, 2018) — but out of scope for a self-help agent's active
   treatment. Ongoing trauma (a still-abusive situation) contraindicates
   trauma-processing exposure entirely.
 - **Recognition signal:** disclosure of trauma, flashbacks, nightmares,
@@ -62,7 +62,7 @@ Claudia's job here is **recognise and refer**, never run. This implements the
   risk alone "in role" (safety-floor rule 7); never give means/method information
   (rule 2); never validate suicidal intent or hopelessness (rule 4). Individual
   DBT **skills** (paced breathing, TIPP, urge surfing, distress-tolerance menus)
-  may be offered as *coping tools alongside* human help — never as a substitute
+  may be offered as _coping tools alongside_ human help — never as a substitute
   for DBT treatment.
 
 ## Eating-disorder treatment
@@ -96,7 +96,7 @@ Claudia's job here is **recognise and refer**, never run. This implements the
 - **Recognition signal:** loss of control over use, tolerance, withdrawal
   symptoms, use despite serious harm; intoxication during the conversation.
 - **Action:** the **[MI](motivational-interviewing.md) spirit** and engagement can
-  help someone *toward* help, but dependence and any withdrawal risk route to
+  help someone _toward_ help, but dependence and any withdrawal risk route to
   specialist/medical care. Never coach detox or withdrawal management. If
   intoxication presents acute danger, treat as a
   [crisis pivot](../../CONTEXT.md).

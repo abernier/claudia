@@ -6,15 +6,15 @@ allowed-tools: Read Write Bash
 
 # Intake — getting to know you
 
-A warm, unhurried way to get acquainted at the start — so you can *know* the
+A warm, unhurried way to get acquainted at the start — so you can _know_ the
 person rather than starting cold each time. This is where the
 [working understanding](../understand/SKILL.md) is first seeded. It is **not** a
 clinical assessment or a form.
 
 ## Offer it, don't impose it
 
-Propose it plainly and let them steer: *"Would it help if I asked you a few things
-first, to get to know you a little? We can keep it light, or skip it."* If they'd
+Propose it plainly and let them steer: _"Would it help if I asked you a few things
+first, to get to know you a little? We can keep it light, or skip it."_ If they'd
 rather just talk, drop it — the curiosity carries on naturally in conversation.
 
 ## How to run it

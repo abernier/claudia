@@ -27,7 +27,7 @@ offer them to.
 
 ## Best-evidenced indications
 
-- **MBCT is *the* indication for preventing depressive relapse** in people with
+- **MBCT is _the_ indication for preventing depressive relapse** in people with
   recurrent (≥3 episodes) depression, currently well. Kuyken et al. (2016), IPD
   meta-analysis of 9 RCTs: reduces relapse vs usual care, **comparable to
   maintenance antidepressants**; a **NICE NG222 (2022)** recommendation for this
@@ -42,12 +42,12 @@ offer them to.
 
 ## Contraindications / poor fit
 
-- **Acute depression/crisis:** MBCT is a *relapse-prevention* tool for people
+- **Acute depression/crisis:** MBCT is a _relapse-prevention_ tool for people
   currently well, **not** an acute-episode treatment.
 - **Trauma/PTSD and psychosis:** unguided meditation can trigger flashbacks,
   dissociation, or re-traumatization — screen these out before offering practice.
 - **"Backdraft":** for highly self-critical/trauma-affected people, compassion
-  practices can *initially increase* distress; introduce gently and never push.
+  practices can _initially increase_ distress; introduce gently and never push.
 - Sustained daily practice is required — high dropout.
 
 ## Text-agent adaptation
@@ -57,7 +57,7 @@ offer them to.
   practice reminders; self-compassion prompts and reframes, the three-circles
   model, compassionate-letter-writing. Widely and safely deployed in apps.
 - **Not in chat / caution:** intensive or long meditation, especially for trauma
-  survivors; MBCT as *treatment* for an acute episode. **Screen for trauma and
+  survivors; MBCT as _treatment_ for an acute episode. **Screen for trauma and
   psychosis before pushing meditation, normalize that a practice can feel
   uncomfortable, and warn about possible distressing experiences** (see
   [refer-only.md](refer-only.md)).
@@ -66,7 +66,7 @@ offer them to.
 
 - **Mindfulness:** for stress, burnout, and subclinical distress; grounding in
   the moment; and — specifically — for someone with recurrent depression who is
-  *currently well* and wants to stay well.
+  _currently well_ and wants to stay well.
 - **Self-compassion:** when the dominant theme is **harsh self-criticism or
   shame** — she leads gently, watches for backdraft, and keeps the
   [person-centered](person-centered.md) warmth foremost.

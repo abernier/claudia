@@ -19,7 +19,7 @@ It drifted, and the drift was measurable in a real vault:
   named files that never existed; the session's real stem is `2026-07-21-9113d5d7`.
 
 Prose alone could not have held this. **Nothing parses these blocks** — `dashboard.mjs`
-and `pending.mjs` re-derive the date and the id from the *filename* — so a wrong or
+and `pending.mjs` re-derive the date and the id from the _filename_ — so a wrong or
 missing block is invisible to `npm test` and to the person alike.
 
 ## The diagnosis: one block, two kinds of fact
@@ -27,12 +27,12 @@ missing block is invisible to `npm test` and to the person alike.
 The block mixes things of genuinely different natures, and asking a single writer for
 both is what degraded it:
 
-- **Identity** — `type`, `session`, `dates`, `created`, `slug` — is *derivable*. It
+- **Identity** — `type`, `session`, `dates`, `created`, `slug` — is _derivable_. It
   follows from the filename and from the transcript, mechanically.
 - **Judgment** — `people`, `themes` — is not. Only a reader of the conversation knows
   who was talked about, or which thread the person has ratified as theirs.
 
-Asked to write both, the model treats the derivable half as something to *recall*, and
+Asked to write both, the model treats the derivable half as something to _recall_, and
 recall degrades. For the deliverables it was worse than unreliable — it was
 **structurally impossible**: an exercise is written mid-conversation, and the session's
 stem does not exist yet (`save-session` mints it at close, ADR-0017). The model could
@@ -59,7 +59,7 @@ themes: [the inner critic]            ---
 
 - **The marker carries the identity.** `save-session` (SessionEnd) already reads the
   transcript and already drops `<stem>.pending-summary`; it now computes the block and
-  writes it *as* that marker's content. `dates` comes from the transcript's own
+  writes it _as_ that marker's content. `dates` comes from the transcript's own
   timestamps via `sessionDays()`, so a conversation that ran past midnight reports both
   days exactly. `src/pending.mjs` keys on the marker's **existence**, so this content
   costs nothing and breaks nothing.
@@ -78,7 +78,7 @@ themes: [the inner critic]            ---
   the same deferral `todo.md` tags (ADR-0018) and keepsakes (ADR-0023) already use.
 
 - **Dates are days, never timestamps.** `localDay()`, not `isoWithOffset()`. A note
-  records *which day it concerns*, not the minute it was written: Claudia is exact
+  records _which day it concerns_, not the minute it was written: Claudia is exact
   about the hour **in the moment** and sober about the **record**, because a
   per-minute trace of when someone talked is surveillance, not presence (ADR-0012).
   A `dates` already on disk is never overwritten by a fallback — a session can span
@@ -95,7 +95,7 @@ themes: [the inner critic]            ---
   A block whose fence never closes is returned **untouched** rather than rewritten.
   These are the person's own hand-editable notes (ADR-0004, ADR-0018); a
   parse→serialize round-trip would quietly reformat choices they made. The asymmetry
-  *is* the safety property.
+  _is_ the safety property.
 
 - **The past is repaired once, by migration.** `0002-vault-frontmatter` (ADR-0020):
   pure, idempotent, backed up, applied quietly at `recall` and disclosed when it acts.

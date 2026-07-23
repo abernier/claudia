@@ -15,7 +15,13 @@
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { resolveTranscriptPath, isClaudiaSession, renderMarkdown, sessionIdFrom, sessionDays } from "../src/session.mjs";
+import {
+  resolveTranscriptPath,
+  isClaudiaSession,
+  renderMarkdown,
+  sessionIdFrom,
+  sessionDays,
+} from "../src/session.mjs";
 import { stampIdentity } from "../src/frontmatter.mjs";
 
 /**
@@ -76,7 +82,7 @@ async function main() {
     await fs
       .writeFile(
         path.join(os.tmpdir(), "claudia-sessionend-diag.json"),
-        JSON.stringify({ keys: Object.keys(payload), resolved: transcriptPath || null, at: todayStamp() }, null, 2)
+        JSON.stringify({ keys: Object.keys(payload), resolved: transcriptPath || null, at: todayStamp() }, null, 2),
       )
       .catch(() => {});
 
@@ -114,7 +120,7 @@ async function main() {
     // across resumes (and across midnight), instead of spawning a new dated file.
     const stamp = todayStamp();
     const existing = (await fs.readdir(sessionsDir).catch(() => [])).find(
-      (n) => /\.transcript\.(md|jsonl)$/.test(n) && n.slice(0, n.indexOf(".transcript.")).endsWith(`-${shortId}`)
+      (n) => /\.transcript\.(md|jsonl)$/.test(n) && n.slice(0, n.indexOf(".transcript.")).endsWith(`-${shortId}`),
     );
     const stem = existing ? existing.slice(0, existing.indexOf(".transcript.")) : `${stamp}-${shortId}`;
 
@@ -136,11 +142,15 @@ async function main() {
     // A transcript with no usable timestamps falls back to the stem's own date — the
     // same rule migration 0002 applies, so both agree on the degenerate case.
     const days = sessionDays(jsonl, Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
-    const identity = { type: "session", session: stem, dates: days.length ? days : [/^\d{4}-\d{2}-\d{2}/.exec(stem)?.[0] ?? stamp] };
+    const identity = {
+      type: "session",
+      session: stem,
+      dates: days.length ? days : [/^\d{4}-\d{2}-\d{2}/.exec(stem)?.[0] ?? stamp],
+    };
     await fs
       .writeFile(
         path.join(sessionsDir, `${stem}.pending-summary`),
-        stampIdentity(`needs distillation — see ADR-0016 (flagged ${stamp})\n`, identity)
+        stampIdentity(`needs distillation — see ADR-0016 (flagged ${stamp})\n`, identity),
       )
       .catch(() => {});
 

@@ -11,13 +11,7 @@
       "version": "0.10.0",
       "description": "Evidence-informed, multi-approach companion for reflection and emotional support, with a non-negotiable safety floor. Not a licensed clinician or a medical device.",
       "category": "wellbeing",
-      "keywords": [
-        "companion",
-        "emotional-support",
-        "mental-health",
-        "cbt",
-        "act"
-      ]
+      "keywords": ["companion", "emotional-support", "mental-health", "cbt", "act"]
     }
   ]
 }

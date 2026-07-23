@@ -13,7 +13,7 @@ true, look it up — briefly.
 
 - Prefer **high-trust sources**: clinical guidelines (NICE, APA), systematic
   reviews, reputable health bodies (WHO, NHS), and `docs/bibliography.md` first.
-- Answer the *person's* question, in plain language — don't turn a feeling into a
+- Answer the _person's_ question, in plain language — don't turn a feeling into a
   literature review. A little goes a long way.
 - **Filter through the safety floor.** Never surface means/methods; never let a
   source pull you into diagnosing or prescribing. If research reveals a
@@ -21,5 +21,5 @@ true, look it up — briefly.
 
 ## Keep it in service of the relationship
 
-Research is a tool, not the work. Come back from it quickly and stay *with* the
+Research is a tool, not the work. Come back from it quickly and stay _with_ the
 person.

@@ -66,8 +66,14 @@ describe("components", () => {
       .map((p) => path.basename(p))
       .sort();
     expect(cmds).toEqual([
-      "dashboard.md", "export.md", "forget.md", "help-now.md",
-      "keep.md", "migrate.md", "save.md", "thread.md",
+      "dashboard.md",
+      "export.md",
+      "forget.md",
+      "help-now.md",
+      "keep.md",
+      "migrate.md",
+      "save.md",
+      "thread.md",
     ]);
   });
 });
@@ -84,20 +90,17 @@ describe("README stays in sync with the command surface", () => {
   const readme = readFileSync(path.join(root, "README.md"), "utf8");
 
   it("the Commands table lists exactly the shipped commands", () => {
-    const tabled = [...readme.matchAll(/^\|\s*`(\/[a-z-]+)`\s*\|/gm)]
-      .map((m) => m[1])
-      .sort();
+    const tabled = [...readme.matchAll(/^\|\s*`(\/[a-z-]+)`\s*\|/gm)].map((m) => m[1]).sort();
     expect(tabled).toEqual(commands);
   });
 
   it("every '<n> commands' count in the prose matches how many ship", () => {
-    const words = ["zero", "one", "two", "three", "four", "five", "six",
-      "seven", "eight", "nine", "ten"];
+    const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
     const expected = words[commands.length];
     expect(expected, `extend words[] past ${commands.length}`).toBeDefined();
-    const counts = [...readme.matchAll(
-      /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:slash\s+)?commands?\b/gi,
-    )].map((m) => m[1]!.toLowerCase());
+    const counts = [
+      ...readme.matchAll(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:slash\s+)?commands?\b/gi),
+    ].map((m) => m[1]!.toLowerCase());
     expect(counts.length, "README should state the command count").toBeGreaterThan(0);
     for (const w of counts) expect(w).toBe(expected);
   });
@@ -156,7 +159,9 @@ describe("delegation (ephemeral specialists)", () => {
     const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
     expect(/Task/.test(persona), "persona should use the Task tool to delegate").toBe(true);
     expect(/never delegate the relationship or a crisis/i.test(persona), "delegation must be bounded").toBe(true);
-    expect(/^allowed-tools:.*\bTask\b/m.test(persona), "Task should be pre-approved to avoid mid-session prompts").toBe(true);
+    expect(/^allowed-tools:.*\bTask\b/m.test(persona), "Task should be pre-approved to avoid mid-session prompts").toBe(
+      true,
+    );
   });
 });
 
@@ -224,7 +229,9 @@ describe("relationship map (ADR-0010)", () => {
     const skill = readFileSync(path.join(root, "skills/relationships/SKILL.md"), "utf8");
     expect(/mermaid/i.test(skill)).toBe(true);
     expect(/non-judgmental/i.test(skill)).toBe(true);
-    expect(/accusatory/i.test(skill) && /never/i.test(skill), "no clinical/accusatory labels on third parties").toBe(true);
+    expect(/accusatory/i.test(skill) && /never/i.test(skill), "no clinical/accusatory labels on third parties").toBe(
+      true,
+    );
   });
 
   it("is recorded in the memory layout and surfaced by recall", () => {
@@ -328,7 +335,9 @@ describe("dashboard mirror (ADR-0019)", () => {
 
   it("is disclosed once (remember) and refusable via config.json", () => {
     expect(/dashboard/i.test(readFileSync(path.join(root, "skills/remember/SKILL.md"), "utf8"))).toBe(true);
-    expect(/cfg\.dashboard === false/.test(readFileSync(path.join(root, "scripts/build-dashboard.mjs"), "utf8"))).toBe(true);
+    expect(/cfg\.dashboard === false/.test(readFileSync(path.join(root, "scripts/build-dashboard.mjs"), "utf8"))).toBe(
+      true,
+    );
   });
 
   it("is recorded in the memory layout and the glossary (non-dossier)", () => {
@@ -389,8 +398,7 @@ describe("the choice UI (ADR-0024)", () => {
     };
   });
 
-  const declares = (frontmatter: string) =>
-    /^allowed-tools:.*\bAskUserQuestion\b/m.test(frontmatter);
+  const declares = (frontmatter: string) => /^allowed-tools:.*\bAskUserQuestion\b/m.test(frontmatter);
 
   it("ships the ADR and the glossary entry", () => {
     expect(existsSync(path.join(root, "docs/adr/0024-the-choice-ui.md"))).toBe(true);
@@ -421,8 +429,13 @@ describe("the choice UI (ADR-0024)", () => {
 
   it("the persona carries the rule and is pre-approved for it", () => {
     const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/^allowed-tools:.*\bAskUserQuestion\b/m.test(persona), "pre-approved, to avoid mid-session prompts").toBe(true);
-    expect(/Buttons for decisions/i.test(persona), "the persona is the only always-loaded file — the rule must live there").toBe(true);
+    expect(/^allowed-tools:.*\bAskUserQuestion\b/m.test(persona), "pre-approved, to avoid mid-session prompts").toBe(
+      true,
+    );
+    expect(
+      /Buttons for decisions/i.test(persona),
+      "the persona is the only always-loaded file — the rule must live there",
+    ).toBe(true);
   });
 
   it("crisis and the irreversible commands keep their plain-text asks", () => {
@@ -446,7 +459,9 @@ describe("frontmatter contract (ADR-0025)", () => {
   it("identity is stamped by code — distill-session runs the script, never a bare rm", () => {
     const skill = readFileSync(path.join(root, "skills/distill-session/SKILL.md"), "utf8");
     expect(/finish-distillation\.mjs/.test(skill), "distill-session must close via the script").toBe(true);
-    expect(/rm -f[^\n]*pending-summary/.test(skill), "the bare rm -f must be gone — it was the enforcement point").toBe(false);
+    expect(/rm -f[^\n]*pending-summary/.test(skill), "the bare rm -f must be gone — it was the enforcement point").toBe(
+      false,
+    );
   });
 
   it("the model is told it writes only the judgment half", () => {
@@ -468,7 +483,10 @@ describe("frontmatter contract (ADR-0025)", () => {
     const mod = readFileSync(path.join(root, "src/frontmatter.mjs"), "utf8");
     expect(/malformed/.test(mod)).toBe(true);
     expect(/export function stampIdentity/.test(mod)).toBe(true);
-    expect(/export function serializeFrontmatter/.test(mod), "a general serializer would defeat the line-surgery guarantee").toBe(false);
+    expect(
+      /export function serializeFrontmatter/.test(mod),
+      "a general serializer would defeat the line-surgery guarantee",
+    ).toBe(false);
   });
 
   it("dates stay day-grained, and the layout records the contract", () => {

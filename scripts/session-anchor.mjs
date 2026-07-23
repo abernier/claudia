@@ -43,7 +43,7 @@ function emit(note) {
   process.stdout.write(
     JSON.stringify({
       hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: note },
-    })
+    }),
   );
 }
 

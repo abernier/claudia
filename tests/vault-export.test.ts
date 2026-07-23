@@ -8,8 +8,7 @@ import { fileURLToPath } from "node:url";
 const script = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "scripts", "vault-export.mjs");
 
 /** Run the export script as the user would (a real child process, real exit code). */
-const runExport = (src: string, dest: string) =>
-  spawnSync(process.execPath, [script, src, dest], { encoding: "utf8" });
+const runExport = (src: string, dest: string) => spawnSync(process.execPath, [script, src, dest], { encoding: "utf8" });
 
 const tmpDirs: string[] = [];
 const tmp = async (): Promise<string> => {

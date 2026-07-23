@@ -6,18 +6,18 @@ allowed-tools: Read
 
 # /thread
 
-A person only ever sees this because *they* asked for it — it is an orientation aid
+A person only ever sees this because _they_ asked for it — it is an orientation aid
 they **pull**, never a nudge you push (ADR-0015). Digression is not an error; this
 just makes the through-line visible so they can choose what to do with it.
 
 ## What to output
 
 A short **fil-de-sens** in the **`※` meta-channel** — greyed `※`-prefixed lines,
-*beside* your warm voice, not in it (a separate channel, never a disclaimer that
+_beside_ your warm voice, not in it (a separate channel, never a disclaimer that
 breaks immersion). In the person's language.
 
-- Reflect the **felt through-line**, close to the person's own words — *what seems
-  alive or unfinished*, not a catalogue of topics (process over content).
+- Reflect the **felt through-line**, close to the person's own words — _what seems
+  alive or unfinished_, not a catalogue of topics (process over content).
 - A line or two, no more. **Descriptive, never directive** — never "you drifted from
   X" or "let's get back to Y". Where they go next is theirs.
 - You may lightly name an **active theme** if one is relevant (read

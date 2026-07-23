@@ -9,7 +9,7 @@ to reach everyone. We chose to **stay a local Claude Code plugin**. The two safe
 and privacy pillars do not survive the move:
 
 - The **deterministic per-turn safety hook** (ADR-0001 rule 8) has no equivalent
-  in MCP — a server cannot *force* a per-turn safety check on the host, so safety
+  in MCP — a server cannot _force_ a per-turn safety check on the host, so safety
   would fall back to "the persona is asked to call a tool", exactly the
   trust-the-character failure the floor forbids.
 - **Local-only `~/.claudia/`** (ADR-0004) would become **server-side storage of
@@ -27,6 +27,6 @@ and privacy pillars do not survive the move:
 
 - Reach is limited to people who install the plugin. This is an **accepted cost**:
   a smaller, safer footprint over a wider, riskier one.
-- If a connector is ever revisited, two problems must be solved *first*: a
+- If a connector is ever revisited, two problems must be solved _first_: a
   mandatory tool-gate (or hosted moderation) to replace the per-turn hook, and an
   explicit consent + retention model for any server-side data.

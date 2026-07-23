@@ -6,7 +6,7 @@ positively framed, and low-risk.
 ## Model of change
 
 De Shazer & Berg. Deliberately **anti-pathology and future-oriented**:
-understanding the *cause* of a problem is unnecessary to solving it. People
+understanding the _cause_ of a problem is unnecessary to solving it. People
 already have strengths, resources, and **exceptions** (times the problem is
 absent). Change comes from amplifying what already works and constructing a
 concrete, preferred future — small changes cascade.

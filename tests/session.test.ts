@@ -13,8 +13,7 @@ import {
 import type { ContentBlock } from "../src/session.mjs";
 
 // A tiny 1×1 PNG, base64 — enough to assert extraction round-trips the bytes.
-const PNG_1PX =
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+const PNG_1PX = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 const imageBlock = (data: string = PNG_1PX, media_type: string = "image/png"): ContentBlock => ({
   type: "image",
   source: { type: "base64", media_type, data },
@@ -34,7 +33,13 @@ describe("textFromContent()", () => {
   it("handles a plain string", () => expect(textFromContent("hi")).toBe("hi"));
   it("joins text blocks and drops tool blocks", () => {
     // `as`: tool_use carries a `name` field beyond the loose ContentBlock shape — fed on purpose so it gets dropped.
-    expect(textFromContent([{ type: "text", text: "a" }, { type: "tool_use", name: "x" } as ContentBlock, { type: "text", text: "b" }])).toBe("a\n\nb");
+    expect(
+      textFromContent([
+        { type: "text", text: "a" },
+        { type: "tool_use", name: "x" } as ContentBlock,
+        { type: "text", text: "b" },
+      ]),
+    ).toBe("a\n\nb");
   });
   it("returns empty for unknown shapes", () => expect(textFromContent(null)).toBe(""));
 });
@@ -83,7 +88,9 @@ describe("isClaudiaSession()", () => {
     expect(isClaudiaSession(jsonl)).toBe(false);
   });
   it("false when a different skill is activated (e.g. /grill-me)", () => {
-    expect(isClaudiaSession(userMsg("Base directory for this skill: /plug/skills/grilling\nRun a grilling session."))).toBe(false);
+    expect(
+      isClaudiaSession(userMsg("Base directory for this skill: /plug/skills/grilling\nRun a grilling session.")),
+    ).toBe(false);
   });
   it("false for an unrelated coding transcript", () => {
     expect(isClaudiaSession(userMsg("please fix the webpack config"))).toBe(false);
@@ -106,7 +113,10 @@ describe("sessionIdFrom()", () => {
 describe("renderMarkdown()", () => {
   const jsonl = [
     JSON.stringify({ type: "user", message: { role: "user", content: "You are Claudia" } }),
-    JSON.stringify({ type: "assistant", message: { role: "assistant", content: [{ type: "text", text: "Je suis là." }] } }),
+    JSON.stringify({
+      type: "assistant",
+      message: { role: "assistant", content: [{ type: "text", text: "Je suis là." }] },
+    }),
     JSON.stringify({ type: "file-history-snapshot", note: "meta event" }),
   ].join("\n");
 
@@ -154,7 +164,8 @@ describe("renderMarkdown()", () => {
 
 describe("sessionDays()", () => {
   // Envelope form, as the real JSONL writes it: the instant sits on the envelope.
-  const at = (type: string, timestamp: string) => JSON.stringify({ type, timestamp, message: { role: type, content: "hi" } });
+  const at = (type: string, timestamp: string) =>
+    JSON.stringify({ type, timestamp, message: { role: type, content: "hi" } });
   const PARIS = "Europe/Paris"; // UTC+2 in July
 
   it("returns the local days a conversation touched, ascending and deduplicated", () => {
@@ -181,7 +192,11 @@ describe("sessionDays()", () => {
   });
 
   it("skips what it cannot date, and yields [] when nothing is datable", () => {
-    const jsonl = ["not json", at("user", "not-a-date"), JSON.stringify({ type: "user", message: { role: "user" } })].join("\n");
+    const jsonl = [
+      "not json",
+      at("user", "not-a-date"),
+      JSON.stringify({ type: "user", message: { role: "user" } }),
+    ].join("\n");
     expect(sessionDays(jsonl, PARIS)).toEqual([]);
     expect(sessionDays("", PARIS)).toEqual([]);
   });

@@ -22,7 +22,7 @@ backup, and it **never touches the verbatim transcripts**.
    node "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-vault.mjs" --dry
    ```
 
-   - If it says *"up to date"* / *"nothing would change"*, tell them plainly their notes
+   - If it says _"up to date"_ / _"nothing would change"_, tell them plainly their notes
      are already current — and stop. Nothing to do.
    - Otherwise, show them briefly what would change (the file list), in plain language.
 
@@ -32,7 +32,7 @@ backup, and it **never touches the verbatim transcripts**.
    node "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-vault.mjs"
    ```
 
-   It takes a **full backup** (`~/.claudia.bak-<date>`) *before* rewriting anything, then
+   It takes a **full backup** (`~/.claudia.bak-<date>`) _before_ rewriting anything, then
    updates the notes and rebuilds the dashboard mirror.
 
 3. **Tell them exactly** what changed and **where the backup is**, so they can open,
@@ -41,7 +41,7 @@ backup, and it **never touches the verbatim transcripts**.
 
 ## Never
 
-- Never run this as a recital or make it feel like a chore — it's housekeeping on *their*
+- Never run this as a recital or make it feel like a chore — it's housekeeping on _their_
   data, offered plainly.
 - Never skip the backup or touch a `*.transcript.md`.
 - If anything in the moment trips a risk signal, [crisis](../skills/crisis/SKILL.md)

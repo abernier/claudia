@@ -13,7 +13,15 @@ import {
 describe("zonedParts()", () => {
   it("reads local wall-clock + DST offset for a zone (summer, +02:00)", () => {
     const p = zonedParts(new Date("2026-07-22T05:45:00Z"), "Europe/Paris");
-    expect(p).toMatchObject({ year: 2026, month: 7, day: 22, hour: 7, minute: 45, weekday: "Wednesday", offsetMinutes: 120 });
+    expect(p).toMatchObject({
+      year: 2026,
+      month: 7,
+      day: 22,
+      hour: 7,
+      minute: 45,
+      weekday: "Wednesday",
+      offsetMinutes: 120,
+    });
   });
   it("tracks the DST change (winter, +01:00)", () => {
     const p = zonedParts(new Date("2026-01-15T06:30:00Z"), "Europe/Paris");
@@ -122,7 +130,14 @@ describe("renderTimeContext()", () => {
     expect(note).toContain("not the person");
   });
   it("omits the gap clause on first_time", () => {
-    const note = renderTimeContext({ now: "x", zone: "z", weekday: "Wednesday", part_of_day: "morning", since_last: null, gap_kind: "first_time" });
+    const note = renderTimeContext({
+      now: "x",
+      zone: "z",
+      weekday: "Wednesday",
+      part_of_day: "morning",
+      since_last: null,
+      gap_kind: "first_time",
+    });
     expect(note).toContain("first_time");
     expect(note).not.toContain("gap_kind:");
   });
