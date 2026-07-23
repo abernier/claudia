@@ -54,7 +54,7 @@ runtime contract changes.
   plain-JS launcher checking `process.features.typescript`, then dynamically
   importing `.mts` entries) makes that failure loud instead of silent, but
   still degrades the safety floor on old Node, and renames/moves ripple through
-  `hooks.json`, six commands, two skills, the tests and the docs — all to buy
+  `hooks.json`, seven commands, two skills, the tests and the docs — all to buy
   nicer annotation syntax. Revisit once pre-22.18 Node is extinct in the wild:
   the JSDoc annotations transpose mechanically, and by then no launcher would
   be needed at all.

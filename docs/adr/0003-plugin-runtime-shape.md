@@ -22,7 +22,12 @@ The deliverable is an **installable Claude Code plugin**. That target, plus the
    adds test/safety surface for no gain.
    *(Amended by [ADR-0015](0015-the-thread.md): a fourth command, `/thread`, was
    later added — a pull-only reflection aid the person invokes, not a therapeutic
-   move Claudia pushes, so the natural-language-first principle still holds.)*
+   move Claudia pushes, so the natural-language-first principle still holds. Further
+   amended: `/dashboard` (ADR-0019) and `/migrate` (ADR-0020) added deterministic
+   data controls, and `/save` a person-pulled memory checkpoint over
+   `distill-session` / `remember`. Each is a data or orientation affordance the
+   person pulls, never a therapeutic move Claudia pushes — so natural-language-first
+   still holds.)*
 
 3. **Per-turn safety is a deterministic hook, outside the persona.** A
    `UserPromptSubmit` hook runs on every message: a fast high-recall heuristic
