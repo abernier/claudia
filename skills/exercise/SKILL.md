@@ -32,3 +32,8 @@ Let the moment and the chosen approach decide (see `choose-approach`):
 
 Write to `~/.claudia/sessions/exercises/<date>-<slug>.md`, in the **person's
 language**. Check next time how it went — gently.
+
+Once they've worked it, its lesson is worth *consolidating*: offer
+[`quiz`](../quiz/SKILL.md) later — retrieval practice makes it stick far better than
+re-reading (the testing effect). The exercise *creates* the material; the quiz helps
+it *last*.

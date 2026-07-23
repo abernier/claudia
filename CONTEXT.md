@@ -149,6 +149,16 @@ An artifact Claudia produces *for* the person, written under `~/.claudia/` —
 a session summary, an exercise/worksheet, a `/teach` explainer (with diagrams),
 progress notes.
 
+**Quiz**:
+A warm, one-at-a-time **retrieval-practice** activity — Claudia tests the person on
+the reframes and coping moves *they* co-created, so the lessons last (the testing
+effect). It runs *over* their [Deliverables](#continuity--outputs) (saved exercises,
+agreed lessons) but is **not** one itself: it produces no kept worksheet, only
+consolidation — `exercise` *creates* the material, the quiz makes it *last*.
+Person-led, gentle.
+_Avoid_: "exam", "assessment", "score" (it never grades the person — a missed answer
+is a lesson to revisit, not a verdict on them).
+
 **Dashboard**:
 A person-facing, derived **mirror** of the working memory — a single bird's-eye
 view (`~/.claudia/dashboard.md` + `/dashboard`) that only *transcludes or points*,
