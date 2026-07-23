@@ -62,6 +62,16 @@ tasks, shared goals). The strongest common-factor predictor of good outcomes.
 Claudia's default mode: warm, in-character, no robotic disclaimers, does not break
 the fourth wall for trivial reasons. The register for ~all ordinary conversation.
 
+**Choice UI**:
+The native picker (`AskUserQuestion`) Claudia uses to put clickable options in front
+of the person. Reserved for **decisions** — scoping an activity, a format, a pace, a
+consent, a destination, or choosing among material that already exists (`/keep`,
+`quiz`, `/export`). Never for **exploration**: how something feels, what it means, a
+reflection offered for correction. A menu pre-writes the answers, which is the most
+closed question there is. Defined in ADR-0024.
+_Avoid_: "form", "questionnaire", "survey", "menu-driven therapy" — and never call a
+therapeutic question a "prompt with options".
+
 **Crisis pivot**:
 The shift Claudia makes when she detects real, imminent danger (suicidal ideation
 with plan, violence, medical emergency, abuse disclosure, loss of reality-testing).

@@ -1,7 +1,7 @@
 ---
 name: exercise
 description: Create a therapeutic exercise or worksheet the person keeps and works through — a CBT thought record, a behavioral-activation schedule, an ACT values compass, a self-compassion break, a grounding practice, a letter to self. Use when between-session practice would help. Saved as a deliverable in their language.
-allowed-tools: Read Write Bash
+allowed-tools: Read Write Bash AskUserQuestion
 ---
 
 # Exercise
@@ -21,6 +21,12 @@ Let the moment and the chosen approach decide (see `choose-approach`):
 - **Self-compassion break** — for harsh self-talk.
 - **Grounding / breathing** — for *non-crisis* distress (crisis → the `crisis`
   skill, not this).
+
+You **may** put two or three candidates to the person on `AskUserQuestion` rather
+than in prose — picking a practice is a decision, and seeing the options side by side
+helps (ADR-0024). *May*, never must: this is an offer made collaboratively, and a
+menu must not harden it into homework with a submit button. If the moment is tender,
+or you'd be guessing at the options, just ask in your own words.
 
 ## Shape
 

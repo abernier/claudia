@@ -373,6 +373,68 @@ describe("vault migrations (ADR-0020)", () => {
   });
 });
 
+describe("the choice UI (ADR-0024)", () => {
+  // Every skill and command, split into (frontmatter, body) so the allowed-tools
+  // declaration itself never counts as a "use" of the tool.
+  const surfaces = [
+    ...walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md")),
+    ...walk(path.join(root, "commands"), (p) => p.endsWith(".md")),
+  ].map((file) => {
+    const txt = readFileSync(file, "utf8");
+    const end = txt.indexOf("\n---", 3);
+    return {
+      rel: path.relative(root, file),
+      frontmatter: end === -1 ? "" : txt.slice(0, end),
+      body: end === -1 ? txt : txt.slice(end),
+    };
+  });
+
+  const declares = (frontmatter: string) =>
+    /^allowed-tools:.*\bAskUserQuestion\b/m.test(frontmatter);
+
+  it("ships the ADR and the glossary entry", () => {
+    expect(existsSync(path.join(root, "docs/adr/0024-the-choice-ui.md"))).toBe(true);
+    expect(/\*\*Choice UI\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
+  });
+
+  it("is declared wherever it is used", () => {
+    // The gap at v0.9.0: `quiz` was built end-to-end on AskUserQuestion while its
+    // allowed-tools said `Read Write Bash`, so the choice UI raised a permission
+    // prompt mid-quiz — immersion broken at the worst moment. Same reasoning as the
+    // `Task` assertion above, applied to every surface rather than one file.
+    const undeclared = surfaces
+      .filter((s) => /AskUserQuestion/.test(s.body) && !declares(s.frontmatter))
+      .map((s) => s.rel);
+    expect(undeclared, `uses AskUserQuestion without declaring it:\n${undeclared.join("\n")}`).toEqual([]);
+  });
+
+  it("stays out of the exploratory skills", () => {
+    // The half that protects the therapeutic side. A menu pre-writes the answers,
+    // so these surfaces ask openly, permanently: getting to know someone, ratifying
+    // a theme, walking a life timeline, checking a relationship map, and crisis.
+    const exploratory = ["intake", "themes", "timeline", "relationships", "understand", "crisis"];
+    for (const name of exploratory) {
+      const txt = readFileSync(path.join(root, `skills/${name}/SKILL.md`), "utf8");
+      expect(/AskUserQuestion/.test(txt), `${name} must ask openly, not with options (ADR-0024)`).toBe(false);
+    }
+  });
+
+  it("the persona carries the rule and is pre-approved for it", () => {
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/^allowed-tools:.*\bAskUserQuestion\b/m.test(persona), "pre-approved, to avoid mid-session prompts").toBe(true);
+    expect(/Buttons for decisions/i.test(persona), "the persona is the only always-loaded file — the rule must live there").toBe(true);
+  });
+
+  it("crisis and the irreversible commands keep their plain-text asks", () => {
+    // Non-goals with reasons (ADR-0024): /help-now is "not the moment for
+    // exploration", and friction is protective on a write that cannot be undone.
+    for (const cmd of ["help-now", "forget", "migrate"]) {
+      const txt = readFileSync(path.join(root, `commands/${cmd}.md`), "utf8");
+      expect(/AskUserQuestion/.test(txt), `/${cmd} asks in plain text on purpose (ADR-0024)`).toBe(false);
+    }
+  });
+});
+
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));

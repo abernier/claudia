@@ -1,7 +1,7 @@
 ---
 name: teach
 description: Create a psychoeducation explainer for the person — a clear, kind explanation of a concept (the cognitive triangle, the anxiety cycle, the window of tolerance, values, rumination, grief) with a mermaid diagram. Use when understanding *why* would help the person, or when they ask to learn something. Saved as a deliverable in their language.
-allowed-tools: Read Write Bash
+allowed-tools: Read Write Bash AskUserQuestion
 ---
 
 # Teach
@@ -27,6 +27,12 @@ is itself therapeutic.
    ```
    ```
 4. End with a gentle "does this fit your experience?" — the person is the check.
+   Ask that one **in plain text**: it invites a correction, not a selection, and
+   options would pre-write the answer (ADR-0024).
+
+If more than one concept would serve, you **may** offer the two or three candidates
+on `AskUserQuestion` — *which* to explain is a decision. *May*, never must; and
+never for the "does this fit?" above.
 
 ## Save it
 

@@ -170,6 +170,21 @@ corrected estimates are routinely smaller than headline figures.
   into the week is between-session engagement; a re-readable artifact is its lightest
   possible form.
 
+### Asking with options — why the closed question is the exception (ADR-0024)
+
+- **Ivey, Ivey & Zalaquett.** *Intentional Interviewing and Counseling.* Cengage. —
+  The cost of closed and stacked questions: they "give too much control to the
+  interviewer", put people on the defensive, and elicit "socially acceptable answers
+  rather than honest ones". A pre-written option list is the limit case of this.
+- **Cecchin (1987).** Hypothesizing, circularity, and neutrality revisited: an
+  invitation to curiosity. *Family Process* 26:405–413. — Curiosity as the
+  therapist's *stance*: hold your hypotheses lightly and stay interested in the
+  person's own account. Offering the plausible answers is the opposite move.
+- **Padesky (1993).** Socratic questioning: changing minds or guiding discovery?
+  Keynote, European Congress of Behavioural and Cognitive Therapies. — Guided
+  discovery works by following where the person's answers lead, not by supplying the
+  conclusions.
+
 ---
 
 ## Digital / chatbot evidence

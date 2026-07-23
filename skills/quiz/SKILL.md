@@ -1,7 +1,7 @@
 ---
 name: quiz
 description: Test the person interactively — one question at a time, as clickable choices — on the insights, reframes, and coping moves THEY have co-created, so the lessons stick (active recall / retrieval practice). Use when the person wants to review, be quizzed, self-test, drill, or consolidate what they learned ("quiz me", "test me", "fais-moi réviser", "interroge-moi"). Draws only on their own saved exercises and agreed lessons. Person-led, gentle — never a graded exam of their worth, never a clinical assessment.
-allowed-tools: Read Write Bash
+allowed-tools: Read Write Bash AskUserQuestion
 ---
 
 # Quiz
@@ -39,6 +39,10 @@ The tool's shape, so you use it well:
   field that is *added automatically* — so the person can always type their own answer
   instead of picking.
 - **multi-select** for "pick any that apply", radio for "pick one".
+
+This is the reference description of the tool's shape for the whole plugin
+(ADR-0024) — the quiz is where it earns the most. The boundary it sits inside:
+buttons for *decisions*, plain text for anything the person is *disclosing*.
 
 ## How to run it
 
