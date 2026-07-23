@@ -22,9 +22,9 @@ export function projectDirFor(cwd) {
  * shape, not a discriminated union: transcript data is external, and the code
  * narrows defensively (`b && b.type === "text" && …`) rather than trusting it.
  * @typedef {object} ContentBlock
- * @property {string} [type]  "text" | "image" | "tool_result" | anything else (ignored)
+ * @property {string} [type]  "text" | "image" | "document" | "tool_result" | anything else (ignored)
  * @property {string} [text]  present on text blocks
- * @property {{ type?: string, media_type?: string, data?: string }} [source]  present on image blocks (base64)
+ * @property {{ type?: string, media_type?: string, data?: string }} [source]  present on image and document blocks (base64)
  * @property {string | ContentBlock[]} [content]  present on tool_result blocks — nested blocks, or a raw string in real transcripts (hence the Array.isArray narrowing)
  */
 
@@ -49,29 +49,47 @@ export function textFromContent(content) {
 }
 
 /**
- * Filename extension for an image block's media type (`image/png` → `png`).
+ * Media types a `document` block carries, mapped to the extension we save it under.
+ * A document's subtype is not its extension (`application/pdf` → `pdf`, not
+ * `application/pdf` → the subtype trick images get), so the mapping is explicit.
+ */
+const DOCUMENT_EXTS = new Map([
+  ["application/pdf", "pdf"],
+  ["text/plain", "txt"],
+  ["text/markdown", "md"],
+  ["text/csv", "csv"],
+]);
+
+/**
+ * Filename extension for an asset block's media type (`image/png` → `png`,
+ * `application/pdf` → `pdf`). Unknown types fall back to `bin` — the bytes are
+ * still written, just under a name that claims nothing about them.
  * @param {string} mediaType
  * @returns {string}
  */
 function extFromMediaType(mediaType) {
-  const m = /^image\/([a-z0-9.+-]+)$/i.exec(String(mediaType || ""));
-  return m ? /** @type {string} */ (m[1]).toLowerCase() : "bin";
+  const mt = String(mediaType || "").toLowerCase();
+  const known = DOCUMENT_EXTS.get(mt);
+  if (known) return known;
+  const m = /^image\/([a-z0-9.+-]+)$/.exec(mt);
+  return m ? /** @type {string} */ (m[1]) : "bin";
 }
 
 /**
  * One renderable part of a message, discriminated on `kind` (the render loop
- * switches on it — here a strict union IS right). Image `data` is base64.
- * @typedef {{ kind: "text", text: string } | { kind: "image", mediaType: string, data: string }} MessagePart
+ * switches on it — here a strict union IS right). Image and file `data` is base64.
+ * @typedef {{ kind: "text", text: string } | { kind: "image", mediaType: string, data: string } | { kind: "file", mediaType: string, data: string }} MessagePart
  */
 
 /**
- * Ordered renderable parts of a message's content: text, and the images the person
- * pastes. Text blocks are trimmed (empty ones dropped). Image blocks are kept as
- * base64 — `{ kind: "image", mediaType, data }` — both top-level images (a pasted
- * screenshot) and any nested one level inside a `tool_result` (future-proof: a tool
- * that returns an image). A `tool_result`'s *text* stays dropped on purpose — only
- * its images surface — so this mirrors `textFromContent` and keeps the claudia gate
- * intact (reading a file never counts as a Claudia turn).
+ * Ordered renderable parts of a message's content: text, and the binary assets that
+ * entered the conversation. Text blocks are trimmed (empty ones dropped). `image`
+ * blocks become `{ kind: "image", … }` (a pasted screenshot), `document` blocks
+ * become `{ kind: "file", … }` (a PDF), both kept as base64 for the caller to write.
+ * Each is taken top-level and one level inside a `tool_result` — a tool that returns
+ * an image or a document lands the same way. A `tool_result`'s *text* stays dropped
+ * on purpose — only its assets surface — so this mirrors `textFromContent` and keeps
+ * the claudia gate intact (reading a file never counts as a Claudia turn).
  * @param {string | ContentBlock[] | null | undefined} content
  * @returns {MessagePart[]}
  */
@@ -85,10 +103,11 @@ export function partsFromContent(content) {
    * @param {ContentBlock | null | undefined} b
    * @returns {MessagePart | null}
    */
-  const asImage = (b) =>
-    b && b.type === "image" && b.source && b.source.type === "base64"
-      ? { kind: "image", mediaType: b.source.media_type || "", data: b.source.data || "" }
-      : null;
+  const asAsset = (b) => {
+    if (!b || !b.source || b.source.type !== "base64") return null;
+    const kind = b.type === "image" ? "image" : b.type === "document" ? "file" : null;
+    return kind ? { kind, mediaType: b.source.media_type || "", data: b.source.data || "" } : null;
+  };
   /** @type {MessagePart[]} */
   const parts = [];
   for (const b of content) {
@@ -98,15 +117,15 @@ export function partsFromContent(content) {
       if (t) parts.push({ kind: "text", text: t });
       continue;
     }
-    const img = asImage(b);
-    if (img) {
-      parts.push(img);
+    const asset = asAsset(b);
+    if (asset) {
+      parts.push(asset);
       continue;
     }
     if (b.type === "tool_result" && Array.isArray(b.content)) {
       for (const inner of b.content) {
-        const innerImg = asImage(inner);
-        if (innerImg) parts.push(innerImg);
+        const innerAsset = asAsset(inner);
+        if (innerAsset) parts.push(innerAsset);
       }
     }
   }
@@ -234,41 +253,46 @@ export function sessionIdFrom(payload) {
 }
 
 /**
- * An image lifted out of a transcript: `name` is `img-00N.<ext>`, `data` is base64
- * for the caller to decode and write into the session's assets dir (ADR-0021).
- * @typedef {object} SessionImage
+ * An asset lifted out of a transcript: `name` is `img-00N.<ext>` for an image or
+ * `doc-00N.<ext>` for a document, `data` is base64 for the caller to decode and
+ * write into the session's assets dir (ADR-0021).
+ * @typedef {object} SessionAsset
  * @property {string} name
  * @property {string} mediaType
  * @property {string} data
  */
 
 /**
- * Render a JSONL transcript into readable markdown plus the images it embeds. Pure:
- * the date stamp is passed in (no hidden clock), and there are no filesystem side
- * effects — image bytes are handed back as base64 for the caller to decode and
+ * Render a JSONL transcript into readable markdown plus the assets it references.
+ * Pure: the date stamp is passed in (no hidden clock), and there are no filesystem
+ * side effects — asset bytes are handed back as base64 for the caller to decode and
  * write (ADR-0021). Unparseable / non-message events are skipped.
  *
- * Returns `{ markdown, images }`:
+ * Returns `{ markdown, assets }`:
  *  - `markdown` — the rendered transcript, or `null` if nothing was renderable.
- *  - `images` — `[{ name, mediaType, data }]` in order of appearance, named
- *    `img-001.<ext>`, `img-002.<ext>`… Each is embedded inline in `markdown` at its
- *    position as a relative link into `assetsDir` (default `"assets"`; the caller
- *    passes the session's own `<stem>.assets`). Empty when there were none.
+ *  - `assets` — `[{ name, mediaType, data }]` in order of appearance, images named
+ *    `img-001.<ext>`… and documents `doc-001.<ext>`… on their own counters. Each is
+ *    referenced inline in `markdown` at its position by a relative link into
+ *    `assetsDir` (default `"assets"`; the caller passes the session's own
+ *    `<stem>.assets`) — embedded for an image, a plain link for a document, which no
+ *    reader can inline. Empty when there were none.
  *
  * Numbering follows position in the append-only JSONL, so re-rendering the same
- * transcript is idempotent: the Nth image is always `img-00N`.
+ * transcript is idempotent: the Nth image is always `img-00N`, the Nth document
+ * always `doc-00N`.
  * @param {string} jsonl  raw JSONL transcript contents
  * @param {string} dateStamp  date stamp for the heading (e.g. "2026-07-21")
  * @param {{ assetsDir?: string }} [options]
- * @returns {{ markdown: string | null, images: SessionImage[] }}
+ * @returns {{ markdown: string | null, assets: SessionAsset[] }}
  */
 export function renderMarkdown(jsonl, dateStamp, { assetsDir = "assets" } = {}) {
   const lines = String(jsonl || "")
     .split("\n")
     .filter(Boolean);
   const out = [`# Session — ${dateStamp}`, ""];
-  /** @type {SessionImage[]} */
-  const images = [];
+  /** @type {SessionAsset[]} */
+  const assets = [];
+  const seen = { image: 0, file: 0 };
   let rendered = 0;
   for (const line of lines) {
     let e;
@@ -287,14 +311,17 @@ export function renderMarkdown(jsonl, dateStamp, { assetsDir = "assets" } = {}) 
       if (p.kind === "text") {
         out.push(p.text, "");
       } else {
-        const name = `img-${String(images.length + 1).padStart(3, "0")}.${extFromMediaType(p.mediaType)}`;
-        images.push({ name, mediaType: p.mediaType, data: p.data });
-        out.push(`![${name.replace(/\.[^.]+$/, "")}](${assetsDir}/${name})`, "");
+        const isImage = p.kind === "image";
+        const n = String((seen[p.kind] += 1)).padStart(3, "0");
+        const name = `${isImage ? "img" : "doc"}-${n}.${extFromMediaType(p.mediaType)}`;
+        assets.push({ name, mediaType: p.mediaType, data: p.data });
+        const link = `(${assetsDir}/${name})`;
+        out.push(isImage ? `![${name.replace(/\.[^.]+$/, "")}]${link}` : `[${name}]${link}`, "");
       }
     }
     rendered++;
   }
-  return { markdown: rendered > 0 ? out.join("\n") : null, images };
+  return { markdown: rendered > 0 ? out.join("\n") : null, assets };
 }
 
 /**

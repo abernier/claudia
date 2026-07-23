@@ -18,6 +18,12 @@ const imageBlock = (data: string = PNG_1PX, media_type: string = "image/png"): C
   type: "image",
   source: { type: "base64", media_type, data },
 });
+// A document block, as Claude Code writes a PDF that entered the conversation.
+const PDF_STUB = "JVBERi0xLjQK";
+const documentBlock = (data: string = PDF_STUB, media_type: string = "application/pdf"): ContentBlock => ({
+  type: "document",
+  source: { type: "base64", media_type, data },
+});
 
 const userMsg = (content: string | ContentBlock[]): string =>
   JSON.stringify({ type: "user", message: { role: "user", content } });
@@ -66,9 +72,22 @@ describe("partsFromContent()", () => {
     ]);
     expect(parts).toEqual([{ kind: "image", mediaType: "image/jpeg", data: PNG_1PX }]);
   });
+  it("keeps a document block as a file part, alongside text", () => {
+    const parts = partsFromContent([{ type: "text", text: "la lettre" }, documentBlock()]);
+    expect(parts).toEqual([
+      { kind: "text", text: "la lettre" },
+      { kind: "file", mediaType: "application/pdf", data: PDF_STUB },
+    ]);
+  });
+  it("surfaces a document nested inside a tool_result", () => {
+    const parts = partsFromContent([{ type: "tool_result", content: [documentBlock()] }]);
+    expect(parts).toEqual([{ kind: "file", mediaType: "application/pdf", data: PDF_STUB }]);
+  });
   it("returns empty for unknown / empty shapes", () => {
     expect(partsFromContent(null)).toEqual([]);
     expect(partsFromContent([{ type: "text", text: "   " }])).toEqual([]);
+    // A document block without base64 bytes (a URL source) has nothing to write.
+    expect(partsFromContent([{ type: "document", source: { type: "url" } }])).toEqual([]);
   });
 });
 
@@ -121,23 +140,23 @@ describe("renderMarkdown()", () => {
   ].join("\n");
 
   it("renders You/Claudia turns and skips meta events", () => {
-    const { markdown, images } = renderMarkdown(jsonl, "2026-07-21");
+    const { markdown, assets } = renderMarkdown(jsonl, "2026-07-21");
     expect(markdown).toContain("# Session — 2026-07-21");
     expect(markdown).toContain("**You:**");
     expect(markdown).toContain("**Claudia:**");
     expect(markdown).toContain("Je suis là.");
     expect(markdown).not.toContain("file-history-snapshot");
-    expect(images).toEqual([]);
+    expect(assets).toEqual([]);
   });
 
-  it("returns null markdown and no images when nothing is renderable", () => {
-    expect(renderMarkdown('{"type":"meta"}', "2026-07-21")).toEqual({ markdown: null, images: [] });
+  it("returns null markdown and no assets when nothing is renderable", () => {
+    expect(renderMarkdown('{"type":"meta"}', "2026-07-21")).toEqual({ markdown: null, assets: [] });
   });
 
   it("extracts a pasted image, numbers it, and embeds it inline into assetsDir", () => {
     const withImage = userMsg([{ type: "text", text: "regarde ça" }, imageBlock()]);
-    const { markdown, images } = renderMarkdown(withImage, "2026-07-21", { assetsDir: "2026-07-21-abcd1234.assets" });
-    expect(images).toEqual([{ name: "img-001.png", mediaType: "image/png", data: PNG_1PX }]);
+    const { markdown, assets } = renderMarkdown(withImage, "2026-07-21", { assetsDir: "2026-07-21-abcd1234.assets" });
+    expect(assets).toEqual([{ name: "img-001.png", mediaType: "image/png", data: PNG_1PX }]);
     // Text then image, in order, linked relative to the session's own assets dir.
     expect(markdown).toContain("regarde ça");
     expect(markdown).toContain("![img-001](2026-07-21-abcd1234.assets/img-001.png)");
@@ -151,14 +170,35 @@ describe("renderMarkdown()", () => {
       JSON.stringify({ type: "assistant", message: { role: "assistant", content: [{ type: "text", text: "vu" }] } }),
       userMsg([imageBlock(PNG_1PX, "image/jpeg")]),
     ].join("\n");
-    const { images } = renderMarkdown(twoTurns, "2026-07-21");
-    expect(images.map((i) => i.name)).toEqual(["img-001.png", "img-002.jpeg"]);
+    const { assets } = renderMarkdown(twoTurns, "2026-07-21");
+    expect(assets.map((a) => a.name)).toEqual(["img-001.png", "img-002.jpeg"]);
   });
 
   it("renders an image-only turn (no text) rather than dropping it", () => {
-    const { markdown, images } = renderMarkdown(userMsg([imageBlock()]), "2026-07-21");
+    const { markdown, assets } = renderMarkdown(userMsg([imageBlock()]), "2026-07-21");
     expect(markdown).toContain("**You:**");
-    expect(images).toHaveLength(1);
+    expect(assets).toHaveLength(1);
+  });
+
+  it("saves a document as doc-00N.<ext>, linked (not embedded) into assetsDir", () => {
+    const withPdf = userMsg([{ type: "text", text: "le compte-rendu" }, documentBlock()]);
+    const { markdown, assets } = renderMarkdown(withPdf, "2026-07-21", { assetsDir: "2026-07-21-abcd1234.assets" });
+    expect(assets).toEqual([{ name: "doc-001.pdf", mediaType: "application/pdf", data: PDF_STUB }]);
+    // A plain link, not an image embed — no reader can inline a PDF.
+    expect(markdown).toContain("[doc-001.pdf](2026-07-21-abcd1234.assets/doc-001.pdf)");
+    expect(markdown).not.toContain("![doc-001");
+  });
+
+  it("counts images and documents on separate counters, in one assets list", () => {
+    const mixed = userMsg([imageBlock(), documentBlock(), imageBlock(PNG_1PX, "image/jpeg"), documentBlock()]);
+    const { assets } = renderMarkdown(mixed, "2026-07-21");
+    expect(assets.map((a) => a.name)).toEqual(["img-001.png", "doc-001.pdf", "img-002.jpeg", "doc-002.pdf"]);
+  });
+
+  it("falls back to .bin for a media type it does not know", () => {
+    const odt = userMsg([documentBlock(PDF_STUB, "application/vnd.oasis.opendocument.text")]);
+    const { assets } = renderMarkdown(odt, "2026-07-21");
+    expect(assets.map((a) => a.name)).toEqual(["doc-001.bin"]);
   });
 });
 

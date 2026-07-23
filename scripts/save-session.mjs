@@ -154,19 +154,20 @@ async function main() {
       )
       .catch(() => {});
 
-    // Images the person pasted live inline in the JSONL as base64. renderMarkdown
-    // (pure) names them, embeds relative links into <stem>.assets/, and hands the
-    // bytes back for us to decode and write here — the core stays side-effect-free
-    // (ADR-0021). Re-extraction each close is idempotent: same names, same bytes.
+    // Images the person pasted and documents that entered the conversation live
+    // inline in the JSONL as base64. renderMarkdown (pure) names them, links them
+    // relative to <stem>.assets/, and hands the bytes back for us to decode and
+    // write here — the core stays side-effect-free (ADR-0021). Re-extraction each
+    // close is idempotent: same names, same bytes.
     const assetsDir = `${stem}.assets`;
-    const { markdown, images } = renderMarkdown(jsonl, stamp, { assetsDir });
+    const { markdown, assets } = renderMarkdown(jsonl, stamp, { assetsDir });
     if (markdown) {
       await fs.writeFile(path.join(sessionsDir, `${stem}.transcript.md`), markdown);
-      if (images.length) {
+      if (assets.length) {
         const dir = path.join(sessionsDir, assetsDir);
         await fs.mkdir(dir, { recursive: true });
-        for (const img of images) {
-          await fs.writeFile(path.join(dir, img.name), Buffer.from(img.data, "base64"));
+        for (const asset of assets) {
+          await fs.writeFile(path.join(dir, asset.name), Buffer.from(asset.data, "base64"));
         }
       }
     } else {
