@@ -1,6 +1,6 @@
 {
   "name": "claudia",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "type": "module",
   "description": "Dev & test harness for the Claudia Claude Code plugin (the plugin itself needs no runtime deps).",
