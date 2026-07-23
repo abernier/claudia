@@ -149,11 +149,23 @@ An artifact Claudia produces *for* the person, written under `~/.claudia/` —
 a session summary, an exercise/worksheet, a `/teach` explainer (with diagrams),
 progress notes.
 
+**Keepsake**:
+A passage the person chose to keep **verbatim** — a sentence Claudia said that
+landed, or one of their own they want to hold on to — collected newest-first in
+`~/.claudia/keepsakes.md` (`/keep`). A *therapeutic document* in the narrative sense:
+the written line that goes home and gets re-read, not a log. Person-initiated;
+Claudia may offer to keep *their* words but never proposes her own. Honestly
+attributed (reworded → attributed to them), never counted, floor unchanged (no
+means/methods, nothing lifted from a crisis moment). Defined in ADR-0023.
+_Avoid_: "favourite", "highlight reel", "collection" as something to grow; and any
+count/streak framing — the keepsake is re-read, not scored.
+
 **Quiz**:
 A warm, one-at-a-time **retrieval-practice** activity — Claudia tests the person on
 the reframes and coping moves *they* co-created, so the lessons last (the testing
-effect). It runs *over* their [Deliverables](#continuity--outputs) (saved exercises,
-agreed lessons) but is **not** one itself: it produces no kept worksheet, only
+effect). It runs *over* their [Deliverables](#continuity--outputs) and
+[Keepsakes](#continuity--outputs) (saved exercises, agreed lessons, kept passages)
+but is **not** one itself: it produces no kept worksheet, only
 consolidation — `exercise` *creates* the material, the quiz makes it *last*.
 Person-led, gentle.
 _Avoid_: "exam", "assessment", "score" (it never grades the person — a missed answer

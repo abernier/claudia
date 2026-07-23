@@ -72,11 +72,12 @@ export async function rebuildDashboard(root) {
       /* no/unreadable config → default-on */
     }
 
-    const [person, goals, themes, todo, people, timeline, understanding] = await Promise.all([
+    const [person, goals, themes, todo, keepsakes, people, timeline, understanding] = await Promise.all([
       read(path.join(root, "person.md")),
       read(path.join(root, "goals.md")),
       read(path.join(root, "themes.md")),
       read(path.join(root, "todo.md")),
+      read(path.join(root, "keepsakes.md")),
       read(path.join(root, "people.md")),
       read(path.join(root, "timeline.md")),
       read(path.join(root, "understanding.md")),
@@ -90,6 +91,7 @@ export async function rebuildDashboard(root) {
       goals,
       themes,
       todo,
+      keepsakes,
       people,
       timeline,
       understandingExists: understanding != null,

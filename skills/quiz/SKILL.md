@@ -16,8 +16,10 @@ at a time**, on *their own* lessons, and you react to each answer.
 
 - **Only their own co-created material**: the reframes, limits and coping moves
   *they* reached or ratified — their saved exercises in
-  `~/.claudia/sessions/exercises/`, the session's agreed lessons, or a topic they
-  name. Never a generic bank, never someone else's clinical instrument.
+  `~/.claudia/sessions/exercises/`, the passages they chose to keep in
+  `~/.claudia/keepsakes.md` ([`keep`](../keep/SKILL.md) captures the lesson, this
+  makes it last), the session's agreed lessons, or a topic they name. Never a generic
+  bank, never someone else's clinical instrument.
 - **Never a clinical assessment**, a score of their psychology, or a diagnosis. A
   missed answer is a lesson to revisit — **never** a verdict on them or their
   "progress". No grading of worth, no "you failed", nothing that could make them

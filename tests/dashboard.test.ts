@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   listItems,
   sectionItems,
+  quoteBlocks,
   mermaidBlock,
   personName,
   sessionsForMirror,
@@ -43,6 +44,27 @@ describe("sectionItems()", () => {
   });
   it("returns [] when no heading matches", () => {
     expect(sectionItems(todo, /introuvable/i)).toEqual([]);
+  });
+});
+
+describe("quoteBlocks()", () => {
+  const keepsakes: string =
+    "# Ce que je garde\n\n> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)\n\n> Dire non, ce n'était pas trahir.\n>\n> — moi\n";
+  it("returns each contiguous quote as one block, verbatim, in file order", () => {
+    expect(quoteBlocks(keepsakes)).toEqual([
+      "> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)",
+      "> Dire non, ce n'était pas trahir.\n>\n> — moi",
+    ]);
+  });
+  it("keeps the attribution and any note attached to their own quote", () => {
+    // The quoted blank line is what holds a keepsake together — it must not split it.
+    const one: string = "> une phrase\n>\n> — moi\n> *ce que ça me fait : je respire.*";
+    expect(quoteBlocks(one)).toEqual([one]);
+  });
+  it("respects max (the mirror shows one) and returns [] for null / quoteless prose", () => {
+    expect(quoteBlocks(keepsakes, { max: 1 })).toEqual([quoteBlocks(keepsakes)[0]]);
+    expect(quoteBlocks(null)).toEqual([]);
+    expect(quoteBlocks("aucune citation ici")).toEqual([]);
   });
 });
 
@@ -108,6 +130,8 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
     goals: "## Objectifs\n- retrouver le sommeil\n- poser une limite au travail",
     themes: "## Thèmes\n- l'inner critic\n- s'effacer pour ne pas déranger",
     todo: "## Ouvert\n- [ ] rappeler le médecin\n## Fait\n- [x] réserver",
+    keepsakes:
+      "# Ce que je garde\n\n> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)\n\n> Dire non, ce n'était pas trahir.\n>\n> — moi\n",
     people: "```mermaid\ngraph TD\n  moi --> Liliana\n```",
     timeline: "- 2001 — naissance de ma sœur\n- 2019 — déménagement\n- 2024 — nouveau poste\n- 2026 — début avec Claudia",
     understandingExists: true,
@@ -145,6 +169,20 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
     const md: string = buildDashboard(base);
     expect(md).toContain("- 21/07 → [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)");
     expect(md).toContain("- 22/07 · *en cours de distillation*");
+  });
+
+  it("mirrors the newest keepsake verbatim — one only, and never a count", () => {
+    const md: string = buildDashboard(base);
+    expect(md).toContain("## Ce que tu gardes");
+    expect(md).toContain("> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)");
+    expect(md).not.toContain("Dire non"); // the collection is not the glance
+    expect(md).not.toMatch(/\d+\s+(keepsakes?|citations?|phrases? gardées?)/i);
+  });
+
+  it("omits the keepsakes section entirely when nothing has been kept", () => {
+    const md: string = buildDashboard({ ...base, keepsakes: null });
+    expect(md).not.toContain("## Ce que tu gardes");
+    expect(md).not.toContain("keepsakes.md");
   });
 
   it("transcludes the ecomap block verbatim", () => {

@@ -64,6 +64,11 @@ untagged; and tick `[x]` anything this session resolved (mirroring the Follow-up
 marked *done*). Promote genuine tasks,
 not every follow-up — `todo.md` is an action list, not a mirror of the summary.
 
+Same pass, same reason: **complete the session tag on any keepsake** the person kept
+live this session (`~/.claudia/keepsakes.md`, ADR-0023) — a `/keep` mid-conversation
+may not have held the stem. Only the tag. **Never add a keepsake yourself**, and never
+promote a line you liked into their collection: what they keep is theirs to choose.
+
 Then update `person.md` / `goals.md` via `remember` if something durable emerged,
 and — if a pattern crystallised or the direction shifted — invoke `understand` to
 revise the working understanding. If a thread has *recurred*, hand a **candidate

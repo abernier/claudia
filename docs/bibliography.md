@@ -148,6 +148,28 @@ corrected estimates are routinely smaller than headline figures.
   — Excessive self-monitoring/rumination (the Cognitive Attentional Syndrome) is
   the *engine* of disorder — more monitoring is not better; the off-switch matters.
 
+### Keeping the words that landed — therapeutic documents & coping cards (ADR-0023)
+
+- **White & Epston (1990).** *Narrative Means to Therapeutic Ends.* Norton. —
+  **Therapeutic documents**: the written line the person takes home, valued by
+  clients out of all proportion to its size; the person is the author of what is
+  worth keeping. (Also cited above for threads/themes.)
+- **White (2007).** *Maps of Narrative Practice.* Norton. — Catching and recording a
+  *unique outcome* **in the person's own words** as they voice it — the move behind
+  "offer to keep *their* sentence, never propose your own".
+- **Beck, J. S. (2011).** *Cognitive Behavior Therapy: Basics and Beyond* (2nd ed.).
+  Guilford. — **Coping cards / therapy notes**: the conclusion the person reached,
+  written down and re-read when the moment it was written for arrives — designed to
+  work *without* the therapist present.
+- **Kessels (2003).** Patients' memory for medical information. *Journal of the Royal
+  Society of Medicine* 96:219–222. — A large share of what is said in a consultation
+  is forgotten immediately, and some of what is retained is distorted — the plain
+  case for writing the sentence down rather than trusting recall.
+- **Kazantzis, Whittington & Dattilio (2010).** Meta-analysis of homework effects in
+  CBT. *Clinical Psychology: Science & Practice* 17:144–156. — What carries a session
+  into the week is between-session engagement; a re-readable artifact is its lightest
+  possible form.
+
 ---
 
 ## Digital / chatbot evidence

@@ -4,8 +4,8 @@
  * `dashboard.md` is a DERIVED, person-facing bird's-eye view of the working
  * memory (ADR-0019). It is a MIRROR, never a source of truth: this module only
  * ever **transcludes** what a source file already says (a list, a mermaid block,
- * the items under a heading) or **points** to it with a relative markdown link. It
- * NEVER summarises or paraphrases — a deterministic script cannot read therapeutic
+ * a kept blockquote, the items under a heading) or **points** to it with a relative
+ * markdown link. It NEVER summarises or paraphrases — a deterministic script cannot read therapeutic
  * prose without risking putting words in the person's mouth, so it does not try
  * ("transclude or point, never guess"). The two prose surfaces — the working
  * understanding and each session summary — are therefore *linked*, never excerpted.
@@ -89,6 +89,35 @@ export function sectionItems(md, headingRe, { max = Infinity } = {}) {
     if (inSection) section.push(line);
   }
   return collectItems(section, max);
+}
+
+/**
+ * Contiguous blockquote blocks (`>` runs), verbatim, in file order — the shape a
+ * keepsake takes: the kept words, then its `> — who · [session]` attribution, then
+ * an optional note, all inside one quote (ADR-0023). A blank (unquoted) line ends
+ * the block. Verbatim is the whole point here, so nothing is reflowed or trimmed
+ * beyond trailing whitespace.
+ *
+ * @param {string | null | undefined} md
+ * @param {{ max?: number }} [opts]
+ * @returns {string[]}
+ */
+export function quoteBlocks(md, { max = Infinity } = {}) {
+  if (!md) return [];
+  /** @type {string[]} */
+  const out = [];
+  /** @type {string | null} */
+  let cur = null;
+  const flush = () => {
+    if (cur != null) out.push(cur.replace(/[ \t\n]+$/, ""));
+    cur = null;
+  };
+  for (const line of String(md).split(/\r?\n/)) {
+    if (/^\s*>/.test(line)) cur = cur == null ? line : cur + "\n" + line;
+    else flush();
+  }
+  flush();
+  return max === Infinity ? out : out.slice(0, max);
 }
 
 /**
@@ -204,6 +233,7 @@ function fr(iso) {
  * @property {string | null} [goals]
  * @property {string | null} [themes]
  * @property {string | null} [todo]
+ * @property {string | null} [keepsakes]
  * @property {string | null} [people]
  * @property {string | null} [timeline]
  * @property {boolean} [understandingExists]
@@ -229,6 +259,7 @@ export function buildDashboard(input = {}) {
     goals = null,
     themes = null,
     todo = null,
+    keepsakes = null,
     people = null,
     timeline = null,
     understandingExists = false,
@@ -262,6 +293,11 @@ export function buildDashboard(input = {}) {
   if (cad) vitals.push(cad);
   if (vitals.length) push(`*${vitals.join(" · ")}*`, "");
 
+  // Ce que tu gardes — the newest kept passage as an epigraph, verbatim (ADR-0023).
+  // Exactly ONE: the mirror is a glance at what they're carrying, not the collection —
+  // and it is never counted (no "12 keepsakes"), which would turn re-reading into scoring.
+  emit("## Ce que tu gardes", keepsakes, quoteBlocks(keepsakes, { max: 1 }), "[keepsakes](keepsakes.md)");
+
   // Là où on en est — the working understanding is prose; link it, never excerpt it.
   if (understandingExists) push("## Là où on en est", "→ [understanding](understanding.md) *(provisoire)*", "");
 
@@ -294,6 +330,7 @@ export function buildDashboard(input = {}) {
     understandingExists && "[understanding](understanding.md)",
     goals != null && "[goals](goals.md)",
     themes != null && "[themes](themes.md)",
+    keepsakes != null && "[keepsakes](keepsakes.md)",
     people != null && "[people](people.md)",
     timeline != null && "[timeline](timeline.md)",
   ].filter(Boolean);

@@ -13,6 +13,7 @@ English/universal; **content is written in the person's language**.
 ├── person.md            distilled, evolving model of the person (context, what helps, style)
 ├── goals.md             agreed therapy goals (alliance: goal consensus)
 ├── todo.md              shared to-do-later list — status-grouped, session-tagged, person-editable (ADR-0018)
+├── keepsakes.md         passages kept verbatim — newest-first blockquotes, attributed, person-pulled (ADR-0023)
 ├── understanding.md     the working understanding — provisional, dated, correctable (ADR-0008)
 ├── people.md            relationship map (mermaid ecomap → genogram), non-judgmental (ADR-0010)
 ├── timeline.md          the life timeline — person-led, trauma-informed dated list (ADR-0014)
@@ -39,7 +40,7 @@ English/universal; **content is written in the person's language**.
 
 | Layer | Files | Who reads it | Default |
 |---|---|---|---|
-| **Working memory** | `person.md`, `goals.md`, `todo.md`, `understanding.md`, `people.md`, `timeline.md`, `themes.md`, `themes/*`, `safety.md`, `*.summary.md`, `MEMORY.md` | Claudia, via `recall`, every session | on |
+| **Working memory** | `person.md`, `goals.md`, `todo.md`, `keepsakes.md`, `understanding.md`, `people.md`, `timeline.md`, `themes.md`, `themes/*`, `safety.md`, `*.summary.md`, `MEMORY.md` | Claudia, via `recall`, every session | on |
 | **Person's archive** | `*.transcript.md` (`.jsonl` fallback), `<stem>.assets/*` | the person (via `/export`); **not** Claudia in routine | on (opt-out via `config.json`) |
 
 ## Invariants
@@ -54,6 +55,12 @@ English/universal; **content is written in the person's language**.
   rebuilt deterministically; **`recall` reads the sources, never the mirror**. It only
   transcludes or links (never summarises), omits `safety.md` entirely, and is refusable
   via `config.json` (ADR-0019).
+- **`keepsakes.md` is working-layer, but not recall-read** — it is the one working
+  file held **verbatim** (ADR-0023), and it is *pulled*: by the person re-reading it,
+  by `/keep` writing to it, by the dashboard mirroring its top entry, by `quiz` when
+  the person wants to drill it. It never enters an opening — a greeting that quotes a
+  past session back at someone is a recital. The floor is unchanged: no means/methods
+  on a kept line, ever.
 - **Recall reads the working layer only** — never a raw transcript (context
   economy, avoid re-exposing crisis content, limit dependency). See `recall`.
 - **Summaries are distilled, never verbatim**, and respect the safety floor (no
@@ -78,6 +85,10 @@ English/universal; **content is written in the person's language**.
 - `todo` skill → `todo.md` (the shared to-do-later list): the persona reaches for it
   live to add/tick items; `distill-session` **authoritatively tags** them (it holds the
   session stem); `recall` reads it; the person hand-edits it (ADR-0018).
+- `keep` skill → `keepsakes.md` (the passages kept verbatim): the person pulls `/keep`
+  (or says "garde ça") and it prepends the blockquote; `distill-session` completes the
+  session tag on any live entry that lacked the stem; the person edits or deletes
+  entries by hand (ADR-0023).
 - `understand` skill → `understanding.md` (the working understanding).
 - `relationships` skill → `people.md` (the relationship map).
 - `timeline` skill → `timeline.md` (the life timeline).

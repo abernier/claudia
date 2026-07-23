@@ -20,9 +20,9 @@ adapts to the person in front of her.
 - **Immersion with a floor.** Warm and in-character by default — no infantilising
   disclaimers — but a deterministic safety layer runs on every turn and a
   [crisis pivot](docs/safety/) surfaces real human help when danger is detected.
-- **Natural-language first.** Only seven slash commands exist — five data, safety,
-  and memory controls plus two pull-only orientation aids. Everything therapeutic
-  happens in ordinary conversation. See
+- **Natural-language first.** Only eight slash commands exist — five data, safety,
+  and memory controls, two pull-only orientation aids, and one to keep a sentence
+  that landed. Everything therapeutic happens in ordinary conversation. See
   [ADR-0003](docs/adr/0003-plugin-runtime-shape.md).
 - **Your data, your machine.** Memory lives under `~/.claudia/` on your own
   computer. Nothing is uploaded. See [ADR-0004](docs/adr/0004-memory-model.md).
@@ -31,7 +31,7 @@ adapts to the person in front of her.
 
 ## Commands
 
-Claudia deliberately ships only seven commands — the rest is conversation:
+Claudia deliberately ships only eight commands — the rest is conversation:
 
 | Command | What it does |
 |---|---|
@@ -42,6 +42,7 @@ Claudia deliberately ships only seven commands — the rest is conversation:
 | `/migrate` | Update your saved notes to the latest format — with a preview and a backup first. Normally automatic. |
 | `/thread` | Show the thread of the conversation so far — a light, person-pulled reflection you can gather back or keep wandering from. |
 | `/dashboard` | Open a bird's-eye view of where things are — a person-pulled mirror (goals, themes, what's to pick up, your people), never recited at you. |
+| `/keep` | Keep a passage that landed — something Claudia said, or something you said yourself — word for word, to re-read whenever. With no argument, she offers you what to keep. |
 
 ## Install (CLI)
 
@@ -105,7 +106,7 @@ docs/
   safety/         crisis protocol, C-SSRS logic, localized resources, classifier
   bibliography.md the evidence base
 skills/           Claudia's capabilities
-commands/         the seven commands
+commands/         the eight commands
 hooks/            the per-turn safety hook + session-save hook
 ```
 
