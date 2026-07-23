@@ -11,6 +11,7 @@
  * same runner as benign background upkeep.
  */
 import * as m0001 from "./0001-wikilinks-to-relative.mjs";
+import * as m0002 from "./0002-vault-frontmatter.mjs";
 
 /**
  * One vault migration, as exported by an `NNNN-<slug>.mjs` module.
@@ -21,4 +22,4 @@ import * as m0001 from "./0001-wikilinks-to-relative.mjs";
  */
 
 /** @type {ReadonlyArray<Migration>} */
-export const migrations = [m0001];
+export const migrations = [m0001, m0002];

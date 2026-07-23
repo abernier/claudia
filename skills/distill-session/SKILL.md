@@ -6,8 +6,34 @@ allowed-tools: Read Write Bash
 
 # Distill a session
 
-Produce `~/.claudia/sessions/<date>.summary.md` — the memory that future
+Produce `~/.claudia/sessions/<stem>.summary.md` — the memory that future
 conversations actually read.
+
+## The frontmatter — you write half of it
+
+The block splits in two, and only one half is yours:
+
+```yaml
+---
+type: session                     # ┐
+session: 2026-07-21-9113d5d7      # │ identity — NOT yours. Stamped by
+dates: [2026-07-21, 2026-07-22]   # ┘ finish-distillation.mjs. Don't write these.
+people: [Liliana]                 # ┐ judgment — only you can know these.
+themes: [the inner critic]        # ┘
+---
+```
+
+**Write `people:` and `themes:`, and nothing else.** Everything above them is derived
+from the transcript by code and stamped when you close the distillation below — so you
+never have to reconstruct a stem or work out which days a conversation touched.
+
+- **`people:`** — those the person actually talked *about* this session, by the name
+  their fiche uses (`people/<name>.md`), so the graph points both ways.
+- **`themes:`** — **ratified** threads only, never a candidate. A thread the person has
+  not yet recognised as theirs stays in the body, phrased as a question (ADR-0015).
+- **No safety key, ever.** If a flag was raised, it belongs in the body and in
+  `safety.md` — never as a searchable facet of the file (ADR-0019 omits safety from the
+  dashboard for the same reason).
 
 ## What a good summary holds
 
@@ -39,12 +65,24 @@ conversations actually read.
   can be present even when a `<stem>.summary.md` already exists, meaning the session was
   *resumed* since — refresh the existing summary rather than starting blank.
 
-Either way, after writing `<stem>.summary.md`, **clear the marker** so the state
-machine closes:
+Either way, after writing `<stem>.summary.md`, **close the distillation**:
 
 ```bash
-rm -f "$HOME/.claudia/sessions/<stem>.pending-summary"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/finish-distillation.mjs" "<stem>" \
+  sessions/exercises/<date>-<slug>.md   # any exercise/teaching this session wrote
 ```
+
+That one command stamps the identity frontmatter onto the summary you just wrote *and*
+clears the marker, in that order — so a summary is never left un-identified, and a
+session is never marked done without one. It is silent when it works. If it says there
+is no summary, the file was not written where it expected: fix that and run it again
+rather than deleting the marker by hand.
+
+Pass the vault-relative path of every **exercise or teaching this session produced**
+(none is fine — usually there are none). [`exercise`](../exercise/SKILL.md) and
+[`teach`](../teach/SKILL.md) deliberately leave their `session:` key unwritten, because
+mid-conversation the stem does not exist yet; this is where it gets filled in, with the
+real one. You supply the path, the script supplies the identity.
 
 ## Rules
 
@@ -52,7 +90,7 @@ rm -f "$HOME/.claudia/sessions/<stem>.pending-summary"
   and kind.
 - **Person's language.** Write it in the language the conversation happened in.
 - **Respect the floor.** No verbatim harmful content (ADR-0004).
-- The verbatim `<date>.transcript.md` is saved separately by the `SessionEnd` hook
+- The verbatim `<stem>.transcript.md` is saved separately by the `SessionEnd` hook
   (`save-session.mjs`) — that is the person's archive, not this.
 
 Then **sync `~/.claudia/todo.md`** via `todo` (ADR-0018). This is the *authoritative*

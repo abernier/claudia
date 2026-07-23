@@ -6,6 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { migrations } from "../src/migrations/index.mjs";
 import { migrate, id } from "../src/migrations/0001-wikilinks-to-relative.mjs";
+import { migrate as migrate0002, id as id0002 } from "../src/migrations/0002-vault-frontmatter.mjs";
 import { runMigrations } from "../scripts/migrate-vault.mjs";
 
 // A compact fixture vault exercising every resolution branch.
@@ -31,9 +32,11 @@ describe("migration registry", () => {
       expect(typeof m.migrate).toBe("function");
     }
   });
-  it("registers 0001 first", () => {
+  it("registers them in ledger order", () => {
     expect(migrations[0]!.id).toBe("0001-wikilinks-to-relative");
     expect(id).toBe("0001-wikilinks-to-relative");
+    expect(migrations[1]!.id).toBe("0002-vault-frontmatter");
+    expect(id0002).toBe("0002-vault-frontmatter");
   });
 });
 
@@ -91,6 +94,91 @@ describe("0001 — wikilinks → relative links", () => {
   });
 });
 
+// The real drift this migration was written for: two summaries with no block at all,
+// a `session:` meaning the bare id here and the full stem there, and exercise stems
+// pointing at sessions that never existed.
+const drifted = (): Record<string, string> => ({
+  "sessions/2026-07-21-9113d5d7.summary.md":
+    "---\ntype: session\nsession: 9113d5d7\ndates: [2026-07-21, 2026-07-22]\npeople: [Liliana]\n---\n\n# Séance\n\nLe fil.\n",
+  "sessions/2026-07-23-042d64f7.summary.md": "# Séance — 2026-07-23 (042d64f7)\n\nSéance courte.\n",
+  "sessions/2026-07-21-9113d5d7.transcript.md": "verbatim, never rewritten\n",
+  "sessions/exercises/2026-07-22-un-sentiment.md":
+    "---\ntype: exercise\ncreated: 2026-07-22\nslug: un-sentiment\nsession: 2026-07-22-9113d5d7\n---\n\n# Un sentiment\n",
+  "sessions/exercises/2026-07-23-prediction.md": "# Prédiction ≠ verdict\n",
+  "person.md": "---\ntype: person-model\nlast_reflected: 2026-07-22\n---\nnot this migration's business\n",
+});
+
+describe("0002 — identity frontmatter", () => {
+  it("gives a summary that had no block one derived from its filename", () => {
+    const out = migrate0002(drifted());
+    expect(out["sessions/2026-07-23-042d64f7.summary.md"]).toBe(
+      "---\ntype: session\nsession: 2026-07-23-042d64f7\ndates: [2026-07-23]\n---\n# Séance — 2026-07-23 (042d64f7)\n\nSéance courte.\n"
+    );
+  });
+
+  it("closes the `session:` ambiguity — the bare id becomes the stem", () => {
+    const out = migrate0002(drifted());
+    expect(out["sessions/2026-07-21-9113d5d7.summary.md"]).toContain("session: 2026-07-21-9113d5d7");
+  });
+
+  it("never rewrites a `dates:` the distiller wrote — a session can span midnight", () => {
+    const out = migrate0002(drifted());
+    expect(out["sessions/2026-07-21-9113d5d7.summary.md"]).toContain("dates: [2026-07-21, 2026-07-22]");
+  });
+
+  it("leaves the judgment half and the body byte-identical", () => {
+    const out = migrate0002(drifted());
+    const next = out["sessions/2026-07-21-9113d5d7.summary.md"]!;
+    expect(next).toContain("people: [Liliana]");
+    expect(next.endsWith("---\n\n# Séance\n\nLe fil.\n")).toBe(true);
+  });
+
+  it("repairs a dead deliverable stem through its short id", () => {
+    const out = migrate0002(drifted());
+    // 2026-07-22-9113d5d7 never existed; 9113d5d7 was first seen on the 21st.
+    expect(out["sessions/exercises/2026-07-22-un-sentiment.md"]).toContain("session: 2026-07-21-9113d5d7");
+  });
+
+  it("resolves a bare short id in a deliverable too", () => {
+    const files = { ...drifted(), "sessions/exercises/x.md": "---\nsession: 9113d5d7\n---\n" };
+    expect(migrate0002(files)["sessions/exercises/x.md"]).toContain("session: 2026-07-21-9113d5d7");
+  });
+
+  it("never guesses: an ambiguous or unknown short id is left alone", () => {
+    const ambiguous = {
+      "sessions/2026-07-21-abc.summary.md": "---\n---\n",
+      "sessions/2026-07-22-abc.summary.md": "---\n---\n",
+      "sessions/exercises/2026-07-23-e.md": "---\ntype: exercise\ncreated: 2026-07-23\nslug: e\nsession: 2026-07-30-abc\n---\n",
+    };
+    expect(migrate0002(ambiguous)["sessions/exercises/2026-07-23-e.md"]).toBeUndefined();
+    const unknown = { "sessions/exercises/2026-07-23-e.md": "---\ntype: exercise\ncreated: 2026-07-23\nslug: e\nsession: 2026-07-30-zzz\n---\n" };
+    expect(migrate0002(unknown)).toEqual({});
+  });
+
+  it("does not invent a `session:` for a deliverable that has none", () => {
+    const out = migrate0002(drifted());
+    const next = out["sessions/exercises/2026-07-23-prediction.md"]!;
+    expect(next).toBe("---\ntype: exercise\ncreated: 2026-07-23\nslug: prediction\n---\n# Prédiction ≠ verdict\n");
+    expect(next).not.toContain("session:");
+  });
+
+  it("owns only summaries and deliverables — the transcript and root notes are untouched", () => {
+    const out = migrate0002(drifted());
+    expect(out["sessions/2026-07-21-9113d5d7.transcript.md"]).toBeUndefined();
+    expect(out["person.md"]).toBeUndefined();
+  });
+
+  it("refuses to touch a block whose fence never closes", () => {
+    expect(migrate0002({ "sessions/2026-07-21-abc.summary.md": "---\ntype: session\n\n# oops\n" })).toEqual({});
+  });
+
+  it("is idempotent — a second pass yields no changes", () => {
+    const files = drifted();
+    const applied = { ...files, ...migrate0002(files) };
+    expect(migrate0002(applied)).toEqual({});
+  });
+});
+
 describe("runMigrations() — the fs runner", () => {
   const parents: string[] = [];
   afterEach(async () => {
@@ -143,8 +231,8 @@ describe("runMigrations() — the fs runner", () => {
     expect(/\[\[/.test(await read(root, "people/Liliana.md"))).toBe(false);
     // transcript untouched
     expect(await read(root, "sessions/2026-07-21-abc.transcript.md")).toBe("verbatim [[Liliana]] stays\n");
-    // ledger + backup
-    expect((await read(root, ".migrations")).trim()).toBe("0001-wikilinks-to-relative");
+    // ledger + backup — every migration it ran is recorded, in registry order
+    expect((await read(root, ".migrations")).trim().split("\n")).toEqual(migrations.map((m) => m.id));
     expect(r.backup).toBeTruthy();
     expect(await read(r.backup!, "MEMORY.md")).toContain("[[Liliana]]"); // backup keeps the original (`!` safe: toBeTruthy above)
   });
@@ -162,7 +250,7 @@ describe("runMigrations() — the fs runner", () => {
     const r = await runMigrations({ root });
     expect(r.status).toBe("nochange");
     expect(r.backup).toBeNull();
-    expect((await read(root, ".migrations")).trim()).toBe("0001-wikilinks-to-relative");
+    expect((await read(root, ".migrations")).trim().split("\n")).toEqual(migrations.map((m) => m.id));
     // no backup sibling was created
     const siblings = await fs.readdir(parent);
     expect(siblings.some((s) => s.startsWith(".claudia.bak-"))).toBe(false);

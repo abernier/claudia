@@ -8,6 +8,7 @@ import {
   sessionIdFrom,
   renderMarkdown,
   resolveTranscriptPath,
+  sessionDays,
 } from "../src/session.mjs";
 import type { ContentBlock } from "../src/session.mjs";
 
@@ -148,6 +149,41 @@ describe("renderMarkdown()", () => {
     const { markdown, images } = renderMarkdown(userMsg([imageBlock()]), "2026-07-21");
     expect(markdown).toContain("**You:**");
     expect(images).toHaveLength(1);
+  });
+});
+
+describe("sessionDays()", () => {
+  // Envelope form, as the real JSONL writes it: the instant sits on the envelope.
+  const at = (type: string, timestamp: string) => JSON.stringify({ type, timestamp, message: { role: type, content: "hi" } });
+  const PARIS = "Europe/Paris"; // UTC+2 in July
+
+  it("returns the local days a conversation touched, ascending and deduplicated", () => {
+    const jsonl = [at("user", "2026-07-21T09:00:00Z"), at("assistant", "2026-07-21T09:00:05Z")].join("\n");
+    expect(sessionDays(jsonl, PARIS)).toEqual(["2026-07-21"]);
+  });
+
+  it("yields both days when the conversation crosses LOCAL midnight", () => {
+    // 22:30Z and 23:30Z are 00:30 and 01:30 the next day in Paris.
+    const jsonl = [at("user", "2026-07-21T20:00:00Z"), at("assistant", "2026-07-21T22:30:00Z")].join("\n");
+    expect(sessionDays(jsonl, PARIS)).toEqual(["2026-07-21", "2026-07-22"]);
+  });
+
+  it("is zone-correct — the same instant is a different day elsewhere", () => {
+    const jsonl = at("user", "2026-07-21T21:06:33.797Z");
+    expect(sessionDays(jsonl, PARIS)).toEqual(["2026-07-21"]);
+    expect(sessionDays(jsonl, "Pacific/Auckland")).toEqual(["2026-07-22"]);
+  });
+
+  it("counts only the turns renderMarkdown renders", () => {
+    // An attachment stamped on a later day must not invent a day of conversation.
+    const jsonl = [at("user", "2026-07-21T09:00:00Z"), at("attachment", "2026-07-25T09:00:00Z")].join("\n");
+    expect(sessionDays(jsonl, PARIS)).toEqual(["2026-07-21"]);
+  });
+
+  it("skips what it cannot date, and yields [] when nothing is datable", () => {
+    const jsonl = ["not json", at("user", "not-a-date"), JSON.stringify({ type: "user", message: { role: "user" } })].join("\n");
+    expect(sessionDays(jsonl, PARIS)).toEqual([]);
+    expect(sessionDays("", PARIS)).toEqual([]);
   });
 });
 

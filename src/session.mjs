@@ -6,6 +6,7 @@
  */
 
 import path from "node:path";
+import { localDay, zonedParts } from "./time.mjs";
 
 /**
  * Claude Code encodes a project dir by replacing "/" and "." with "-".
@@ -131,6 +132,7 @@ export const CLAUDIA_ACTIVATION = /Base directory for this skill:[^\n]*\/skills\
  * @property {{ role?: string, content?: string | ContentBlock[] }} [message]  envelope form
  * @property {string} [role]  flat form
  * @property {string | ContentBlock[]} [content]  flat form
+ * @property {string} [timestamp]  ISO-8601 instant the entry was recorded (envelope form only)
  */
 
 /**
@@ -152,6 +154,49 @@ export function isClaudiaSession(jsonl) {
     if (CLAUDIA_ACTIVATION.test(textFromContent(msg.content))) return true;
   }
   return false;
+}
+
+/**
+ * The LOCAL calendar days a conversation touched, ascending and deduplicated — the
+ * `dates:` a session summary carries.
+ *
+ * This is a **fact, computed**, not something the model should be asked to recall: the
+ * JSONL stamps every entry with an ISO instant, so a conversation that ran past
+ * midnight (or was resumed the next afternoon) yields both days exactly. One file per
+ * session means one summary can legitimately span days (ADR-0017), which is why the
+ * field is a list and not a single date.
+ *
+ * Local, never UTC, for the reason ADR-0012 gives: at the edges of a day UTC names the
+ * wrong one outright. The zone is passed in — no hidden clock, no hidden locale.
+ *
+ * Counts the same entries `renderMarkdown` renders (user and assistant turns), so the
+ * days reported are the days the transcript actually shows. Entries with no usable
+ * timestamp are skipped; a transcript with none at all yields `[]`, and callers fall
+ * back to the stem's date.
+ *
+ * @param {string} jsonl  raw JSONL transcript contents
+ * @param {string} timeZone  IANA zone name (e.g. "Europe/Paris")
+ * @returns {string[]} `YYYY-MM-DD`, ascending; empty when nothing was datable
+ */
+export function sessionDays(jsonl, timeZone) {
+  /** @type {Set<string>} */
+  const days = new Set();
+  for (const line of String(jsonl || "").split("\n").filter(Boolean)) {
+    let e;
+    try {
+      e = /** @type {TranscriptEntry} */ (JSON.parse(line));
+    } catch {
+      continue;
+    }
+    const msg = e.message || e;
+    const role = msg.role || e.type;
+    if (role !== "user" && role !== "assistant") continue;
+    if (typeof e.timestamp !== "string") continue;
+    const at = new Date(e.timestamp);
+    if (Number.isNaN(at.getTime())) continue;
+    days.add(localDay(zonedParts(at, timeZone)));
+  }
+  return [...days].sort();
 }
 
 /**

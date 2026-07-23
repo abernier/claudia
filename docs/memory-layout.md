@@ -51,6 +51,17 @@ English/universal; **content is written in the person's language**.
   a root file (e.g. `timeline.md`) links a fiche as `[…](people/<name>.md)`. Wrap any
   path containing spaces in angle brackets — `[…](<themes/the inner critic.md>)`.
   `/export` copies notes verbatim, with no rewrite step.
+- **Every note opens with frontmatter, split in two: identity is derived, judgment is
+  written** (ADR-0025). `type` / `session` / `dates` / `created` / `slug` are stamped by
+  code (`scripts/finish-distillation.mjs`, from what `save-session` computed); the model
+  writes only `people` / `themes`. `session:` is the **stem** everywhere. Dates are
+  **days** (`YYYY-MM-DD`), never timestamps — a note says which day it concerns, not the
+  minute it was written (ADR-0012). There is **no safety key**: a flag lives in the body
+  and in `safety.md`, never as a searchable facet. Each block is specified by the skill
+  that writes it — summary → [`distill-session`](../skills/distill-session/SKILL.md),
+  exercise/teaching → [`exercise`](../skills/exercise/SKILL.md) /
+  [`teach`](../skills/teach/SKILL.md), theme → [`themes`](../skills/themes/SKILL.md),
+  fiche → [`person-fiche-template.md`](person-fiche-template.md).
 - **`dashboard.md` is a derived view, not a source** — a mirror of the files above,
   rebuilt deterministically; **`recall` reads the sources, never the mirror**. It only
   transcludes or links (never summarises), omits `safety.md` entirely, and is refusable
@@ -81,6 +92,11 @@ English/universal; **content is written in the person's language**.
   but is normally **deferred**: `recall` detects any `pending-summary` (via
   `scripts/pending-sessions.mjs`) and distills that session at the next open, then
   clears the marker (ADR-0016).
+- `scripts/finish-distillation.mjs` → stamps the identity frontmatter onto
+  `<stem>.summary.md` (and onto any exercise/teaching the session wrote), then clears the
+  `pending-summary` marker — in that order, so a summary is never left un-identified and a
+  session is never marked done without one (ADR-0025). Run by `distill-session` as its
+  closing step; it is what replaced a bare `rm -f`.
 - `remember` skill → `person.md`, `goals.md`, `safety.md`, `MEMORY.md`.
 - `todo` skill → `todo.md` (the shared to-do-later list): the persona reaches for it
   live to add/tick items; `distill-session` **authoritatively tags** them (it holds the

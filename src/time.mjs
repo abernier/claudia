@@ -66,6 +66,21 @@ export function zonedParts(date, timeZone) {
 const pad = (n) => String(n).padStart(2, "0");
 
 /**
+ * The LOCAL calendar day, `YYYY-MM-DD`.
+ *
+ * This is the granularity every dated field in the vault uses, on purpose: a note
+ * records which day it concerns, never the minute it was written. Claudia is exact
+ * about the hour *in the moment* and sober about the *record* — a per-minute trace of
+ * when someone talked would be surveillance, not presence (ADR-0012).
+ *
+ * @param {ZonedParts} parts
+ * @returns {string}
+ */
+export function localDay(parts) {
+  return `${parts.year}-${pad(parts.month)}-${pad(parts.day)}`;
+}
+
+/**
  * ISO-8601 with LOCAL offset — never UTC "Z", so no conversion step is implied.
  *
  * @param {ZonedParts} parts
@@ -75,7 +90,7 @@ export function isoWithOffset(parts) {
   const sign = parts.offsetMinutes >= 0 ? "+" : "-";
   const abs = Math.abs(parts.offsetMinutes);
   const off = `${sign}${pad(Math.floor(abs / 60))}:${pad(abs % 60)}`;
-  return `${parts.year}-${pad(parts.month)}-${pad(parts.day)}T${pad(parts.hour)}:${pad(parts.minute)}:${pad(parts.second)}${off}`;
+  return `${localDay(parts)}T${pad(parts.hour)}:${pad(parts.minute)}:${pad(parts.second)}${off}`;
 }
 
 /**

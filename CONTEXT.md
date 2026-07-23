@@ -191,6 +191,15 @@ _Avoid_: "dossier", "profile", "clinical record", "report", "case file" (it is a
 reflective mirror the person pulls, not a record kept *on* them); and any
 mood/progress "life chart".
 
+**Frontmatter contract**:
+The rule that a note's opening YAML block splits in two — **identity** (`type`,
+`session`, `dates`, `created`, `slug`), derived from the filename and the transcript and
+stamped by code, and **judgment** (`people`, `themes`), which only a reader of the
+conversation can write. Dates are days, never timestamps; `session:` is always the stem;
+there is no safety key. Defined in ADR-0025.
+_Avoid_: "metadata", "schema", "record fields" (these are the person's own notes, and
+the block is there so *their* files cross-link, not so a system can index them).
+
 **Migration**:
 A one-time, versioned upgrade of the person's saved notes to a newer format
 (`src/migrations/`, run by `scripts/migrate-vault.mjs`; `/migrate`). Idempotent,

@@ -39,3 +39,18 @@ never for the "does this fit?" above.
 Write the explainer to
 `~/.claudia/sessions/teachings/<date>-<slug>.md`, in the **person's language**
 (the filename is English; the content is theirs). Offer it; don't impose it.
+
+Open it with the block below — the three keys the filename already gives you:
+
+```yaml
+---
+type: teaching
+created: 2026-07-23
+slug: anxiety-cycle
+---
+```
+
+**Never write a `session:` key here** — mid-conversation the session's stem does not
+exist yet (it is minted at close, ADR-0017), so any value would be invented.
+`distill-session` adds it at close, when the stem is real. Same rule as
+[`exercise`](../exercise/SKILL.md).

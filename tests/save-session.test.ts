@@ -53,6 +53,34 @@ describe("save-session (SessionEnd hook) — deferred-distillation dirty flag", 
     expect(marker).toContain("needs distillation");
   });
 
+  it("the marker carries the identity frontmatter, dates computed from the transcript", async () => {
+    const home = await fs.mkdtemp(path.join(os.tmpdir(), "claudia-home-"));
+    tmps.push(home);
+    const transcript = path.join(home, "session.jsonl");
+    // Two turns 26 hours apart: the days are a FACT in the transcript, not a guess.
+    await fs.writeFile(
+      transcript,
+      line({
+        type: "user",
+        timestamp: "2026-07-21T09:00:00Z",
+        message: { role: "user", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia" },
+      }) +
+        line({ type: "assistant", timestamp: "2026-07-22T11:00:00Z", message: { role: "assistant", content: [{ type: "text", text: "Bonjour." }] } })
+    );
+
+    const sessionId = "abcdef12-3456-7890-abcd-ef1234567890";
+    const stem = `${stamp}-${sessionId.slice(0, 8)}`;
+    const r = spawnSync(process.execPath, [script], {
+      encoding: "utf8",
+      input: JSON.stringify({ session_id: sessionId, transcript_path: transcript }),
+      env: { ...process.env, HOME: home, TZ: "Europe/Paris" },
+    });
+
+    expect(r.status).toBe(0);
+    const marker = await fs.readFile(path.join(home, ".claudia", "sessions", `${stem}.pending-summary`), "utf8");
+    expect(marker).toBe(`---\ntype: session\nsession: ${stem}\ndates: [2026-07-21, 2026-07-22]\n---\nneeds distillation — see ADR-0016 (flagged ${stamp})\n`);
+  });
+
   it("writes no marker for a non-Claudia session (the gate precedes the flag)", async () => {
     const home = await fs.mkdtemp(path.join(os.tmpdir(), "claudia-home-"));
     tmps.push(home);

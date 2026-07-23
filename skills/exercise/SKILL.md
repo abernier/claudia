@@ -39,6 +39,23 @@ or you'd be guessing at the options, just ask in your own words.
 Write to `~/.claudia/sessions/exercises/<date>-<slug>.md`, in the **person's
 language**. Check next time how it went — gently.
 
+Open the file with the block below — the three keys you can read off the filename you
+just chose:
+
+```yaml
+---
+type: exercise
+created: 2026-07-23
+slug: prediction-nest-pas-verdict
+---
+```
+
+**Never write a `session:` key here.** Mid-conversation the session's stem does not
+exist yet — it is minted at close (ADR-0017) — so any value you write is invented, and
+inventing one is exactly how the vault ended up with exercises pointing at sessions
+that never happened. `distill-session` adds it at close, when the stem is real; it is
+the same deferral that already tags `todo.md` items and keepsakes.
+
 Once they've worked it, its lesson is worth *consolidating*: offer
 [`quiz`](../quiz/SKILL.md) later — retrieval practice makes it stick far better than
 re-reading (the testing effect). The exercise *creates* the material; the quiz helps

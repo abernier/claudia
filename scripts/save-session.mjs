@@ -15,7 +15,8 @@
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { resolveTranscriptPath, isClaudiaSession, renderMarkdown, sessionIdFrom } from "../src/session.mjs";
+import { resolveTranscriptPath, isClaudiaSession, renderMarkdown, sessionIdFrom, sessionDays } from "../src/session.mjs";
+import { stampIdentity } from "../src/frontmatter.mjs";
 
 /**
  * Shape of ~/.claudia/config.json (external boundary — the person edits this by
@@ -125,8 +126,22 @@ async function main() {
     // most. `recall` distills at the next open and clears the marker — so a
     // session resumed after it was distilled is re-distilled, and its stale
     // summary refreshed.
+    // The marker also CARRIES the session's identity frontmatter. These keys are facts
+    // this hook holds and the model would only be guessing at: `dates` comes from the
+    // transcript's own timestamps, so a conversation that ran past midnight reports
+    // both days exactly. `distill-session` writes the judgment half (`people`,
+    // `themes`) and `finish-distillation.mjs` stamps this block onto the summary, so
+    // identity is never re-improvised. `src/pending.mjs` keys on the marker's
+    // EXISTENCE alone, so this content is free.
+    // A transcript with no usable timestamps falls back to the stem's own date — the
+    // same rule migration 0002 applies, so both agree on the degenerate case.
+    const days = sessionDays(jsonl, Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
+    const identity = { type: "session", session: stem, dates: days.length ? days : [/^\d{4}-\d{2}-\d{2}/.exec(stem)?.[0] ?? stamp] };
     await fs
-      .writeFile(path.join(sessionsDir, `${stem}.pending-summary`), `needs distillation (${stamp})\n`)
+      .writeFile(
+        path.join(sessionsDir, `${stem}.pending-summary`),
+        stampIdentity(`needs distillation — see ADR-0016 (flagged ${stamp})\n`, identity)
+      )
       .catch(() => {});
 
     // Images the person pasted live inline in the JSONL as base64. renderMarkdown

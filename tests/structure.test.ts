@@ -435,6 +435,51 @@ describe("the choice UI (ADR-0024)", () => {
   });
 });
 
+describe("frontmatter contract (ADR-0025)", () => {
+  it("ships the ADR, the pure module, the closing script, and the repair migration", () => {
+    expect(existsSync(path.join(root, "docs/adr/0025-frontmatter-contract.md"))).toBe(true);
+    expect(existsSync(path.join(root, "src/frontmatter.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "scripts/finish-distillation.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "src/migrations/0002-vault-frontmatter.mjs"))).toBe(true);
+  });
+
+  it("identity is stamped by code — distill-session runs the script, never a bare rm", () => {
+    const skill = readFileSync(path.join(root, "skills/distill-session/SKILL.md"), "utf8");
+    expect(/finish-distillation\.mjs/.test(skill), "distill-session must close via the script").toBe(true);
+    expect(/rm -f[^\n]*pending-summary/.test(skill), "the bare rm -f must be gone — it was the enforcement point").toBe(false);
+  });
+
+  it("the model is told it writes only the judgment half", () => {
+    const skill = readFileSync(path.join(root, "skills/distill-session/SKILL.md"), "utf8");
+    expect(/people:/.test(skill) && /themes:/.test(skill)).toBe(true);
+    expect(/ratified/i.test(skill), "themes: must be ratified threads only (ADR-0015)").toBe(true);
+    expect(/[Nn]o safety key/.test(skill), "no safety facet in frontmatter (ADR-0019 symmetry)").toBe(true);
+  });
+
+  it("deliverables never invent a stem — the value comes from the close", () => {
+    for (const s of ["skills/exercise/SKILL.md", "skills/teach/SKILL.md"]) {
+      const skill = readFileSync(path.join(root, s), "utf8");
+      expect(/type: (exercise|teaching)/.test(skill), `${s} should show its block`).toBe(true);
+      expect(/[Nn]ever write a `?session:`? key/.test(skill), `${s} must forbid inventing a stem`).toBe(true);
+    }
+  });
+
+  it("writing is conservative — a block it cannot read is left untouched", () => {
+    const mod = readFileSync(path.join(root, "src/frontmatter.mjs"), "utf8");
+    expect(/malformed/.test(mod)).toBe(true);
+    expect(/export function stampIdentity/.test(mod)).toBe(true);
+    expect(/export function serializeFrontmatter/.test(mod), "a general serializer would defeat the line-surgery guarantee").toBe(false);
+  });
+
+  it("dates stay day-grained, and the layout records the contract", () => {
+    expect(/export function localDay/.test(readFileSync(path.join(root, "src/time.mjs"), "utf8"))).toBe(true);
+    const layout = readFileSync(path.join(root, "docs/memory-layout.md"), "utf8");
+    expect(/ADR-0025/.test(layout)).toBe(true);
+    expect(/never timestamps/.test(layout)).toBe(true);
+    expect(/\*\*Frontmatter contract\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
+  });
+});
+
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));
