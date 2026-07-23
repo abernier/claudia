@@ -595,9 +595,14 @@ describe("documentation links resolve", () => {
     const broken: string[] = [];
     for (const f of mdFiles) {
       // Strip code (fenced + inline) so example link-syntax isn't link-checked.
+      // Code spans must pair by backtick-run length (CommonMark): a span opened with
+      // N backticks closes on a run of exactly N. The naive /`[^`]*`/ mis-paired on a
+      // span *containing* a longer run — the CHANGELOG's inline ` ```mermaid ` — and
+      // every link after it in the file silently lost its code-span shield, surfacing
+      // documented `~/.claudia/` paths (`Marie.md`) as broken repo links.
       const txt = readFileSync(f, "utf8")
         .replace(/```[\s\S]*?```/g, "")
-        .replace(/`[^`]*`/g, "");
+        .replace(/(`+)[\s\S]*?(?<!`)\1(?!`)/g, "");
       let m: RegExpExecArray | null;
       while ((m = linkRe.exec(txt))) {
         const target = m[1]!;
