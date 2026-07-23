@@ -25,12 +25,14 @@ sessions as `sessions/<stem>.summary.md`:
 
 ```markdown
 ## Childhood
+
 - **1998** — born in Lyon.
-- **~age 9** — my parents divorced. *valence:* hard → [Papa](people/Papa.md), [Maman](people/Maman.md) · [2026-07-22](sessions/2026-07-22-4f0ac1e2.summary.md)
+- **~age 9** — my parents divorced. _valence:_ hard → [Papa](people/Papa.md), [Maman](people/Maman.md) · [2026-07-22](sessions/2026-07-22-4f0ac1e2.summary.md)
 
 ## Twenties
-- **2019** — I lost my father. *sensitive* → [Papa](people/Papa.md)
-- **2021** — moved to Paris for a new job. *valence:* hopeful
+
+- **2019** — I lost my father. _sensitive_ → [Papa](people/Papa.md)
+- **2021** — moved to Paris for a new job. _valence:_ hopeful
 ```
 
 Per event: flexible **date** (exact / year / age / "the hard year" / undated is

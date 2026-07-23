@@ -13,6 +13,8 @@ conversations actually read.
 
 The block splits in two, and only one half is yours:
 
+<!-- the bracket art is what teaches the identity/judgment split -->
+<!-- prettier-ignore -->
 ```yaml
 ---
 type: session                     # ┐

@@ -16,6 +16,8 @@ A dedicated `UserPromptSubmit` hook (`scripts/time-context.mjs`, pure logic in
 `src/time.mjs`) injects, **every turn**, the authoritative local time and the gap
 since the person last spoke with Claudia:
 
+<!-- the payload is compact on purpose — it reads as one object -->
+<!-- prettier-ignore -->
 ```json
 { "now": "2026-07-22T07:45:00+02:00", "zone": "Europe/Paris",
   "weekday": "Wednesday", "part_of_day": "morning",

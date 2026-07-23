@@ -48,8 +48,8 @@ with spaces in angle brackets):
 ```markdown
 # Themes
 
-- **[the inner critic](<themes/the inner critic.md>)** — the voice that says it was never enough · *open* → [Liliana](people/Liliana.md), [2026-07-21](sessions/2026-07-21-9113d5d7.summary.md)
-- **[what steadies me](<themes/what steadies me.md>)** — walking first thing, and Marie · *resource* → [Marie](people/Marie.md)
+- **[the inner critic](<themes/the inner critic.md>)** — the voice that says it was never enough · _open_ → [Liliana](people/Liliana.md), [2026-07-21](sessions/2026-07-21-9113d5d7.summary.md)
+- **[what steadies me](<themes/what steadies me.md>)** — walking first thing, and Marie · _resource_ → [Marie](people/Marie.md)
 ```
 
 Status: `open` / `quiet` / `eased`, or `resource` for a strength thread. A thread
@@ -74,12 +74,15 @@ people: [Liliana]
 > In my words: the voice that says whatever I did wasn't enough.
 
 ## Where it shows
+
 - 2026-07-21 — right after the dinner with Liliana. → [2026-07-21](../sessions/2026-07-21-9113d5d7.summary.md)
 
 ## Exceptions / what helps
+
 - The days I walk first thing, it's quieter. → [what steadies me](<what steadies me.md>)
 
 ## Tentative reflection (mine to correct)
+
 - It seems loudest just after I've tried to speak up.
 ```
 

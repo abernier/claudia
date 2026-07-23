@@ -8,6 +8,8 @@ the third party. See [ADR-0011](adr/0011-person-fiches.md) and
 
 ## Structure
 
+<!-- the aligned comment column is what makes this template readable -->
+<!-- prettier-ignore -->
 ```markdown
 ---
 type: person

@@ -41,7 +41,7 @@ Newest first, one blockquote per keepsake:
 > Dire non à ma sœur, ce n'était pas la trahir.
 >
 > — moi · [2026-07-19-4f0ac1e2](sessions/2026-07-19-4f0ac1e2.summary.md)
-> *ce que ça me fait : je peux tenir la limite sans être méchante.*
+> _ce que ça me fait : je peux tenir la limite sans être méchante._
 ```
 
 - **Prepend** — the newest goes on top, under the title.
