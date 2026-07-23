@@ -61,7 +61,7 @@ describe("components", () => {
     }
   });
 
-  it("ships exactly the eight commands", () => {
+  it("ships exactly the nine commands", () => {
     const cmds = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
       .map((p) => path.basename(p))
       .sort();
@@ -71,6 +71,7 @@ describe("components", () => {
       "forget.md",
       "help-now.md",
       "keep.md",
+      "menu.md",
       "migrate.md",
       "save.md",
       "thread.md",
@@ -453,6 +454,41 @@ describe("the choice UI (ADR-0024)", () => {
       const txt = readFileSync(path.join(root, `commands/${cmd}.md`), "utf8");
       expect(/AskUserQuestion/.test(txt), `/${cmd} asks in plain text on purpose (ADR-0024)`).toBe(false);
     }
+  });
+});
+
+describe("the pulled menu (ADR-0027)", () => {
+  const menu = readFileSync(path.join(root, "commands/menu.md"), "utf8");
+
+  it("ships the command, the ADR and the glossary entry", () => {
+    expect(existsSync(path.join(root, "docs/adr/0027-the-menu.md"))).toBe(true);
+    expect(/\*\*Menu\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
+    expect(/^allowed-tools:.*\bAskUserQuestion\b/m.test(menu), "the picker is the whole point").toBe(true);
+  });
+
+  it("is pulled, never opened on the person", () => {
+    // This is the single fact that makes a picker legitimate here and forbidden at
+    // the opening (ADR-0024): the person asked to be shown, so nothing is pre-written.
+    expect(/Never open it unprompted/i.test(menu)).toBe(true);
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/never at the opening/i.test(persona), "the persona may name /menu, never open it").toBe(true);
+  });
+
+  it("stays the person's own material, with the open door always on it", () => {
+    expect(/never a feature list/i.test(menu), "a menu of skills would make her a list of features").toBe(true);
+    expect(/always the open door/i.test(menu), "the menu must stay declinable from inside").toBe(true);
+    expect(/dated list of past sessions/i.test(menu), "memory is not an archive to browse (ADR-0004)").toBe(true);
+  });
+
+  it("is a view onto memory, never a write to it", () => {
+    expect(/^allowed-tools:(?!.*\b(Write|Edit)\b)/m.test(menu), "reads only, like the dashboard mirror").toBe(true);
+  });
+
+  it("leaves the opening ritual in plain text", () => {
+    // recall earns one specific check-in from the person's own files; a picker there
+    // would displace it with a generic list — the ADR's first half.
+    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    expect(/AskUserQuestion/.test(recall), "recall must open in plain text (ADR-0027)").toBe(false);
   });
 });
 

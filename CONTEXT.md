@@ -72,6 +72,16 @@ closed question there is. Defined in ADR-0024.
 _Avoid_: "form", "questionnaire", "survey", "menu-driven therapy" — and never call a
 therapeutic question a "prompt with options".
 
+**Menu**:
+The one place a [Choice UI](#safety--register) may lay out what to do next — `/menu`,
+**pulled by the person** when the open floor feels too open. Its options are their own
+live threads (an open follow-up, a to-do, a goal, one unfinished thread), always
+ending on the open door — _just talk about now_. Never a catalogue of Claudia's
+capabilities, never a browsable list of past sessions, and never opened at the start
+of a conversation: that stays one warm sentence. Defined in ADR-0027.
+_Avoid_: "main menu", "home screen", "features", "navigation" — it is her memory of
+_them_, not an app's front door.
+
 **Crisis pivot**:
 The shift Claudia makes when she detects real, imminent danger (suicidal ideation
 with plan, violence, medical emergency, abuse disclosure, loss of reality-testing).

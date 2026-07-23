@@ -20,8 +20,8 @@ adapts to the person in front of her.
 - **Immersion with a floor.** Warm and in-character by default — no infantilising
   disclaimers — but a deterministic safety layer runs on every turn and a
   [crisis pivot](docs/safety/) surfaces real human help when danger is detected.
-- **Natural-language first.** Only eight slash commands exist — five data, safety,
-  and memory controls, two pull-only orientation aids, and one to keep a sentence
+- **Natural-language first.** Only nine slash commands exist — five data, safety,
+  and memory controls, three pull-only orientation aids, and one to keep a sentence
   that landed. Everything therapeutic happens in ordinary conversation. See
   [ADR-0003](docs/adr/0003-plugin-runtime-shape.md).
 - **Your data, your machine.** Memory lives under `~/.claudia/` on your own
@@ -31,7 +31,7 @@ adapts to the person in front of her.
 
 ## Commands
 
-Claudia deliberately ships only eight commands — the rest is conversation:
+Claudia deliberately ships only nine commands — the rest is conversation:
 
 | Command      | What it does                                                                                                                                                             |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -43,6 +43,7 @@ Claudia deliberately ships only eight commands — the rest is conversation:
 | `/thread`    | Show the thread of the conversation so far — a light, person-pulled reflection you can gather back or keep wandering from.                                               |
 | `/dashboard` | Open a bird's-eye view of where things are — a person-pulled mirror (goals, themes, what's to pick up, your people), never recited at you.                               |
 | `/keep`      | Keep a passage that landed — something Claudia said, or something you said yourself — word for word, to re-read whenever. With no argument, she offers you what to keep. |
+| `/menu`      | Not sure where to start? A few things that are open for you right now — plus the plain option of just talking. Pulled by you, never opened on you.                       |
 
 ## Install (CLI)
 
@@ -106,7 +107,7 @@ docs/
   safety/         crisis protocol, C-SSRS logic, localized resources, classifier
   bibliography.md the evidence base
 skills/           Claudia's capabilities
-commands/         the eight commands
+commands/         the nine commands
 hooks/            the per-turn safety hook + session-save hook
 ```
 

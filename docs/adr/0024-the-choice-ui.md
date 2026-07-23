@@ -63,6 +63,10 @@ the person tells me?_ If yes, it is exploration — ask openly.
 
 - [`/export`](../../commands/export.md) — the destination (default vs. elsewhere),
   with the auto-"Other" field carrying a free path.
+- [`/menu`](../../commands/menu.md) — the person asks to be shown what's open for
+  them; they are picking an activity, and they **pulled** the picker, so it
+  pre-writes nothing. The options are their own threads, never a capability list
+  (ADR-0027).
 - [`exercise`](../../skills/exercise/SKILL.md) and
   [`teach`](../../skills/teach/SKILL.md) — _may_ offer two or three candidates as
   options instead of prose. **May, never must**: the exercise skill's own rule is
@@ -85,6 +89,13 @@ the person tells me?_ If yes, it is exploration — ask openly.
 - **`intake`, `themes` ratification, `timeline` life-review, `relationships`' "did I
   get it right?", `understand`'s "does that fit?"** — all exploration, all open text,
   permanently.
+- **The _opening_ of a conversation keeps its one warm sentence.** A picker offered
+  before the person has said anything is this ADR's own test answered in the worst
+  place: it pre-writes what they came to say, it displaces the specific check-in
+  `recall` just earned, and a first turn spent clicking arrives as a tool result
+  rather than a prompt — so `safety-check.mjs`, which runs on `UserPromptSubmit`, has
+  nothing to read on the turn that matters most. The pulled [`/menu`](../../commands/menu.md)
+  is the sanctioned answer to the need underneath it (ADR-0027).
 
 **Operational shape** is already documented where it is used and is not restated
 here: see [`skills/quiz/SKILL.md`](../../skills/quiz/SKILL.md) — one question at a
