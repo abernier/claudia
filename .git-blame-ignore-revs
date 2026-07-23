@@ -1,0 +1,2 @@
+# Mass reformatting — not authorship. `git config blame.ignoreRevsFile .git-blame-ignore-revs`
+7c5de6d Apply Prettier across the repo
