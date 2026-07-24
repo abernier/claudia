@@ -14,7 +14,7 @@
   "skills.title": "SKILLS",
   "skills.subtitle": "Ce que le plugin embarque — chacune un SKILL.md lisible.",
   "skills.claudia.title": "intégrative",
-  "skills.claudia.description": "Le cœur du persona (la skill claudia) — chaleureux, immersif, généraliste. Centré-personne à la base ; CBT, ACT, entretien motivationnel, orientation solutions et pleine conscience en boîte à outils, ouverte quand c'est indiqué.",
+  "skills.claudia.description": "Le cœur du persona (la skill claudia) — reste dans son rôle, périmètre généraliste. Centré-personne à la base ; CBT, ACT, entretien motivationnel, orientation solutions et pleine conscience en boîte à outils, ouverte quand c'est indiqué.",
   "skills.memory.title": "recall · remember · distill-session",
   "skills.memory.description": "Le cycle mémoire — la continuité chargée à l'ouverture, le modèle de la personne tenu à jour en chemin, une synthèse distillée écrite à la fermeture.",
   "skills.consult.title": "consult",
@@ -30,7 +30,7 @@
   "design.relationship.title": "Facteurs communs",
   "design.relationship.description": "La recherche est nette : la relation pèse plus que n'importe quelle technique (Wampold, 2015). Le cœur toujours actif est donc relationnel, et les techniques restent une boîte à outils — CBT, ACT, entretien motivationnel, orientation solutions, pleine conscience et auto-compassion — ouverte quand c'est indiqué.",
   "design.immersion.title": "Hooks déterministes",
-  "design.immersion.description": "Chaleureuse et dans son rôle par défaut — sans avertissements infantilisants — mais des hooks s'exécutent de façon déterministe à chaque tour, hors de la discrétion du modèle : un risque détecté remplace le persona par des ressources humaines propres à votre région. Ni clinicienne, ni dispositif médical.",
+  "design.immersion.description": "Dans son rôle par défaut, pas de disclaimers en boucle en pleine conversation — et des hooks s'exécutent de façon déterministe à chaque tour, hors de la discrétion du modèle : un risque détecté remplace le persona par des ressources humaines propres à votre région. Ni clinicienne, ni dispositif médical.",
   "commands.title": "COMMANDS",
   "commands.subtitle": "Dix slash commands en tout : six contrôles données/sécurité/mémoire, trois aides d'orientation pull-only, une pour garder une phrase qui a touché juste.",
   "commands.thread": "Le fil de la conversation en cours — un reflet léger, à rassembler.",
@@ -51,9 +51,13 @@
   "faq.q5.question": "Quelles langues parle-t-elle ?",
   "faq.q5.answer": "La vôtre. Livrables compris.",
   "cta.ready": "À deux commandes",
-  "cta.readySubtitle": "Quelqu'un avec qui réfléchir, dans le terminal où vous vivez déjà.",
+  "cta.readySubtitle": "Un marketplace add, un install.",
   "cta.install": "INSTALL",
   "legal.summary": "MENTIONS LÉGALES\n\nÉditeur\nAntoine Bernier.",
   "legal.body": "Email de contact : {contactEmail}.\n\nHébergeur\nVercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis.\n\nDirecteur de la publication\nAntoine Bernier.\n\n\nPOLITIQUE DE CONFIDENTIALITÉ\n\nDonnées collectées\nCe site ne dépose aucun cookie et ne collecte aucune donnée personnelle. La fréquentation est mesurée anonymement via Vercel Analytics (sans cookie).\n\nDonnées de Claudia\nLa mémoire de Claudia vit en Markdown brut sous ~/.claudia, sur votre machine — rien n'est envoyé vers un quelconque serveur Claudia. Les conversations sont traitées par Claude (Anthropic) selon les conditions de votre propre compte Claude Code.\n\nPas un dispositif médical\nClaudia est un logiciel libre et gratuit sous licence MIT. Ce n'est pas un dispositif médical, il ne fournit aucun soin médical ou psychologique et ne remplace pas une aide professionnelle. En cas d'urgence, contactez les services d'urgence de votre région.",
-  "meta.tagline": "un confident, en plugin Claude Code"
+  "meta.tagline": "un confident, en plugin Claude Code",
+  "design.cli.title": "Surface CLI",
+  "design.cli.description": "Toute la surface de commande tient en dix slash commands — données, sécurité, orientation. Tout le reste est conversation ; il n'y a pas d'autre UI.",
+  "design.i18n.title": "i18n",
+  "design.i18n.description": "Noms de fichiers et code en anglais ; la conversation et les livrables sont écrits dans la langue de la personne. Ce site est en EN + FR."
 }

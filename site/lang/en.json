@@ -14,7 +14,7 @@
   "skills.title": "SKILLS",
   "skills.subtitle": "What ships in the plugin — each one a readable SKILL.md.",
   "skills.claudia.title": "integrative",
-  "skills.claudia.description": "The persona core (the claudia skill) — warm, immersive, generalist. Person-centered at the base; CBT, ACT, MI, solution-focused and mindfulness as the toolbox, reached for when indicated.",
+  "skills.claudia.description": "The persona core (the claudia skill) — stays in character, generalist scope. Person-centered at the base; CBT, ACT, MI, solution-focused and mindfulness as the toolbox, reached for when indicated.",
   "skills.memory.title": "recall · remember · distill-session",
   "skills.memory.description": "The memory cycle — continuity loaded at open, the person model kept current along the way, a distilled summary written at close.",
   "skills.consult.title": "consult",
@@ -30,7 +30,7 @@
   "design.relationship.title": "Common factors",
   "design.relationship.description": "The research is blunt: the relationship drives outcomes more than any technique (Wampold, 2015). So the always-on core is relational, and the techniques stay a toolbox — CBT, ACT, MI, solution-focused, mindfulness & self-compassion — reached for when indicated.",
   "design.immersion.title": "Deterministic hooks",
-  "design.immersion.description": "Warm and in-character by default — no infantilising disclaimers — but hooks run deterministically on every turn, outside the model's discretion: detected risk swaps the persona for region-specific human resources. Not a clinician, not a medical device.",
+  "design.immersion.description": "In-character by default, no boilerplate disclaimers mid-conversation — and hooks run deterministically on every turn, outside the model's discretion: detected risk swaps the persona for region-specific human resources. Not a clinician, not a medical device.",
   "commands.title": "COMMANDS",
   "commands.subtitle": "Ten slash commands total: six data/safety/memory controls, three pull-only orientation aids, one to keep a sentence that landed.",
   "commands.thread": "The thread of the conversation so far — a light reflection to gather back.",
@@ -51,9 +51,13 @@
   "faq.q5.question": "Which languages does she speak?",
   "faq.q5.answer": "Yours. Deliverables included.",
   "cta.ready": "Two commands away",
-  "cta.readySubtitle": "Someone to think alongside, in the terminal you already live in.",
+  "cta.readySubtitle": "One marketplace add, one install.",
   "cta.install": "INSTALL",
   "legal.summary": "LEGAL NOTICE\n\nPublisher\nAntoine Bernier.",
   "legal.body": "Contact email: {contactEmail}.\n\nHosting provider\nVercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, United States.\n\nPublication director\nAntoine Bernier.\n\n\nPRIVACY POLICY\n\nData collected\nThis site sets no cookies and collects no personal data. Traffic is measured anonymously with Vercel Analytics (cookieless).\n\nClaudia's data\nClaudia's memory lives in plain Markdown under ~/.claudia, on your machine — nothing is uploaded to any Claudia server. Conversations are processed by Anthropic's Claude under the terms of your own Claude Code account.\n\nNot a medical device\nClaudia is free, open-source software under the MIT license. It is not a medical device, provides no medical or psychological care, and is not a substitute for professional help. In an emergency, contact your local emergency services.",
-  "meta.tagline": "a confidant, as a Claude Code plugin"
+  "meta.tagline": "a confidant, as a Claude Code plugin",
+  "design.cli.title": "CLI surface",
+  "design.cli.description": "The entire command surface is ten slash commands — data, safety, orientation. Everything else is conversation; there is no other UI.",
+  "design.i18n.title": "i18n",
+  "design.i18n.description": "Filenames and code are English; conversation and deliverables are written in the person's language. This site ships EN + FR."
 }

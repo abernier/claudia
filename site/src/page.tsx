@@ -5,6 +5,8 @@ import {
   Copy,
   HandHeart,
   History,
+  Languages,
+  MessagesSquare,
   Monitor,
   Moon,
   NotebookPen,
@@ -235,6 +237,12 @@ export function Page() {
                 titleId="design.immersion.title"
                 descriptionId="design.immersion.description"
               />
+              <DesignPoint
+                icon={<MessagesSquare />}
+                titleId="design.cli.title"
+                descriptionId="design.cli.description"
+              />
+              <DesignPoint icon={<Languages />} titleId="design.i18n.title" descriptionId="design.i18n.description" />
             </div>
           </div>
         </section>
