@@ -4,7 +4,7 @@
   "nav.github": "GitHub",
   "hero.badge": "Claude Code plugin · opensource · local",
   "hero.title": "A listening ear, as a Claude Code plugin",
-  "hero.subtitle": "A persona, eighteen skills (recall, distill-session, exercise, crisis, …), ten slash commands, deterministic safety hooks, and a plain-Markdown vault in ~/.claudia. Runs entirely in Claude Code.",
+  "hero.subtitle": "A toolkit of skills, commands and deterministic hooks, running entirely in Claude Code. Each conversation feeds a plain-Markdown knowledge base in ~/.claudia — and the knowledge base feeds the next conversation.",
   "hero.copy": "Copy install commands",
   "hero.copied": "Copied!",
   "install.title": "INSTALL",
