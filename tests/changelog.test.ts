@@ -3,7 +3,7 @@
  * here, so a heading-format drift must fail a test, not ship an empty Release.
  */
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { extractSection } from "../src/changelog.mjs";
@@ -55,5 +55,29 @@ describe("the real CHANGELOG.md", () => {
     const version = (JSON.parse(readFileSync(path.join(root, "package.json"), "utf8")) as { version: string }).version;
     const changelog = readFileSync(path.join(root, "CHANGELOG.md"), "utf8");
     expect(extractSection(changelog, version)).toBeTruthy();
+  });
+});
+
+describe("changesets stay digestible", () => {
+  // These bodies become the GitHub Release notes verbatim, and their audience is
+  // the person using Claudia, not a contributor. Left unbounded they drifted to
+  // 280–480 words each — v0.11.0 shipped ~1,960 words of unbroken prose, because
+  // every entry re-argued the *why* that its ADR already carries, in full. Say
+  // what changed and what it means for them; cite the ADR for the reasoning.
+  const LIMIT = 150;
+
+  const bodies = readdirSync(path.join(root, ".changeset"))
+    .filter((f) => f.endsWith(".md") && f !== "README.md")
+    .map((f) => ({
+      file: f,
+      words: readFileSync(path.join(root, ".changeset", f), "utf8")
+        .replace(/^---[\s\S]*?---/, "") // drop the bump frontmatter
+        .split(/\s+/)
+        .filter(Boolean).length,
+    }));
+
+  it(`keeps every pending changeset under ${LIMIT} words`, () => {
+    const tooLong = bodies.filter((b) => b.words > LIMIT).map((b) => `${b.file} (${b.words} words)`);
+    expect(tooLong, `too verbose for a release note — see README "Releasing":\n${tooLong.join("\n")}`).toEqual([]);
   });
 });
