@@ -1,5 +1,6 @@
 import castUrl from "../../demo/recordings/claudia-demo.cast?url";
 import {
+  Brain,
   Check,
   Copy,
   HandHeart,
@@ -170,7 +171,7 @@ export function Page() {
                 descriptionId="skills.exercise.description"
               />
               <Feature icon={<Waypoints />} titleId="skills.maps.title" descriptionId="skills.maps.description" />
-              <Feature icon={<ShieldCheck />} titleId="skills.author.title" descriptionId="skills.author.description" />
+              <Feature icon={<Brain />} titleId="skills.reasoning.title" descriptionId="skills.reasoning.description" />
             </div>
           </div>
         </section>
