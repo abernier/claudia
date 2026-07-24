@@ -132,42 +132,32 @@ export function Page() {
           </div>
         </section>
 
-        {/* Privacy — the vault, shown as it really is */}
+        {/* Privacy — the vault, documented as it really is. The tree
+            mirrors docs/memory-layout.md; example file names come from the
+            demo fixture (Nora, a fictional person) — never a real vault. */}
         <section className="py-16 sm:py-24">
-          <div className="mx-auto grid max-w-5xl items-center gap-12 px-6 md:grid-cols-2">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight text-balance">
-                <FormattedMessage id="privacy.title" />
-              </h2>
-              <p className="text-muted-foreground mt-4 text-lg text-pretty">
-                <FormattedMessage id="privacy.body" />
-              </p>
-              <ul className="mt-8 space-y-3">
-                {(["privacy.point1", "privacy.point2", "privacy.point3", "privacy.point4"] as const).map((id) => (
-                  <li key={id} className="flex items-start gap-3">
-                    <Check className="text-primary mt-1 size-4 shrink-0" />
-                    <span>
-                      <FormattedMessage id={id} />
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {/* File names mirror the demo fixture (Nora, a fictional
-                person) — never a real vault. */}
-            <Card>
+          <div className="mx-auto max-w-5xl px-6">
+            <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
+              <FormattedMessage id="privacy.title" />
+            </h2>
+            <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-center text-lg text-pretty">
+              <FormattedMessage id="privacy.body" />
+            </p>
+            <Card className="mx-auto mt-12 max-w-3xl">
               <CardContent className="overflow-x-auto font-mono text-sm leading-7 whitespace-pre">
-                {`~/.claudia/
-├── person.md
-├── goals.md
-├── themes/
-│   └── what steadies me.md
-├── keepsakes.md
-├── sessions/
-│   └── …
-└── todo.md`}
+                <FormattedMessage id="privacy.tree" />
               </CardContent>
             </Card>
+            <ul className="mx-auto mt-10 grid max-w-3xl gap-x-12 gap-y-3 sm:grid-cols-2">
+              {(["privacy.point1", "privacy.point2", "privacy.point3", "privacy.point4"] as const).map((id) => (
+                <li key={id} className="flex items-start gap-3">
+                  <Check className="text-primary mt-1 size-4 shrink-0" />
+                  <span className="text-pretty">
+                    <FormattedMessage id={id} />
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
