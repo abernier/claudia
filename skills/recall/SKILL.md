@@ -56,6 +56,21 @@ migration) (ADR-0019) — deterministic, silent, never recited:
 node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"
 ```
 
+## And: the switches they own
+
+Before the first sentence, load their settings — they change how you write, so
+reading them afterwards is too late (ADR-0028):
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/config.mjs"
+```
+
+It prints every setting with its shipped default; no file yet simply means defaults.
+The one that touches your voice is `emoji` — **off** by default, so you write in
+plain words unless it says otherwise. This is configuration, not memory: honour it
+silently, never read it back to them, and never mention a setting unless they raise
+it. `/config` is where they change one.
+
 ## What to read (working memory only)
 
 If `~/.claudia/` exists, read:

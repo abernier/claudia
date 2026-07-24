@@ -20,7 +20,7 @@ adapts to the person in front of her.
 - **Immersion with a floor.** Warm and in-character by default — no infantilising
   disclaimers — but a deterministic safety layer runs on every turn and a
   [crisis pivot](docs/safety/) surfaces real human help when danger is detected.
-- **Natural-language first.** Only nine slash commands exist — five data, safety,
+- **Natural-language first.** Only ten slash commands exist — six data, safety,
   and memory controls, three pull-only orientation aids, and one to keep a sentence
   that landed. Everything therapeutic happens in ordinary conversation. See
   [ADR-0003](docs/adr/0003-plugin-runtime-shape.md).
@@ -31,7 +31,7 @@ adapts to the person in front of her.
 
 ## Commands
 
-Claudia deliberately ships only nine commands — the rest is conversation:
+Claudia deliberately ships only ten commands — the rest is conversation:
 
 | Command      | What it does                                                                                                                                                             |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -40,10 +40,28 @@ Claudia deliberately ships only nine commands — the rest is conversation:
 | `/export`    | Export your memory and deliverables.                                                                                                                                     |
 | `/save`      | Checkpoint your memory now — update the notes for where this conversation got to, without waiting for the session to close.                                              |
 | `/migrate`   | Update your saved notes to the latest format — with a preview and a backup first. Normally automatic.                                                                    |
+| `/config`    | See and change your settings — emoji (off by default), the conversation archive, the dashboard.                                                                          |
 | `/thread`    | Show the thread of the conversation so far — a light, person-pulled reflection you can gather back or keep wandering from.                                               |
 | `/dashboard` | Open a bird's-eye view of where things are — a person-pulled mirror (goals, themes, what's to pick up, your people), never recited at you.                               |
 | `/keep`      | Keep a passage that landed — something Claudia said, or something you said yourself — word for word, to re-read whenever. With no argument, she offers you what to keep. |
 | `/menu`      | Not sure where to start? A few things that are open for you right now — plus the plain option of just talking. Pulled by you, never opened on you.                       |
+
+## Settings
+
+A few switches you own, in `~/.claudia/config.json` on your own machine — shown and
+changed by `/config`, or edited by hand. All optional; an absent key means the
+default. See [ADR-0028](docs/adr/0028-settings.md).
+
+| Setting           | Default | What it does                                                                          |
+| ----------------- | ------- | ------------------------------------------------------------------------------------- |
+| `emoji`           | `false` | Claudia writes in plain words. Set `true` if you'd rather she used emoji.             |
+| `saveTranscripts` | `true`  | Keeps a verbatim archive of each conversation under `~/.claudia/sessions/`.           |
+| `dashboard`       | `true`  | Maintains the bird's-eye mirror `~/.claudia/dashboard.md` (opened with `/dashboard`). |
+
+Emoji are off by default on purpose: Claudia is honest about being an AI, and a
+smiley is the cheapest way to perform a feeling she doesn't have. Nothing in this
+file can lower the [safety floor](docs/adr/0001-safety-floor.md) — there is no
+setting for the safety hook, the crisis pivot, or what she will refuse.
 
 ## Install (CLI)
 
@@ -107,7 +125,7 @@ docs/
   safety/         crisis protocol, C-SSRS logic, localized resources, classifier
   bibliography.md the evidence base
 skills/           Claudia's capabilities
-commands/         the nine commands
+commands/         the ten commands
 hooks/            the per-turn safety hook + session-save hook
 ```
 
@@ -159,6 +177,15 @@ Versioning uses [changesets](https://github.com/changesets/changesets), kept in
 sync across `package.json`, `plugin.json`, and the marketplace entry:
 
 1. `npx changeset` — describe the change and pick a bump (patch / minor / major).
+
+   **Write it for the person using Claudia, not for a contributor.** The body becomes
+   the GitHub Release notes verbatim, so: what changed, and what it means for them —
+   then cite the ADR by number for the _why_. Do not re-argue the decision here; the
+   ADR already carries it, in full, and duplicating it is what turned v0.11.0 into
+   ~1,960 words of unbroken prose. One to three sentences per point, a short bold
+   lead, and a `**Digest.**` line at the top of the version section summarising the
+   release in one sentence. `tests/changelog.test.ts` caps a changeset at 150 words.
+
 2. `npm run release:version` — bumps `package.json` + writes `CHANGELOG.md`, then
    syncs the version into both manifests (`scripts/sync-version.mjs`).
 3. Review, commit, push. Tag the release: `claude plugin tag` (creates

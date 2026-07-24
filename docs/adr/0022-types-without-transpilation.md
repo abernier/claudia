@@ -32,7 +32,8 @@ runtime contract changes.
   once, at its parse site, to a documented typedef.
 - **Shared types are collocated.** The module that _parses_ a shape owns its
   exported `@typedef` — hook payloads in the script that reads that event,
-  `config.json` in its reader, migration records in `src/migrations/index.mjs`.
+  `config.json` in `src/config.mjs` (ADR-0028), migration records in
+  `src/migrations/index.mjs`.
   Consumers write `import('./x.mjs').TypeName`. No central `types.d.ts`:
   provenance stays readable in the import.
 - **Tests are real TypeScript** (`tests/*.test.ts`). They never run on the

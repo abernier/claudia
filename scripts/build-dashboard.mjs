@@ -12,9 +12,9 @@
  * `rebuildDashboard(root)` is exported so the migration runner can refresh the mirror
  * after applying a migration, without duplicating the read/assemble logic.
  *
- * Opt-out: `{ "dashboard": false }` in ~/.claudia/config.json — then no file is
- * written and any existing dashboard.md is removed (the opt-out must be real,
- * or /forget-ing the file would be undone at the next close).
+ * Opt-out: `{ "dashboard": false }` in ~/.claudia/config.json (ADR-0028) — then no
+ * file is written and any existing dashboard.md is removed (the opt-out must be
+ * real, or /forget-ing the file would be undone at the next close).
  *
  * Benign layer: FAILS SILENT — it never blocks a hook or recall.
  */
@@ -24,6 +24,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildDashboard, personName, sessionsForMirror } from "../src/dashboard.mjs";
+import { parseConfig } from "../src/config.mjs";
 
 /**
  * Local `YYYY-MM-DD` stamp for the mirror footer.
@@ -60,16 +61,11 @@ export async function rebuildDashboard(root) {
     const dashboardPath = path.join(root, "dashboard.md");
 
     // Respect the opt-out — and make it real by removing any stale mirror.
-    try {
-      const cfg = /** @type {import("./save-session.mjs").ClaudiaConfig} */ (
-        JSON.parse((await read(path.join(root, "config.json"))) || "{}")
-      );
-      if (cfg.dashboard === false) {
-        await fs.rm(dashboardPath, { force: true }).catch(() => {});
-        return false;
-      }
-    } catch {
-      /* no/unreadable config → default-on */
+    // parseConfig is total: no config, or an unreadable one, resolves to default-on.
+    const cfg = parseConfig(await read(path.join(root, "config.json")));
+    if (cfg.dashboard === false) {
+      await fs.rm(dashboardPath, { force: true }).catch(() => {});
+      return false;
     }
 
     const [person, goals, themes, todo, keepsakes, people, timeline, understanding] = await Promise.all([

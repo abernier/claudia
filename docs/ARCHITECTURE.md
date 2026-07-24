@@ -68,7 +68,11 @@ decisions live as ADRs in [`docs/adr/`](adr/), the vocabulary in
 - **`skills/teach` · `exercise`** — deliverables (with mermaid diagrams), written
   in the person's language under `~/.claudia/`.
 - **`skills/research/`** — lets Claudia look up a technique or fact when useful.
-- **`commands/`** — `/help-now`, `/forget`, `/export`.
+- **`commands/`** — the person-pulled surface: `/help-now`, `/forget`, `/export`,
+  `/save`, `/migrate`, `/config`, `/thread`, `/dashboard`, `/keep`, `/menu`.
+- **`src/config.mjs`** — the person's settings (`~/.claudia/config.json`): declared
+  booleans with defaults, read by `/config`, `recall`, and the two hook scripts that
+  carry an opt-out ([ADR-0028](adr/0028-settings.md)).
 
 ## The person's data (`~/.claudia/`, never in this repo)
 

@@ -224,6 +224,18 @@ ADR-0020.
 _Avoid_: "database migration" framing, "conversion" (to the person it is a small,
 reversible tidy-up of _their_ notes, not a data operation done _to_ them).
 
+**Settings**:
+The handful of switches the person owns — `~/.claudia/config.json`, shown and changed
+by `/config`. Declared booleans only, each with a shipped default (`emoji` **off**,
+`saveTranscripts` and `dashboard` on), resolved through one module (`src/config.mjs`);
+absent or unreadable means the default. They sit **above** the
+[Safety floor](#safety--register): no setting softens a never/always rule, and there
+is no free-text style key. `emoji` defaults off out of congruence — Claudia doesn't
+perform a feeling she doesn't have — not out of house style. Defined in ADR-0028.
+_Avoid_: "preferences panel", "options screen", "customise Claudia" (it is a few
+switches, not a personalisation surface); and never treat a setting as a symptom to
+explore.
+
 ## Self-authoring
 
 **Authored skill**:

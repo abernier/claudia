@@ -6,7 +6,8 @@ English/universal; **content is written in the person's language**.
 
 ```
 ~/.claudia/
-├── config.json          optional — e.g. { "saveTranscripts": false }, { "dashboard": false } to opt out
+├── config.json          the person's settings — declared booleans, all optional (ADR-0028)
+│                        { "emoji": false } · { "saveTranscripts": false } · { "dashboard": false }
 ├── .migrations          applied vault-migration ids, one per line — the ledger (ADR-0020)
 ├── MEMORY.md            one-line-per-entry index of what Claudia knows and where
 ├── dashboard.md         derived, person-facing mirror — bird's-eye view; transcludes or points, never summarises (ADR-0019)
@@ -73,6 +74,11 @@ English/universal; **content is written in the person's language**.
   the person wants to drill it. It never enters an opening — a greeting that quotes a
   past session back at someone is a recital. The floor is unchanged: no means/methods
   on a kept line, ever.
+- **`config.json` is settings, not memory** — every key is declared in
+  `src/config.mjs` with its default (`saveTranscripts: true`, `dashboard: true`,
+  `emoji: false`) and resolved through it, never parsed ad hoc. Absent, empty or
+  malformed → the defaults; an unknown key is preserved on write. Shown and changed by
+  `/config`; hand-editable. Nothing in it can lower the safety floor (ADR-0028).
 - **Recall reads the working layer only** — never a raw transcript (context
   economy, avoid re-exposing crisis content, limit dependency). See `recall`.
 - **Summaries are distilled, never verbatim**, and respect the safety floor (no
@@ -99,6 +105,9 @@ English/universal; **content is written in the person's language**.
   `pending-summary` marker — in that order, so a summary is never left un-identified and a
   session is never marked done without one (ADR-0025). Run by `distill-session` as its
   closing step; it is what replaced a bare `rm -f`.
+- `scripts/config.mjs` → `config.json`, on `/config --set` (the person also edits it by
+  hand). `recall` reads it at the open; `save-session` and `build-dashboard` read their
+  own opt-out from it (ADR-0028).
 - `remember` skill → `person.md`, `goals.md`, `safety.md`, `MEMORY.md`.
 - `todo` skill → `todo.md` (the shared to-do-later list): the persona reaches for it
   live to add/tick items; `distill-session` **authoritatively tags** them (it holds the

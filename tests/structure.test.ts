@@ -61,11 +61,12 @@ describe("components", () => {
     }
   });
 
-  it("ships exactly the nine commands", () => {
+  it("ships exactly the ten commands", () => {
     const cmds = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
       .map((p) => path.basename(p))
       .sort();
     expect(cmds).toEqual([
+      "config.md",
       "dashboard.md",
       "export.md",
       "forget.md",
@@ -336,9 +337,10 @@ describe("dashboard mirror (ADR-0019)", () => {
 
   it("is disclosed once (remember) and refusable via config.json", () => {
     expect(/dashboard/i.test(readFileSync(path.join(root, "skills/remember/SKILL.md"), "utf8"))).toBe(true);
-    expect(/cfg\.dashboard === false/.test(readFileSync(path.join(root, "scripts/build-dashboard.mjs"), "utf8"))).toBe(
-      true,
-    );
+    const script = readFileSync(path.join(root, "scripts/build-dashboard.mjs"), "utf8");
+    expect(/cfg\.dashboard === false/.test(script)).toBe(true);
+    // Through the declared reader, not an inline JSON.parse (ADR-0028).
+    expect(/parseConfig/.test(script), "the opt-out reads the shared settings module").toBe(true);
   });
 
   it("is recorded in the memory layout and the glossary (non-dossier)", () => {
@@ -585,6 +587,63 @@ describe("frontmatter contract (ADR-0025)", () => {
     expect(/ADR-0025/.test(layout)).toBe(true);
     expect(/never timestamps/.test(layout)).toBe(true);
     expect(/\*\*Frontmatter contract\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
+  });
+});
+
+describe("the person's settings (ADR-0028)", () => {
+  const command = readFileSync(path.join(root, "commands/config.md"), "utf8");
+  const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+
+  it("ships the command, the script, the pure module, and the ADR", () => {
+    expect(existsSync(path.join(root, "commands/config.md"))).toBe(true);
+    expect(existsSync(path.join(root, "scripts/config.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "src/config.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/adr/0028-settings.md"))).toBe(true);
+  });
+
+  it("every reader goes through the one module — no ad-hoc JSON.parse of config.json", () => {
+    // The state this ADR replaced: two scripts each parsing the file inline, with the
+    // default living only in an `=== false` check and nothing declaring the key set.
+    for (const s of ["scripts/save-session.mjs", "scripts/build-dashboard.mjs", "scripts/config.mjs"]) {
+      const txt = readFileSync(path.join(root, s), "utf8");
+      expect(/from "\.\.\/src\/config\.mjs"/.test(txt), `${s} should import the settings module`).toBe(true);
+      expect(/JSON\.parse\([^)]*config\.json/.test(txt), `${s} must not parse config.json itself`).toBe(false);
+    }
+  });
+
+  it("the write path is deterministic — the model never hand-edits the JSON", () => {
+    // A model rewriting the file is how an unknown key (or the rest of it) disappears.
+    expect(/config\.mjs" --set/.test(command), "/config changes a setting through the script").toBe(true);
+    expect(/^allowed-tools:(?!.*\b(Write|Edit)\b)/m.test(command), "no direct write to config.json").toBe(true);
+  });
+
+  it("emoji is off by default, and the rule lives in the always-loaded persona", () => {
+    // Config is read at recall; the persona is loaded always. Putting the rule there
+    // means a session that never reads the file still writes plainly — the fail-safe
+    // direction, since the setting only ever *loosens* it.
+    expect(/emoji:\s*\{\s*\n\s*default:\s*false/.test(readFileSync(path.join(root, "src/config.mjs"), "utf8"))).toBe(
+      true,
+    );
+    expect(/without emoji/i.test(persona), "the persona must carry the register rule").toBe(true);
+    expect(/emoji/i.test(readFileSync(path.join(root, "SOUL.md"), "utf8")), "and the soul, as congruence").toBe(true);
+  });
+
+  it("recall loads the settings before the first sentence, and never recites them", () => {
+    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    expect(/config\.mjs/.test(recall), "recall should read the settings").toBe(true);
+    expect(/never read it back|never recite/i.test(recall), "settings are honoured silently, like memory").toBe(true);
+  });
+
+  it("nothing configurable can lower the safety floor", () => {
+    const adr = readFileSync(path.join(root, "docs/adr/0028-settings.md"), "utf8");
+    expect(/lower the floor/i.test(adr), "the ADR must state the limit").toBe(true);
+    expect(/no free-text style key/i.test(adr), "a free-text persona override is a way through the floor").toBe(true);
+    expect(/never nudge/i.test(command), "a preference is not a symptom to explore").toBe(true);
+  });
+
+  it("is recorded in the layout and the glossary", () => {
+    expect(/config\.json/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+    expect(/\*\*Settings\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
   });
 });
 

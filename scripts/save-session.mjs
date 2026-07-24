@@ -9,7 +9,7 @@
  * not a stray persona string). One file **per session** (`<date>-<session_id>`,
  * ADR-0017), OVERWRITTEN on each resume/close so a conversation never piles up as
  * duplicate re-dumps. Local-only; nothing uploaded. Opt-out:
- * `{ "saveTranscripts": false }` in ~/.claudia/config.json.
+ * `{ "saveTranscripts": false }` in ~/.claudia/config.json (ADR-0028).
  */
 
 import { promises as fs } from "node:fs";
@@ -23,16 +23,7 @@ import {
   sessionDays,
 } from "../src/session.mjs";
 import { stampIdentity } from "../src/frontmatter.mjs";
-
-/**
- * Shape of ~/.claudia/config.json (external boundary — the person edits this by
- * hand). Every reader checks `=== false`, so an absent field means default-on.
- * Also consumed (type-only) by scripts/build-dashboard.mjs for its `dashboard`
- * opt-out; this script, first in the lifecycle to read the file (ADR-0004), owns it.
- * @typedef {object} ClaudiaConfig
- * @property {boolean} [saveTranscripts]  opt-out for transcript archiving
- * @property {boolean} [dashboard]  opt-out for the dashboard mirror
- */
+import { parseConfig } from "../src/config.mjs";
 
 /**
  * Read all of stdin (the hook payload). The 3s timeout resolves with whatever
@@ -103,13 +94,10 @@ async function main() {
     const sessionsDir = path.join(root, "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
 
-    // Respect the person's opt-out.
-    try {
-      const cfg = /** @type {ClaudiaConfig} */ (JSON.parse(await fs.readFile(path.join(root, "config.json"), "utf8")));
-      if (cfg.saveTranscripts === false) return process.exit(0);
-    } catch {
-      /* no config → default-on */
-    }
+    // Respect the person's opt-out. parseConfig is total — an absent, empty or
+    // hand-broken file resolves to the shipped defaults rather than throwing here.
+    const cfg = parseConfig(await fs.readFile(path.join(root, "config.json"), "utf8").catch(() => null));
+    if (cfg.saveTranscripts === false) return process.exit(0);
 
     const sessionId = sessionIdFrom(payload);
     if (!sessionId) return process.exit(0); // can't key the archive → skip rather than mis-file
