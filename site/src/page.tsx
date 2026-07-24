@@ -402,14 +402,38 @@ function InstallBlock() {
 }
 
 /**
+ * Resolve the effective page theme — `system` follows the OS preference
+ * live, so the player can counter-shade (see {@link AsciinemaDemo}).
+ */
+function useResolvedTheme(): "light" | "dark" {
+  const { theme } = useTheme();
+  const [system, setSystem] = useState<"light" | "dark">(() =>
+    typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => setSystem(mq.matches ? "dark" : "light");
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return theme === "system" ? system : theme;
+}
+
+/**
  * The two-minute session with Nora, played by asciinema-player from the
  * cast file in the repo's demo kit — the hero's full-bleed background:
  * autoplaying, looping, chromeless (it sits under the veil, so it is
  * ambience, not a control surface). Client-only: the player mounts in an
  * effect, so the prerendered HTML ships an empty box.
+ *
+ * The terminal counter-shades the page: light terminal on a dark page,
+ * dark terminal on a light page — the veil then reads as contrast, not
+ * mud. Switching theme recreates the player (the loop restarts; fine
+ * for ambience).
  */
 function AsciinemaDemo() {
   const ref = useRef<HTMLDivElement>(null);
+  const resolvedTheme = useResolvedTheme();
   useEffect(() => {
     let player: { dispose(): void } | undefined;
     let cancelled = false;
@@ -420,13 +444,14 @@ function AsciinemaDemo() {
         autoPlay: true,
         loop: true,
         controls: false,
+        theme: resolvedTheme === "dark" ? "solarized-light" : "asciinema",
       });
     });
     return () => {
       cancelled = true;
       player?.dispose();
     };
-  }, []);
+  }, [resolvedTheme]);
   return (
     // The element handed to the player must be a block — inside a flex
     // container, `.ap-wrapper` shrinks to its (initially 0-wide) content
