@@ -170,6 +170,29 @@ corrected estimates are routinely smaller than headline figures.
   into the week is between-session engagement; a re-readable artifact is its lightest
   possible form.
 
+### The page carried to a real clinician (ADR-0033)
+
+- **APA (2025).** _Health Advisory on the Use of Generative AI Chatbots and Wellness
+  Applications for Mental Health_, November 2025. — Recommends that clinicians
+  **inquire proactively** about a patient's use of AI chatbots and wellness apps. The
+  handover note is the prepared answer to a question the profession says will be
+  asked. (Also cited in ADR-0008 for the dependency warning.)
+- **White & Epston (1990).** _Narrative Means to Therapeutic Ends._ Norton. — The
+  therapeutic document as an established genre, and the nearest thing to a precedent
+  for a person arriving with a page. Their "worth 4.5 sessions" figure is their own
+  **informal** estimate, not a controlled finding. (Also cited above for keepsakes.)
+- **Denneson, Chen, Pisciotta, Tuepker & Dobscha (2018).** Patients' positive and
+  negative responses to reading mental health clinical notes online. _Psychiatric
+  Services_ (doi:10.1176/appi.ps.201700353). — Reading
+  notes about oneself raises the sense of control and trust for most, but a minority
+  are reliably upset, and a PTSD diagnosis predicts the negative response. The case
+  for reading a handover back _together_ rather than sending someone off to review it
+  alone.
+- **No evidence base found** for a client-prepared written summary at intake:
+  searches return therapist-side intake documentation and nothing on the person
+  arriving with their own page. Recorded as an absence, in the manner of
+  [`approaches/refer-only.md`](approaches/refer-only.md).
+
 ### Asking with options — why the closed question is the exception (ADR-0024)
 
 - **Ivey, Ivey & Zalaquett.** _Intentional Interviewing and Counseling._ Cengage. —

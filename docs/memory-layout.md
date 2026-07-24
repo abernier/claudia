@@ -34,8 +34,10 @@ English/universal; **content is written in the person's language**.
     ├── 2026-07-22-4f0ac1e2.pending-summary dirty flag: needs (re)distilling; cleared by distill-session
     ├── teachings/
     │   └── 2026-07-21-anxiety-cycle.md
-    └── exercises/
-        └── 2026-07-21-thought-record.md
+    ├── exercises/
+    │   └── 2026-07-21-thought-record.md
+    └── handovers/                        one page per handover to a real clinician (ADR-0033)
+        └── 2026-07-24-premiere-consultation.md
 ```
 
 ## Two layers, two jobs
@@ -124,6 +126,11 @@ English/universal; **content is written in the person's language**.
 - `themes` skill → `themes.md`, `themes/` (recurring threads; `distill-session` flags
   candidates, `recall` surfaces them for the person to ratify).
 - `teach` / `exercise` skills → `teachings/`, `exercises/`.
+- `handover` skill → `handovers/<date>-<slug>.md` — the page the person brings to a real
+  clinician (ADR-0033). Written only after they have chosen what goes in and heard it read
+  back; one file per handover, **never overwritten**, and the only vault note whose
+  frontmatter is **never** stamped with `session:` — it leaves the machine, and the stem
+  means nothing to its reader.
 - `scripts/build-dashboard.mjs` → `dashboard.md`, the derived mirror (ADR-0019). Runs at
   `SessionEnd` (after `save-session`) and at the tail of `recall` (after deferred
   distillation), and on demand via `/dashboard`. Reads the working files, transcludes or

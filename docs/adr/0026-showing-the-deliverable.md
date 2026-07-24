@@ -60,7 +60,15 @@ serves the conversation**.
 | `timeline` — when shown     | `~/.claudia/timeline.md`                            | `render` |
 | `teach`                     | `sessions/teachings/<date>-<slug>.md`               | `render` |
 | `exercise`                  | `sessions/exercises/<date>-<slug>.md`               | `attach` |
+| `handover`                  | `sessions/handovers/<date>-<slug>.md`               | `attach` |
 | `/dashboard`                | `~/.claudia/dashboard.md`                           | `render` |
+
+_(Amended by [ADR-0033](0033-handover-note.md): the `handover` row. It is the one
+deliverable written to be read by someone who is not the person — which changes nothing
+here. `attach` still fits, for the same reason it fits a worksheet: it is taken away.
+The "never send" list below is unchanged — this file *is* handed to the person. What is
+forbidden sits one step further out: Claudia never carries it to the clinician herself,
+by any route.)_
 
 ### `proactive` is a hard non-goal
 

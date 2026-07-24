@@ -608,6 +608,77 @@ describe("showing a deliverable (ADR-0026)", () => {
   });
 });
 
+describe("the handover note (ADR-0033)", () => {
+  const skillPath = path.join(root, "skills/handover/SKILL.md");
+
+  it("ships the skill, the ADR, and the glossary entry", () => {
+    expect(existsSync(skillPath)).toBe(true);
+    expect(existsSync(path.join(root, "docs/adr/0033-handover-note.md"))).toBe(true);
+    const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
+    expect(/\*\*Handover\*\*/.test(ctx)).toBe(true);
+    expect(/clinician-to-clinician/.test(ctx), "the Avoid line must fence the clinical sense").toBe(true);
+  });
+
+  it("the provenance line is required and cannot be cut", () => {
+    // The one line on the page that is not the person's to remove. Without it the note
+    // reads as correspondence from a peer to a professional with no other way to know
+    // what produced it — safety-floor rule 1 at the receiving end.
+    const skill = readFileSync(skillPath, "utf8");
+    expect(/an AI companion \(not a clinician\)/.test(skill), "the header text must be shown").toBe(true);
+    expect(/not optional and not removable/.test(skill)).toBe(true);
+  });
+
+  it("nothing is pre-selected — a default is not a choice", () => {
+    // Pre-ticking was proposed and rejected (ADR-0033, Planet49): her judgment lives in
+    // what makes the list and in the reason under it, never in a default state.
+    const skill = readFileSync(skillPath, "utf8");
+    expect(/[Nn]othing is pre-selected/.test(skill)).toBe(true);
+  });
+
+  it("never invents a stem, and is never stamped with one either", () => {
+    const skill = readFileSync(skillPath, "utf8");
+    expect(/type: handover/.test(skill), "the skill should show its block").toBe(true);
+    expect(/[Nn]ever write a `?session:`? key/.test(skill), "must forbid inventing a stem").toBe(true);
+    // The deliberate non-extension: the closing script's regex knows exercises and
+    // teachings only. A handover leaves the machine, and the opaque stem means nothing
+    // to the person who receives it.
+    const script = readFileSync(path.join(root, "scripts/finish-distillation.mjs"), "utf8");
+    expect(/handover/.test(script), "finish-distillation must not learn about handovers").toBe(false);
+  });
+
+  it("Claudia never carries it further than the person", () => {
+    const skill = readFileSync(skillPath, "utf8");
+    expect(/[Nn]ever send it anywhere yourself/.test(skill)).toBe(true);
+    expect(/display: 'attach'/.test(skill), "a take-away, like a worksheet (ADR-0026)").toBe(true);
+    const adr = readFileSync(path.join(root, "docs/adr/0026-showing-the-deliverable.md"), "utf8");
+    expect(/sessions\/handovers/.test(adr), "the surface table must carry the row").toBe(true);
+  });
+
+  it("never assesses whether the work with Claudia has sufficed", () => {
+    // Dropped deliberately: asking "am I still useful to you?" puts the person in the
+    // position of reassuring or dismissing her (ADR-0033, and Ivey via ADR-0024).
+    const skill = readFileSync(skillPath, "utf8");
+    expect(/the work with you has been enough/.test(skill), "the refusal must be written down").toBe(true);
+  });
+
+  it("the referral goes first — the note never delays help", () => {
+    const skill = readFileSync(skillPath, "utf8");
+    expect(/referral goes first/.test(skill)).toBe(true);
+    expect(/never a precondition for getting help/.test(skill)).toBe(true);
+    const referOnly = readFileSync(path.join(root, "docs/approaches/refer-only.md"), "utf8");
+    expect(/handover/.test(referOnly), "recognise → refer used to stop here").toBe(true);
+    expect(/never before/.test(referOnly)).toBe(true);
+  });
+
+  it("the persona knows it exists — the ADR-0018 lesson", () => {
+    // A capability documented everywhere except skills/claudia/SKILL.md is invisible in
+    // practice, because that is the only always-loaded file.
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/`handover`/.test(persona)).toBe(true);
+    expect(/ADR-0033/.test(persona)).toBe(true);
+  });
+});
+
 describe("frontmatter contract (ADR-0025)", () => {
   it("ships the ADR, the pure module, the closing script, and the repair migration", () => {
     expect(existsSync(path.join(root, "docs/adr/0025-frontmatter-contract.md"))).toBe(true);

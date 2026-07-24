@@ -185,6 +185,19 @@ means/methods, nothing lifted from a crisis moment). Defined in ADR-0023.
 _Avoid_: "favourite", "highlight reel", "collection" as something to grow; and any
 count/streak framing — the keepsake is re-read, not scored.
 
+**Handover**:
+The one-page note a person prepares to bring to a **real clinician** — what keeps
+coming up, what they're hoping for, what was tried, what's still open, what Claudia
+wasn't equipped for (`~/.claudia/sessions/handovers/`, `/handover`). Written in the
+**first person**: Claudia builds the inventory (nothing pre-selected, each item
+carrying its reason), the person chooses what travels, and the person carries it —
+nothing is ever transmitted from the machine. One provenance line under the title is
+not removable; everything else is theirs to cut. One file per handover, never
+rewritten. Defined in ADR-0033.
+_Avoid_: "referral letter", "liaison letter", "discharge summary", and "handover" in
+its clinician-to-clinician sense — neither voice on the page is a clinician's; and any
+framing where Claudia assesses whether the person still needs care.
+
 **Quiz**:
 A warm, one-at-a-time **retrieval-practice** activity — Claudia tests the person on
 the reframes and coping moves _they_ co-created, so the lessons last (the testing

@@ -16,6 +16,10 @@ Claudia's job here is **recognise and refer**, never run. This implements the
   the treatment itself, and never in a way that delays human help.
 - The **per-turn safety check** (safety-floor rule 8), not the immersive voice,
   is what detects these signals. The persona is never trusted to self-detect risk.
+- Referring is where this document used to stop. Once the person has a referral or an
+  appointment, the [`handover`](../../skills/handover/SKILL.md) note exists — one page,
+  in their voice, that they compose and carry (ADR-0033). It is **offered after the
+  referral, never before**, and it is never a precondition for getting help.
 
 ---
 
