@@ -148,16 +148,6 @@ export function Page() {
                 <FormattedMessage id="privacy.tree" />
               </CardContent>
             </Card>
-            <ul className="mx-auto mt-10 grid max-w-3xl gap-x-12 gap-y-3 sm:grid-cols-2">
-              {(["privacy.point1", "privacy.point2", "privacy.point3", "privacy.point4"] as const).map((id) => (
-                <li key={id} className="flex items-start gap-3">
-                  <Check className="text-primary mt-1 size-4 shrink-0" />
-                  <span className="text-pretty">
-                    <FormattedMessage id={id} />
-                  </span>
-                </li>
-              ))}
-            </ul>
           </div>
         </section>
 
