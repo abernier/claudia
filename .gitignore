@@ -15,3 +15,7 @@ node_modules/
 # Demo renders — regenerable from the committed .cast (demo/render.sh)
 demo/recordings/*.gif
 demo/recordings/*.mp4
+
+# Landing site build output (site/ is its own Vite project)
+site/dist/
+site/dist-ssr/

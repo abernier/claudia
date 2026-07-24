@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Claudia — a warm companion for reflection, in your terminal</title>
+    <meta
+      name="description"
+      content="Claudia is a free, open-source Claude Code plugin: a generalist companion for reflection and emotional support. Her memory stays in plain Markdown on your machine."
+    />
+    <meta name="theme-color" content="#0e1216" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Claudia — a warm companion for reflection, in your terminal" />
+    <meta
+      property="og:description"
+      content="A free, open-source Claude Code plugin: a generalist companion for reflection and emotional support. Her memory stays in plain Markdown on your machine."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://claudia-site.vercel.app/" />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Claudia — a warm companion for reflection, in your terminal" />
+    <meta
+      name="twitter:description"
+      content="A free, open-source Claude Code plugin: a generalist companion for reflection and emotional support. Her memory stays in plain Markdown on your machine."
+    />
+    <meta name="twitter:image" content="/og-image.png" />
+
+    <link rel="canonical" href="https://claudia-site.vercel.app/" />
+  </head>
+
+  <body>
+    <script>
+      // Apply theme before first paint to prevent FOUC
+      // Keep in sync with THEME_STORAGE_KEY in src/components/theme-provider.tsx
+      (function () {
+        var t = localStorage.getItem("vite-ui-theme") || "system";
+        if (t === "system") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.classList.add(t);
+      })();
+    </script>
+    <div id="root"><!--app-html--></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

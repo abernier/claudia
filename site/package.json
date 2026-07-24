@@ -1,0 +1,39 @@
+{
+  "name": "claudia-site",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsx scripts/prerender.ts",
+    "preview": "vite preview",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.6.1",
+    "asciinema-player": "^3.17.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.577.0",
+    "material-theme-builder": "^2.1.2",
+    "radix-ui": "^1.4.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-intl": "^10.0.0",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.2.1"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^20.9.0",
+    "@tailwindcss/vite": "^4.2.1",
+    "@types/node": "^25.3.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^5.1.4",
+    "happy-dom": "^20.7.0",
+    "shadcn": "^3.8.5",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.0.4"
+  }
+}
