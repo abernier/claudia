@@ -6,12 +6,12 @@ import {
   HandHeart,
   History,
   Languages,
-  LifeBuoy,
   MessagesSquare,
   Monitor,
   Moon,
   NotebookPen,
   ShieldCheck,
+  Stethoscope,
   Sun,
   Waypoints,
 } from "lucide-react";
@@ -35,11 +35,9 @@ import { LocaleToggle } from "./i18n/LocaleToggle";
  * (the README carries all ten; `commands.more` links there).
  */
 const COMMANDS = [
-  { cmd: "/help-now", id: "commands.helpNow" },
-  { cmd: "/forget", id: "commands.forget" },
+  { cmd: "/menu", id: "commands.menu" },
   { cmd: "/keep", id: "commands.keep" },
   { cmd: "/dashboard", id: "commands.dashboard" },
-  { cmd: "/menu", id: "commands.menu" },
   { cmd: "/thread", id: "commands.thread" },
 ] as const;
 
@@ -105,7 +103,7 @@ export function Page() {
             would go */}
         <section className="flex flex-1 items-center py-10">
           <div className="mx-auto w-full max-w-3xl px-6 text-center">
-            <Badge variant="outline" className="font-normal">
+            <Badge variant="outline" className="text-tertiary font-normal">
               <FormattedMessage id="hero.badge" />
             </Badge>
             <h1 className="mt-6 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
@@ -146,7 +144,12 @@ export function Page() {
             </p>
             <Card className="mx-auto mt-12 max-w-3xl">
               <CardContent className="overflow-x-auto font-mono text-sm leading-7 whitespace-pre">
-                <FormattedMessage id="privacy.tree" />
+                {/* <c>…</c> spans in the catalog string are the # comments —
+                    tinted tertiary, like syntax highlighting */}
+                <FormattedMessage
+                  id="privacy.tree"
+                  values={{ c: (chunks) => <span className="text-tertiary">{chunks}</span> }}
+                />
               </CardContent>
             </Card>
           </div>
@@ -164,7 +167,11 @@ export function Page() {
             <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               <Feature icon={<HandHeart />} titleId="skills.claudia.title" descriptionId="skills.claudia.description" />
               <Feature icon={<History />} titleId="skills.memory.title" descriptionId="skills.memory.description" />
-              <Feature icon={<LifeBuoy />} titleId="skills.crisis.title" descriptionId="skills.crisis.description" />
+              <Feature
+                icon={<Stethoscope />}
+                titleId="skills.consult.title"
+                descriptionId="skills.consult.description"
+              />
               <Feature
                 icon={<NotebookPen />}
                 titleId="skills.exercise.title"
@@ -189,7 +196,9 @@ export function Page() {
               {COMMANDS.map(({ cmd, id }) => (
                 <div key={cmd} className="flex items-start gap-3">
                   <dt className="shrink-0">
-                    <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-sm">{cmd}</code>
+                    <code className="bg-tertiary-container text-tertiary-container-foreground rounded px-1.5 py-0.5 font-mono text-sm">
+                      {cmd}
+                    </code>
                   </dt>
                   <dd className="text-muted-foreground text-pretty">
                     <FormattedMessage id={id} />
@@ -438,7 +447,7 @@ function Feature({ icon, titleId, descriptionId }: { icon: ReactNode; titleId: s
   return (
     <Card>
       <CardContent>
-        <div className="text-primary mb-4">{icon}</div>
+        <div className="text-tertiary mb-4">{icon}</div>
         {/* Skill names are tokens — mono, like the code they point to */}
         <h3 className="font-mono text-base font-semibold tracking-tight">
           <FormattedMessage id={titleId} />

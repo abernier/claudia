@@ -21,6 +21,10 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-tertiary-container-foreground: var(--tertiary-container-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -131,6 +135,10 @@
   --muted-foreground: var(--md-sys-color-on-surface-variant);
   --accent: var(--md-sys-color-secondary-container);
   --accent-foreground: var(--md-sys-color-on-secondary-container);
+  --tertiary: var(--md-sys-color-tertiary);
+  --tertiary-foreground: var(--md-sys-color-on-tertiary);
+  --tertiary-container: var(--md-sys-color-tertiary-container);
+  --tertiary-container-foreground: var(--md-sys-color-on-tertiary-container);
   --destructive: var(--md-sys-color-error);
   --border: var(--md-sys-color-outline-variant);
   --input: var(--md-sys-color-outline);
