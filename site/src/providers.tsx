@@ -8,7 +8,7 @@ import { TooltipProvider } from "./components/ui/tooltip";
  * can extract the matching CSS at build time and inline it in the `<head>`
  * to avoid a white flash before `<Mcu>` mounts client-side.
  */
-export const MCU_SOURCE = "#0e1216";
+export const MCU_SOURCE = "#cd194e";
 
 /**
  * Shared provider tree for the landing page.

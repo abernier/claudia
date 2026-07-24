@@ -7,7 +7,6 @@
   "hero.subtitle": "Réflexion et soutien émotionnel fondés sur les preuves, en plugin Claude Code gratuit et open source. Tout ce qu'elle retient reste sur votre machine.",
   "hero.copy": "Copier les commandes d'installation",
   "hero.copied": "Copié !",
-  "hero.demoCaption": "Une session de deux minutes avec Nora, une personne fictive.",
   "different.title": "Ce qui rend Claudia différente",
   "different.subtitle": "Six choix délibérés, chacun consigné comme décision d'architecture dans le dépôt.",
   "different.relationship.title": "La relation d'abord",
@@ -60,10 +59,7 @@
   "cta.ready": "Quand vous voulez",
   "cta.readySubtitle": "Deux commandes, et quelqu'un avec qui réfléchir.",
   "cta.install": "Installer Claudia",
-  "footer.license": "Licence MIT",
-  "footer.source": "Code source sur GitHub",
-  "footer.disclaimer": "Claudia ne remplace pas des soins professionnels. En cas de crise, contactez les services d'urgence de votre région.",
-  "legal.summary": "Mentions légales & confidentialité",
-  "legal.body": "Édité par Antoine Bernier — {contactEmail}\nHébergé par Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA — vercel.com\nClaudia est un logiciel libre et gratuit sous licence MIT. Ce n'est pas un dispositif médical, il ne fournit aucun soin médical ou psychologique et ne remplace pas une aide professionnelle. En cas d'urgence, contactez les services d'urgence de votre région.\nConfidentialité — ce site ne dépose aucun cookie et ne collecte aucune donnée personnelle. La fréquentation est mesurée anonymement via Vercel Analytics (sans cookie). La mémoire de Claudia vit sous ~/.claudia sur votre machine ; les conversations sont traitées par Claude (Anthropic) selon les conditions de votre propre compte Claude Code.",
+  "legal.summary": "MENTIONS LÉGALES\n\nÉditeur\nAntoine Bernier.",
+  "legal.body": "Email de contact : {contactEmail}.\n\nHébergeur\nVercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis.\n\nDirecteur de la publication\nAntoine Bernier.\n\n\nPOLITIQUE DE CONFIDENTIALITÉ\n\nDonnées collectées\nCe site ne dépose aucun cookie et ne collecte aucune donnée personnelle. La fréquentation est mesurée anonymement via Vercel Analytics (sans cookie).\n\nDonnées de Claudia\nLa mémoire de Claudia vit en Markdown brut sous ~/.claudia, sur votre machine — rien n'est envoyé vers un quelconque serveur Claudia. Les conversations sont traitées par Claude (Anthropic) selon les conditions de votre propre compte Claude Code.\n\nPas un dispositif médical\nClaudia est un logiciel libre et gratuit sous licence MIT. Ce n'est pas un dispositif médical, il ne fournit aucun soin médical ou psychologique et ne remplace pas une aide professionnelle. En cas d'urgence, contactez les services d'urgence de votre région.",
   "meta.tagline": "Une compagne chaleureuse pour réfléchir, dans votre terminal"
 }

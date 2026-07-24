@@ -7,7 +7,6 @@
   "hero.subtitle": "Evidence-based reflection and emotional support, as a free, open-source Claude Code plugin. Everything she remembers stays on your machine.",
   "hero.copy": "Copy install commands",
   "hero.copied": "Copied!",
-  "hero.demoCaption": "A two-minute session with Nora, a fictional person.",
   "different.title": "What makes Claudia different",
   "different.subtitle": "Six deliberate choices, each recorded as an architecture decision in the repo.",
   "different.relationship.title": "Relationship first",
@@ -60,10 +59,7 @@
   "cta.ready": "Ready when you are",
   "cta.readySubtitle": "Two commands, and someone to think alongside.",
   "cta.install": "Install Claudia",
-  "footer.license": "MIT License",
-  "footer.source": "Source on GitHub",
-  "footer.disclaimer": "Claudia is not a substitute for professional care. In crisis, contact your local emergency services.",
-  "legal.summary": "Legal notice & privacy",
-  "legal.body": "Published by Antoine Bernier — {contactEmail}\nHosted by Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA — vercel.com\nClaudia is free, open-source software under the MIT license. It is not a medical device, provides no medical or psychological care, and is not a substitute for professional help. In an emergency, contact your local emergency services.\nPrivacy — this site sets no cookies and collects no personal data. Traffic is measured anonymously with Vercel Analytics (cookieless). Claudia's memory lives under ~/.claudia on your machine; conversations are processed by Anthropic's Claude under the terms of your own Claude Code account.",
+  "legal.summary": "LEGAL NOTICE\n\nPublisher\nAntoine Bernier.",
+  "legal.body": "Contact email: {contactEmail}.\n\nHosting provider\nVercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, United States.\n\nPublication director\nAntoine Bernier.\n\n\nPRIVACY POLICY\n\nData collected\nThis site sets no cookies and collects no personal data. Traffic is measured anonymously with Vercel Analytics (cookieless).\n\nClaudia's data\nClaudia's memory lives in plain Markdown under ~/.claudia, on your machine — nothing is uploaded to any Claudia server. Conversations are processed by Anthropic's Claude under the terms of your own Claude Code account.\n\nNot a medical device\nClaudia is free, open-source software under the MIT license. It is not a medical device, provides no medical or psychological care, and is not a substitute for professional help. In an emergency, contact your local emergency services.",
   "meta.tagline": "A warm companion for reflection, in your terminal"
 }

@@ -82,10 +82,15 @@ export function Page() {
     <div className="bg-background text-foreground min-h-screen">
       {/* Above-the-fold band — header + hero share a viewport-height flex
           column so the hero (flex-1) fills exactly the space the header
-          doesn't. `min-h-dvh` (not `h-dvh`) so short viewports grow instead
-          of clipping the player. */}
-      <div className="flex min-h-dvh flex-col">
-        <header className="border-b">
+          doesn't, sizematters-style. The session plays as a full-bleed
+          background layer under a translucent veil: player z-0, veil z-10,
+          header and copy layered on top via z-20. */}
+      <div className="relative flex h-dvh flex-col overflow-hidden">
+        <div aria-hidden className="absolute inset-0 z-0">
+          <AsciinemaDemo />
+        </div>
+        <div aria-hidden className="bg-background/50 absolute inset-0 z-10" />
+        <header className="relative z-20 border-b">
           <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
             <a href={homeHref} className="text-lg font-semibold tracking-tight">
               {APP_NAME}
@@ -101,29 +106,19 @@ export function Page() {
           </nav>
         </header>
 
-        {/* Hero — copy + install on the left, the session playing on the right */}
-        <section className="flex flex-1 items-center py-10">
-          <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-6 lg:grid-cols-2">
-            <div className="text-center lg:text-left">
-              <Badge variant="outline" className="font-normal">
-                <FormattedMessage id="hero.badge" />
-              </Badge>
-              <h1 className="mt-6 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
-                <FormattedMessage id="hero.title" />
-              </h1>
-              <p className="text-muted-foreground mt-6 text-lg text-pretty sm:text-xl">
-                <FormattedMessage id="hero.subtitle" />
-              </p>
-              <InstallBlock />
-            </div>
-            <div>
-              <div className="overflow-hidden rounded-lg border shadow-lg">
-                <AsciinemaDemo />
-              </div>
-              <p className="text-muted-foreground mt-3 text-center text-xs">
-                <FormattedMessage id="hero.demoCaption" />
-              </p>
-            </div>
+        {/* Hero — centered copy + install over the playing session */}
+        <section className="relative z-20 flex flex-1 items-center">
+          <div className="mx-auto w-full max-w-2xl px-6 text-center">
+            <Badge variant="outline" className="font-normal">
+              <FormattedMessage id="hero.badge" />
+            </Badge>
+            <h1 className="mt-6 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
+              <FormattedMessage id="hero.title" />
+            </h1>
+            <p className="text-muted-foreground mt-6 text-lg text-pretty sm:text-xl">
+              <FormattedMessage id="hero.subtitle" />
+            </p>
+            <InstallBlock />
           </div>
         </section>
       </div>
@@ -325,15 +320,9 @@ export function Page() {
         <div className="text-muted-foreground mx-auto max-w-5xl px-6 text-sm">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <span>
-              © {new Date().getFullYear()} {APP_NAME} ·{" "}
-              <a
-                href={`${GITHUB_URL}/blob/main/LICENSE`}
-                className="hover:text-foreground underline-offset-4 hover:underline"
-              >
-                <FormattedMessage id="footer.license" />
-              </a>
+              © {new Date().getFullYear()} {APP_NAME}
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <ThemeToggle />
               <LocaleToggle
                 variant="ghost"
@@ -349,13 +338,17 @@ export function Page() {
               </Button>
             </div>
           </div>
-          <p className="mt-8 border-t pt-8 text-center text-xs text-pretty">
-            <FormattedMessage id="footer.disclaimer" />
-          </p>
-          {/* Legal — fine print behind a native <details>, deeplinkable via
-              `#legal`. Mono + text-xs step out of the marketing voice. */}
-          <details ref={legalRef} id="legal" className="scroll-mt-8 mt-8 font-mono text-xs">
-            <summary className="hover:text-foreground cursor-pointer text-center">
+          {/* Legal — always rendered at the bottom, line-clamped to the
+              summary's first block by default, sizematters-style. The
+              `#legal` anchor deep-links here and pre-expands the block.
+              Mono + text-xs + muted give it a "fine print" aesthetic that
+              steps out of the marketing voice of the rest of the page. */}
+          <details
+            ref={legalRef}
+            id="legal"
+            className="text-muted-foreground scroll-mt-8 mt-8 border-t pt-8 font-mono text-xs"
+          >
+            <summary className="hover:text-foreground cursor-pointer whitespace-pre-line">
               <FormattedMessage id="legal.summary" />
             </summary>
             <div className="mt-4 whitespace-pre-line">
@@ -410,9 +403,10 @@ function InstallBlock() {
 
 /**
  * The two-minute session with Nora, played by asciinema-player from the
- * cast file in the repo's demo kit — autoplaying and looping in the hero.
- * Client-only: the player mounts in an effect, so the prerendered HTML
- * ships an empty (aspect-reserved) box.
+ * cast file in the repo's demo kit — the hero's full-bleed background:
+ * autoplaying, looping, chromeless (it sits under the veil, so it is
+ * ambience, not a control surface). Client-only: the player mounts in an
+ * effect, so the prerendered HTML ships an empty box.
  */
 function AsciinemaDemo() {
   const ref = useRef<HTMLDivElement>(null);
@@ -425,6 +419,7 @@ function AsciinemaDemo() {
         fit: "width",
         autoPlay: true,
         loop: true,
+        controls: false,
       });
     });
     return () => {
@@ -432,7 +427,14 @@ function AsciinemaDemo() {
       player?.dispose();
     };
   }, []);
-  return <div ref={ref} className="aspect-video [&_.ap-player]:rounded-none" />;
+  return (
+    // The element handed to the player must be a block — inside a flex
+    // container, `.ap-wrapper` shrinks to its (initially 0-wide) content
+    // and the fit-width math latches onto 0. The outer flex only centers.
+    <div className="flex h-full w-full items-center justify-center">
+      <div ref={ref} className="w-full" />
+    </div>
+  );
 }
 
 function Feature({ icon, titleId, descriptionId }: { icon: ReactNode; titleId: string; descriptionId: string }) {
