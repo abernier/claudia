@@ -17,6 +17,12 @@ export const APP_NAME = "Claudia";
 export const GITHUB_URL = "https://github.com/abernier/claudia";
 
 /**
+ * Public contact email surfaced in the legal block. Same status as the
+ * GitHub profile — a public marketing identifier, no secret.
+ */
+export const LEGAL_CONTACT_EMAIL = "antoine.bernier@gmail.com";
+
+/**
  * The two-step install: the repo is its own single-plugin marketplace,
  * so visitors register the marketplace, then install the plugin.
  * Kept as an array so the hero can render one line per command and the

@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Dev & test harness for the Claudia Claude Code plugin (the plugin itself needs no runtime deps).",
   "scripts": {
+    "dev": "npm --prefix site run dev",
     "test": "npm run typecheck && vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",

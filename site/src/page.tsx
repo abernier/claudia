@@ -4,6 +4,7 @@ import {
   Copy,
   FolderLock,
   HandHeart,
+  History,
   Languages,
   LifeBuoy,
   MessagesSquare,
@@ -15,7 +16,7 @@ import {
 } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { APP_NAME, GITHUB_URL, INSTALL_COMMANDS } from "./brand";
+import { APP_NAME, GITHUB_URL, INSTALL_COMMANDS, LEGAL_CONTACT_EMAIL } from "./brand";
 import { useTheme } from "./components/theme-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./components/ui/accordion";
 import { Badge } from "./components/ui/badge";
@@ -28,38 +29,42 @@ import { LocaleToggle } from "./i18n/LocaleToggle";
 // Page component
 // ---------------------------------------------------------------------------
 
-/** The ten commands, in README order — the ids point into `lang/*.json`. */
+/**
+ * The most distinctive commands — a curated taste, not the full list
+ * (the README carries all ten; `commands.more` links there).
+ */
 const COMMANDS = [
   { cmd: "/help-now", id: "commands.helpNow" },
   { cmd: "/forget", id: "commands.forget" },
-  { cmd: "/export", id: "commands.export" },
-  { cmd: "/save", id: "commands.save" },
-  { cmd: "/migrate", id: "commands.migrate" },
-  { cmd: "/config", id: "commands.config" },
-  { cmd: "/thread", id: "commands.thread" },
-  { cmd: "/dashboard", id: "commands.dashboard" },
   { cmd: "/keep", id: "commands.keep" },
+  { cmd: "/dashboard", id: "commands.dashboard" },
   { cmd: "/menu", id: "commands.menu" },
+  { cmd: "/thread", id: "commands.thread" },
 ] as const;
 
 /**
- * FAQ deeplinks (`#faq-qN`): lazy-init the open accordion item from the
- * URL hash, plus a one-shot scroll into view on mount.
+ * Deeplinks: `#faq-qN` lazy-inits the open accordion item, `#legal`
+ * pre-expands the native <details> block in the footer. Both scroll into
+ * view once on mount.
  */
-function useFaqDeeplinks() {
+function useDeeplinks() {
   const [openFaq, setOpenFaq] = useState<string | undefined>(() => {
     if (typeof window === "undefined") return undefined;
     const hash = window.location.hash.slice(1);
     return hash.startsWith("faq-") ? hash.slice(4) : undefined;
   });
+  const legalRef = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     const hash = window.location.hash.slice(1);
-    if (!hash.startsWith("faq-")) return;
+    if (hash === "legal" && legalRef.current) {
+      legalRef.current.open = true;
+    }
+    if (!hash.startsWith("faq-") && hash !== "legal") return;
     requestAnimationFrame(() => {
       document.getElementById(hash)?.scrollIntoView({ block: "start", behavior: "instant" });
     });
   }, []);
-  return { openFaq, setOpenFaq };
+  return { openFaq, setOpenFaq, legalRef };
 }
 
 /**
@@ -70,25 +75,21 @@ function useFaqDeeplinks() {
  */
 export function Page() {
   const { locale } = useLocale();
-  const { openFaq, setOpenFaq } = useFaqDeeplinks();
+  const { openFaq, setOpenFaq, legalRef } = useDeeplinks();
   const homeHref = locale === "en" ? "/" : `/${locale}/`;
 
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <header className="border-b">
-        <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <a href={homeHref} className="text-lg font-semibold tracking-tight">
-            {APP_NAME}
-          </a>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <LocaleToggle
-              variant="ghost"
-              tooltip={false}
-              onLocaleChange={(l) => {
-                history.replaceState(null, "", l === "en" ? "/" : `/${l}/`);
-              }}
-            />
+      {/* Above-the-fold band — header + hero share a viewport-height flex
+          column so the hero (flex-1) fills exactly the space the header
+          doesn't. `min-h-dvh` (not `h-dvh`) so short viewports grow instead
+          of clipping the player. */}
+      <div className="flex min-h-dvh flex-col">
+        <header className="border-b">
+          <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
+            <a href={homeHref} className="text-lg font-semibold tracking-tight">
+              {APP_NAME}
+            </a>
             <Button asChild variant="outline">
               <a href={GITHUB_URL}>
                 <GitHubIcon />
@@ -97,119 +98,39 @@ export function Page() {
                 </span>
               </a>
             </Button>
-          </div>
-        </nav>
-      </header>
+          </nav>
+        </header>
 
-      {/* Hero */}
-      <section className="mx-auto max-w-3xl px-6 py-16 text-center sm:py-24">
-        <Badge variant="outline" className="font-normal">
-          <FormattedMessage id="hero.badge" />
-        </Badge>
-        <h1 className="mt-6 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
-          <FormattedMessage id="hero.title" />
-        </h1>
-        <p className="text-muted-foreground mt-6 text-lg text-pretty sm:text-xl">
-          <FormattedMessage id="hero.subtitle" />
-        </p>
-        <InstallBlock />
-        <p className="text-muted-foreground mt-4 text-sm">
-          <FormattedMessage id="hero.install.note" />
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Button asChild variant="outline" size="lg">
-            <a href="#demo">
-              <FormattedMessage id="hero.cta.demo" />
-            </a>
-          </Button>
-        </div>
-        <p className="text-muted-foreground mt-10 text-sm text-pretty">
-          <FormattedMessage id="hero.disclaimer" />
-        </p>
-      </section>
+        {/* Hero — copy + install on the left, the session playing on the right */}
+        <section className="flex flex-1 items-center py-10">
+          <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-6 lg:grid-cols-2">
+            <div className="text-center lg:text-left">
+              <Badge variant="outline" className="font-normal">
+                <FormattedMessage id="hero.badge" />
+              </Badge>
+              <h1 className="mt-6 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
+                <FormattedMessage id="hero.title" />
+              </h1>
+              <p className="text-muted-foreground mt-6 text-lg text-pretty sm:text-xl">
+                <FormattedMessage id="hero.subtitle" />
+              </p>
+              <InstallBlock />
+            </div>
+            <div>
+              <div className="overflow-hidden rounded-lg border shadow-lg">
+                <AsciinemaDemo />
+              </div>
+              <p className="text-muted-foreground mt-3 text-center text-xs">
+                <FormattedMessage id="hero.demoCaption" />
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
 
       <main>
-        {/* Demo */}
-        <section id="demo" className="bg-muted/50 scroll-mt-8 py-16 sm:py-24">
-          <div className="mx-auto max-w-4xl px-6">
-            <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
-              <FormattedMessage id="demo.title" />
-            </h2>
-            <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-center text-lg text-pretty">
-              <FormattedMessage id="demo.subtitle" />
-            </p>
-            <div className="mt-12 overflow-hidden rounded-lg border shadow-lg">
-              <AsciinemaDemo />
-            </div>
-          </div>
-        </section>
-
-        {/* What makes Claudia different */}
-        <section className="py-16 sm:py-24">
-          <div className="mx-auto max-w-5xl px-6">
-            <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
-              <FormattedMessage id="different.title" />
-            </h2>
-            <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-center text-lg text-pretty">
-              <FormattedMessage id="different.subtitle" />
-            </p>
-            <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              <Feature
-                icon={<HandHeart />}
-                titleId="different.relationship.title"
-                descriptionId="different.relationship.description"
-              />
-              <Feature
-                icon={<ShieldCheck />}
-                titleId="different.immersion.title"
-                descriptionId="different.immersion.description"
-              />
-              <Feature
-                icon={<MessagesSquare />}
-                titleId="different.natural.title"
-                descriptionId="different.natural.description"
-              />
-              <Feature
-                icon={<FolderLock />}
-                titleId="different.local.title"
-                descriptionId="different.local.description"
-              />
-              <Feature
-                icon={<Languages />}
-                titleId="different.language.title"
-                descriptionId="different.language.description"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Safety — first-class, not fine print */}
-        <section className="bg-muted/50 py-16 sm:py-24">
-          <div className="mx-auto max-w-5xl px-6">
-            <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
-              <FormattedMessage id="safety.title" />
-            </h2>
-            <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-center text-lg text-pretty">
-              <FormattedMessage id="safety.body" />
-            </p>
-            <div className="mt-16 grid gap-12 sm:grid-cols-3">
-              <SafetyPoint
-                icon={<ShieldCheck />}
-                titleId="safety.point1.title"
-                descriptionId="safety.point1.description"
-              />
-              <SafetyPoint
-                icon={<LifeBuoy />}
-                titleId="safety.point2.title"
-                descriptionId="safety.point2.description"
-              />
-              <SafetyPoint icon={<Siren />} titleId="safety.point3.title" descriptionId="safety.point3.description" />
-            </div>
-          </div>
-        </section>
-
         {/* Privacy — the vault, shown as it really is */}
-        <section className="py-16 sm:py-24">
+        <section className="bg-muted/50 py-16 sm:py-24">
           <div className="mx-auto grid max-w-5xl items-center gap-12 px-6 md:grid-cols-2">
             <div>
               <h2 className="text-3xl font-bold tracking-tight text-balance">
@@ -247,8 +168,77 @@ export function Page() {
           </div>
         </section>
 
-        {/* Commands */}
+        {/* Safety — first-class, not fine print */}
+        <section className="py-16 sm:py-24">
+          <div className="mx-auto max-w-5xl px-6">
+            <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
+              <FormattedMessage id="safety.title" />
+            </h2>
+            <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-center text-lg text-pretty">
+              <FormattedMessage id="safety.body" />
+            </p>
+            <div className="mt-16 grid gap-12 sm:grid-cols-3">
+              <SafetyPoint
+                icon={<ShieldCheck />}
+                titleId="safety.point1.title"
+                descriptionId="safety.point1.description"
+              />
+              <SafetyPoint
+                icon={<LifeBuoy />}
+                titleId="safety.point2.title"
+                descriptionId="safety.point2.description"
+              />
+              <SafetyPoint icon={<Siren />} titleId="safety.point3.title" descriptionId="safety.point3.description" />
+            </div>
+          </div>
+        </section>
+
+        {/* What makes Claudia different */}
         <section className="bg-muted/50 py-16 sm:py-24">
+          <div className="mx-auto max-w-5xl px-6">
+            <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
+              <FormattedMessage id="different.title" />
+            </h2>
+            <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-center text-lg text-pretty">
+              <FormattedMessage id="different.subtitle" />
+            </p>
+            <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              <Feature
+                icon={<HandHeart />}
+                titleId="different.relationship.title"
+                descriptionId="different.relationship.description"
+              />
+              <Feature
+                icon={<ShieldCheck />}
+                titleId="different.immersion.title"
+                descriptionId="different.immersion.description"
+              />
+              <Feature
+                icon={<MessagesSquare />}
+                titleId="different.natural.title"
+                descriptionId="different.natural.description"
+              />
+              <Feature
+                icon={<FolderLock />}
+                titleId="different.local.title"
+                descriptionId="different.local.description"
+              />
+              <Feature
+                icon={<Languages />}
+                titleId="different.language.title"
+                descriptionId="different.language.description"
+              />
+              <Feature
+                icon={<History />}
+                titleId="different.continuity.title"
+                descriptionId="different.continuity.description"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Commands — a taste of the ten */}
+        <section className="py-16 sm:py-24">
           <div className="mx-auto max-w-5xl px-6">
             <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
               <FormattedMessage id="commands.title" />
@@ -268,11 +258,19 @@ export function Page() {
                 </div>
               ))}
             </dl>
+            <p className="mt-10 text-center text-sm">
+              <a
+                href={`${GITHUB_URL}#commands`}
+                className="text-muted-foreground hover:text-foreground underline underline-offset-4"
+              >
+                <FormattedMessage id="commands.more" />
+              </a>
+            </p>
           </div>
         </section>
 
         {/* FAQ */}
-        <section className="py-16 sm:py-24">
+        <section className="bg-muted/50 py-16 sm:py-24">
           <div className="mx-auto max-w-3xl px-6">
             <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
               <FormattedMessage id="faq.title" />
@@ -354,6 +352,16 @@ export function Page() {
           <p className="mt-8 border-t pt-8 text-center text-xs text-pretty">
             <FormattedMessage id="footer.disclaimer" />
           </p>
+          {/* Legal — fine print behind a native <details>, deeplinkable via
+              `#legal`. Mono + text-xs step out of the marketing voice. */}
+          <details ref={legalRef} id="legal" className="scroll-mt-8 mt-8 font-mono text-xs">
+            <summary className="hover:text-foreground cursor-pointer text-center">
+              <FormattedMessage id="legal.summary" />
+            </summary>
+            <div className="mt-4 whitespace-pre-line">
+              <FormattedMessage id="legal.body" values={{ contactEmail: LEGAL_CONTACT_EMAIL }} />
+            </div>
+          </details>
         </div>
       </footer>
     </div>
@@ -376,8 +384,8 @@ function InstallBlock() {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <div id="install" className="mt-10 scroll-mt-8 text-left">
-      <div className="bg-card relative mx-auto max-w-2xl rounded-lg border shadow-sm">
+    <div id="install" className="mt-8 scroll-mt-8 text-left">
+      <div className="bg-card relative rounded-lg border shadow-sm">
         <pre className="overflow-x-auto p-4 pr-14 font-mono text-sm leading-7">
           {INSTALL_COMMANDS.map((cmd) => (
             <code key={cmd} className="block">
@@ -390,9 +398,7 @@ function InstallBlock() {
           size="icon"
           variant="ghost"
           className="absolute top-2.5 right-2.5"
-          aria-label={intl.formatMessage({
-            id: copied ? "hero.copied" : "hero.copy",
-          })}
+          aria-label={intl.formatMessage({ id: copied ? "hero.copied" : "hero.copy" })}
           onClick={copy}
         >
           {copied ? <Check className="text-primary" /> : <Copy />}
@@ -404,8 +410,9 @@ function InstallBlock() {
 
 /**
  * The two-minute session with Nora, played by asciinema-player from the
- * cast file in the repo's demo kit. Client-only: the player mounts in an
- * effect, so the prerendered HTML ships an empty (aspect-reserved) box.
+ * cast file in the repo's demo kit — autoplaying and looping in the hero.
+ * Client-only: the player mounts in an effect, so the prerendered HTML
+ * ships an empty (aspect-reserved) box.
  */
 function AsciinemaDemo() {
   const ref = useRef<HTMLDivElement>(null);
@@ -416,7 +423,8 @@ function AsciinemaDemo() {
       if (cancelled || !ref.current) return;
       player = create(castUrl, ref.current, {
         fit: "width",
-        poster: "npt:0:10",
+        autoPlay: true,
+        loop: true,
       });
     });
     return () => {

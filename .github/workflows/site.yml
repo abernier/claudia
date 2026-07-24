@@ -1,0 +1,68 @@
+name: Site
+
+# Build & deploy the landing (site/) to Vercel.
+#
+# The deploy is prebuilt: `vercel build` runs here in CI, where the full repo
+# is checked out (the page imports the demo cast from ../demo — a plain
+# `vercel deploy` would upload only site/ and fail), then only the build
+# output is uploaded with `--prebuilt`.
+#
+# Pushes to main go to production; pull requests get a preview URL.
+# Requires the VERCEL_TOKEN repository secret (vercel.com/account/tokens).
+
+on:
+  pull_request:
+    paths:
+      - "site/**"
+      - "demo/recordings/claudia-demo.cast"
+      - ".github/workflows/site.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "site/**"
+      - "demo/recordings/claudia-demo.cast"
+      - ".github/workflows/site.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Not secrets — the same ids live in site/.vercel/project.json locally.
+  VERCEL_ORG_ID: team_zGxXVj0bRrU6AIj5bWe3wRk1
+  VERCEL_PROJECT_ID: prj_VMGL4aASK8f6AOVUfoNoTMaRCk2s
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: site
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - run: npm ci
+
+      - run: npx tsc
+
+      - name: Pull Vercel environment
+        run: >
+          npx vercel@56 pull --yes
+          --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+          --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build
+        run: npx vercel@56 build --yes ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy
+        run: npx vercel@56 deploy --prebuilt ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
