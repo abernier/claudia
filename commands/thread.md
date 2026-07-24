@@ -23,11 +23,18 @@ breaks immersion). In the person's language.
 - You may lightly name an **active theme** if one is relevant (read
   `~/.claudia/themes.md`) — as a cross-link, not a claim.
 
-Example shape (in their language):
+Example shape — **the label itself is in the person's language too** (`le fil :`
+in French, `the thread:` in English — never one language's label over the
+other's words):
 
 ```
-※ le fil : tu es parti du message à Liliana — ce qui semble vivant, c'est de la
-  rejoindre sans t'effacer. C'est resté ouvert.
+※ le fil : tu es parti du message que tu n'as pas envoyé — ce qui semble vivant,
+  c'est de répondre sans t'effacer. C'est resté ouvert.
+```
+
+```
+※ the thread: you started from the unsent message — what feels alive is
+  answering without erasing yourself. It's still open.
 ```
 
 ## The optional visual ("arbre de pensée")

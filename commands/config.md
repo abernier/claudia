@@ -7,8 +7,8 @@ allowed-tools: Read Bash AskUserQuestion
 
 A handful of switches the person owns (ADR-0028). They live in
 `~/.claudia/config.json` on their own machine — hand-editable, and shown here so
-they don't have to know that. Every setting is a boolean with a shipped default;
-absent means default.
+they don't have to know that. Every setting is a boolean or a closed choice with a
+shipped default; absent means default.
 
 Nothing here can lower the [safety floor](../docs/adr/0001-safety-floor.md): there
 is no setting for the safety hook, for the crisis pivot, or for what Claudia will
@@ -45,11 +45,13 @@ refuse. Settings sit **above** the floor, like immersion does.
 
 ## The settings
 
-| Setting           | Default | What it means                                                                                         |
-| ----------------- | ------- | ----------------------------------------------------------------------------------------------------- |
-| `emoji`           | **off** | Claudia writes in plain words. On, she may use emoji sparingly (ADR-0028).                            |
-| `saveTranscripts` | on      | The verbatim archive of each conversation under `~/.claudia/sessions/` (ADR-0004).                    |
-| `dashboard`       | on      | The bird's-eye mirror `~/.claudia/dashboard.md`, opened with [`/dashboard`](dashboard.md) (ADR-0019). |
+| Setting           | Default | What it means                                                                                                                                      |
+| ----------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `emoji`           | **off** | Claudia writes in plain words. On, she may use emoji sparingly (ADR-0028).                                                                         |
+| `saveTranscripts` | on      | The verbatim archive of each conversation under `~/.claudia/sessions/` (ADR-0004).                                                                 |
+| `dashboard`       | on      | The bird's-eye mirror `~/.claudia/dashboard.md`, opened with [`/dashboard`](dashboard.md) (ADR-0019).                                              |
+| `language`        | `fr`    | The language of what the scripts write (the dashboard mirror): `fr` or `en` (ADR-0029). Claudia herself always speaks the person's language.       |
+| `verbose`         | off     | Claudia narrates her machinery (scripts run, notes read) as she works. Off: the workings stay invisible. For tinkering and development (ADR-0031). |
 
 ## After a change
 
@@ -61,6 +63,8 @@ refuse. Settings sit **above** the floor, like immersion does.
   [`/forget`](forget.md) as the way to remove what's there.
 - **`emoji` turned on** — use them **sparingly**, where they genuinely fit her voice,
   never as decoration on every line.
+- **`language` changed** — run `node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"`
+  once so the mirror is rebuilt in the new language right away, not at the next close.
 
 ## Never
 

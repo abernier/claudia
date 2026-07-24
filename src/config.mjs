@@ -9,9 +9,11 @@
  * ever reached the persona, only scripts. `emoji` is the first that does (ADR-0028).
  *
  * The contract, in one place:
- * - **Booleans only, declared keys only.** No free-text style field: an arbitrary
- *   instruction handed to the persona is a way through the safety floor, and the
- *   floor is not configurable (ADR-0001).
+ * - **Declared keys with closed value sets, never free text.** Booleans, plus the
+ *   `language` enum (ADR-0029). No free-text field: an arbitrary instruction handed
+ *   to the persona is a way through the safety floor, and the floor is not
+ *   configurable (ADR-0001). A closed enum consumed by deterministic scripts cannot
+ *   carry an instruction.
  * - **Absent, unreadable, or wrong-typed → the default.** A person hand-edits this
  *   file; a typo must degrade to the shipped behaviour, never to an error.
  * - **Unknown keys are preserved on write** — a key from a newer version (or one the
@@ -20,9 +22,11 @@
 
 /**
  * A declared setting: what it defaults to, and what it does in the person's terms.
+ * A setting with a `values` list is an enum (closed set); without one it is a boolean.
  *
  * @typedef {object} Setting
- * @property {boolean} default - the shipped behaviour when the key is absent
+ * @property {boolean | string} default - the shipped behaviour when the key is absent
+ * @property {readonly string[]} [values] - enum settings: the closed set of accepted values
  * @property {string} what - one line, person-facing (used by `/config`)
  */
 
@@ -30,14 +34,27 @@
  * The names of the settings that exist. Anything else in the file is data we carry
  * but do not act on.
  *
- * @typedef {"saveTranscripts" | "dashboard" | "emoji"} SettingKey
+ * @typedef {"saveTranscripts" | "dashboard" | "emoji" | "language" | "verbose"} SettingKey
+ */
+
+/**
+ * The languages the deterministic mirror can speak (ADR-0029) — exactly the set of
+ * shipped string tables in `src/dashboard.mjs`. Adding one is a code change, not a
+ * config value.
+ *
+ * @typedef {"fr" | "en"} MirrorLanguage
  */
 
 /**
  * A fully-resolved configuration: every declared key, defaults filled in. This is
  * what readers consume — `cfg.emoji` is always a boolean, never `undefined`.
  *
- * @typedef {Record<SettingKey, boolean>} ClaudiaConfig
+ * @typedef {object} ClaudiaConfig
+ * @property {boolean} saveTranscripts
+ * @property {boolean} dashboard
+ * @property {boolean} emoji
+ * @property {MirrorLanguage} language
+ * @property {boolean} verbose
  */
 
 /**
@@ -59,6 +76,15 @@ export const SETTINGS = {
     default: false,
     what: "Let Claudia use emoji in what she writes. Off by default — she writes in plain words.",
   },
+  language: {
+    default: "fr",
+    values: ["fr", "en"],
+    what: "The language of what the scripts write for you (the dashboard mirror): fr or en. Claudia herself always speaks your language.",
+  },
+  verbose: {
+    default: false,
+    what: "Let Claudia narrate her machinery (the scripts she runs, the notes she reads) as she works. Off by default — the workings stay invisible.",
+  },
 };
 
 /**
@@ -77,7 +103,8 @@ export const SETTING_KEYS = /** @type {SettingKey[]} */ (Object.keys(SETTINGS));
  */
 export function defaults() {
   const cfg = /** @type {ClaudiaConfig} */ ({});
-  for (const key of SETTING_KEYS) cfg[key] = SETTINGS[key].default;
+  // The cast: each declared default matches its key's type by construction (the tests assert it).
+  for (const key of SETTING_KEYS) /** @type {Record<string, unknown>} */ (cfg)[key] = SETTINGS[key].default;
   return cfg;
 }
 
@@ -127,7 +154,11 @@ export function parseConfig(raw) {
   if (!obj) return cfg;
   for (const key of SETTING_KEYS) {
     const value = obj[key];
-    if (typeof value === "boolean") cfg[key] = value;
+    const spec = SETTINGS[key];
+    const accepted = spec.values
+      ? typeof value === "string" && spec.values.includes(value) // enum: only a declared value
+      : typeof value === "boolean";
+    if (accepted) /** @type {Record<string, unknown>} */ (cfg)[key] = value;
   }
   return cfg;
 }
@@ -138,7 +169,7 @@ export function parseConfig(raw) {
  *
  * @param {Record<string, unknown> | null} obj - the current file object (null → start fresh)
  * @param {SettingKey} key
- * @param {boolean} value
+ * @param {boolean | string} value
  * @returns {Record<string, unknown>}
  */
 export function withSetting(obj, key, value) {
@@ -173,6 +204,34 @@ export function coerceBoolean(text) {
 }
 
 /**
+ * Read a value for `key` the way a person types it — booleans through
+ * {@link coerceBoolean}, enums against their declared value set. Returns `null`
+ * for anything not in the set, so a caller refuses rather than guesses.
+ *
+ * @param {SettingKey} key
+ * @param {string | null | undefined} text
+ * @returns {boolean | string | null}
+ */
+export function coerceSetting(key, text) {
+  const spec = SETTINGS[key];
+  if (!spec.values) return coerceBoolean(text);
+  const t = String(text ?? "")
+    .trim()
+    .toLowerCase();
+  return spec.values.includes(t) ? t : null;
+}
+
+/**
+ * A value as `/config` shows it: booleans as on/off, enum values verbatim.
+ *
+ * @param {boolean | string} value
+ * @returns {string}
+ */
+export function showValue(value) {
+  return typeof value === "boolean" ? (value ? "on" : "off") : String(value);
+}
+
+/**
  * The settings as a person-readable listing — one line per declared key, its current
  * value, the shipped default, and what it does. `/config` prints this; it is a view,
  * so it never hides a key whose value happens to match its default.
@@ -183,8 +242,8 @@ export function coerceBoolean(text) {
 export function renderSettings(cfg) {
   const width = Math.max(...SETTING_KEYS.map((k) => k.length));
   return SETTING_KEYS.map((key) => {
-    const value = cfg[key] ? "on" : "off";
-    const fallback = SETTINGS[key].default ? "on" : "off";
+    const value = showValue(cfg[key]);
+    const fallback = showValue(SETTINGS[key].default);
     return `${key.padEnd(width)}  ${value.padEnd(3)}  (default ${fallback})  ${SETTINGS[key].what}`;
   }).join("\n");
 }

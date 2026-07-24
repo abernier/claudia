@@ -21,8 +21,67 @@
 
 import { sessionIndex } from "./pending.mjs";
 
+/** @typedef {import("./config.mjs").MirrorLanguage} MirrorLanguage */
+
 const LIST_ITEM = /^\s*(?:[-*+]|\d+\.)\s+\S/;
 const HEADING = /^#{1,6}\s/;
+
+/**
+ * Everything the mirror says in its own voice, per shipped language (ADR-0029).
+ * The person's content is transcluded verbatim and never translated — these are
+ * only the headings, glue words and day format the deterministic builder must
+ * choose itself. The keys of this table ARE the `language` enum in `src/config.mjs`;
+ * adding a language means adding a table here and a value there, together.
+ *
+ * @type {Record<MirrorLanguage, {
+ *   title: string, lastSession: string,
+ *   cadences: Record<CadenceKey, string>,
+ *   keepsake: string, whereWeAre: string, provisional: string,
+ *   goals: string, themes: string, pickUp: string,
+ *   threads: string, distilling: string, world: string, lifeMarkers: string,
+ *   mirrorNote: string, generated: string,
+ *   day: (y: string, m: string, d: string) => string,
+ * }>}
+ */
+const STRINGS = {
+  fr: {
+    title: "Vue d'ensemble",
+    lastSession: "dernière session",
+    cadences: { daily: "~quotidien", weekly: "~hebdo", monthly: "~mensuel", sparse: "~espacé" },
+    keepsake: "## Ce que tu gardes",
+    whereWeAre: "## Là où on en est",
+    provisional: "*(provisoire)*",
+    goals: "## Objectifs",
+    themes: "## Thèmes vivants",
+    pickUp: "## À reprendre",
+    threads: "## Derniers fils",
+    distilling: "*en cours de distillation*",
+    world: "## Ton monde",
+    lifeMarkers: "## Repères de vie",
+    mirrorNote: "*Ce fichier est un reflet, tenu à jour tout seul — tes vraies notes vivent dans les fichiers liés.*",
+    generated: "généré le",
+    day: (y, m, d) => `${d}/${m}`,
+  },
+  en: {
+    title: "Overview",
+    lastSession: "last session",
+    cadences: { daily: "~daily", weekly: "~weekly", monthly: "~monthly", sparse: "~occasional" },
+    keepsake: "## What you keep",
+    whereWeAre: "## Where we are",
+    provisional: "*(provisional)*",
+    goals: "## Goals",
+    themes: "## Living themes",
+    pickUp: "## To pick up",
+    threads: "## Recent threads",
+    distilling: "*being distilled*",
+    world: "## Your world",
+    lifeMarkers: "## Life markers",
+    mirrorNote: "*This file is a mirror, kept up to date on its own — your real notes live in the linked files.*",
+    generated: "generated",
+    day: (y, m, d) =>
+      `${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(m) - 1]} ${Number(d)}`,
+  },
+};
 
 /**
  * Group physical lines into whole list items. A **wrapped** bullet — one whose
@@ -198,10 +257,17 @@ export function sessionsForMirror(filenames, { max = Infinity } = {}) {
 }
 
 /**
- * A coarse, non-clinical cadence label from the gaps between session dates (or null).
+ * A coarse, non-clinical cadence rhythm — semantic keys; which label a key becomes
+ * is the mirror's business, in the mirror's language (ADR-0029).
+ *
+ * @typedef {'daily' | 'weekly' | 'monthly' | 'sparse'} CadenceKey
+ */
+
+/**
+ * The coarse cadence key from the gaps between session dates (or null).
  *
  * @param {MirrorSession[] | null | undefined} sessions
- * @returns {string | null}
+ * @returns {CadenceKey | null}
  */
 export function cadence(sessions) {
   // filter(Boolean) drops the nulls but TS cannot narrow it — hence the cast.
@@ -212,21 +278,35 @@ export function cadence(sessions) {
     86_400_000;
   const avg = span / (dates.length - 1);
   if (!Number.isFinite(avg) || avg <= 0) return null;
-  if (avg <= 1.5) return "~quotidien";
-  if (avg <= 10) return "~hebdo";
-  if (avg <= 40) return "~mensuel";
-  return "~espacé";
+  if (avg <= 1.5) return "daily";
+  if (avg <= 10) return "weekly";
+  if (avg <= 40) return "monthly";
+  return "sparse";
 }
 
 /**
- * DD/MM from an ISO date prefix (falls back to the input unchanged).
+ * A short person-facing day from an ISO date prefix, in the mirror's language
+ * (`22/07` in French, `Jul 22` in English); falls back to the input unchanged.
  *
  * @param {string | null} iso — nullable so `MirrorSession.date` flows in as-is; dated callers pre-filter
+ * @param {MirrorLanguage} language
  * @returns {string}
  */
-function fr(iso) {
+function formatDay(iso, language) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso));
-  return m ? `${m[3]}/${m[2]}` : String(iso);
+  if (!m) return String(iso);
+  const [, y = "", mo = "", d = ""] = m; // the regex guarantees all three; defaults narrow the index type
+  return stringsFor(language).day(y, mo, d);
+}
+
+/**
+ * The string table for a language — total: an unshipped value degrades to the
+ * old behaviour (French), same direction as every config fallback (ADR-0029).
+ *
+ * @param {MirrorLanguage} language
+ */
+function stringsFor(language) {
+  return STRINGS[language] || STRINGS.fr;
 }
 
 /**
@@ -245,6 +325,7 @@ function fr(iso) {
  * @property {string | null} [timeline]
  * @property {boolean} [understandingExists]
  * @property {string | null} [generatedAt]
+ * @property {MirrorLanguage} [language]  the mirror's own words (ADR-0029) — defaults to French, the behaviour every earlier vault had
  */
 
 /**
@@ -271,7 +352,11 @@ export function buildDashboard(input = {}) {
     timeline = null,
     understandingExists = false,
     generatedAt = null,
+    language = "fr",
   } = input;
+  const S = stringsFor(language);
+  /** @param {string | null} iso */
+  const day = (iso) => formatDay(iso, language);
 
   /** @type {string[]} */
   const L = [];
@@ -288,49 +373,51 @@ export function buildDashboard(input = {}) {
     push(heading, ...(items.length ? [...items, ""] : [`→ ${link}`, ""]));
   };
 
-  push(`# Vue d'ensemble${name ? ` — ${name}` : ""}`, "");
+  push(`# ${S.title}${name ? ` — ${name}` : ""}`, "");
 
   // Vitals — computed from session dates; no relative "il y a N jours", no mood/progress score.
   // Sort recent-first here too, so the mirror is correct regardless of caller order.
   const dated = sessions.filter((s) => s.date).sort((a, b) => (a.stem < b.stem ? 1 : a.stem > b.stem ? -1 : 0));
   const vitals = [];
-  if (dated[0]) vitals.push(`dernière session · ${fr(dated[0].date)}`);
+  if (dated[0]) vitals.push(`${S.lastSession} · ${day(dated[0].date)}`);
   if (sessions.length) vitals.push(`${sessions.length} session${sessions.length > 1 ? "s" : ""}`);
   const cad = cadence(sessions);
-  if (cad) vitals.push(cad);
+  if (cad) vitals.push(S.cadences[cad]);
   if (vitals.length) push(`*${vitals.join(" · ")}*`, "");
 
-  // Ce que tu gardes — the newest kept passage as an epigraph, verbatim (ADR-0023).
+  // What you keep — the newest kept passage as an epigraph, verbatim (ADR-0023).
   // Exactly ONE: the mirror is a glance at what they're carrying, not the collection —
   // and it is never counted (no "12 keepsakes"), which would turn re-reading into scoring.
-  emit("## Ce que tu gardes", keepsakes, quoteBlocks(keepsakes, { max: 1 }), "[keepsakes](keepsakes.md)");
+  emit(S.keepsake, keepsakes, quoteBlocks(keepsakes, { max: 1 }), "[keepsakes](keepsakes.md)");
 
-  // Là où on en est — the working understanding is prose; link it, never excerpt it.
-  if (understandingExists) push("## Là où on en est", "→ [understanding](understanding.md) *(provisoire)*", "");
+  // Where we are — the working understanding is prose; link it, never excerpt it.
+  if (understandingExists) push(S.whereWeAre, `→ [understanding](understanding.md) ${S.provisional}`, "");
 
-  emit("## Objectifs", goals, listItems(goals), "[goals](goals.md)");
-  emit("## Thèmes vivants", themes, listItems(themes), "[themes](themes.md)");
+  emit(S.goals, goals, listItems(goals), "[goals](goals.md)");
+  emit(S.themes, themes, listItems(themes), "[themes](themes.md)");
 
-  const open = sectionItems(todo, /ouvert/i);
-  emit("## À reprendre", todo, open.length ? open : listItems(todo), "[todo](todo.md)");
+  // Either heading pair works regardless of the setting (ADR-0029): a vault that
+  // changed language keeps its whole history readable.
+  const open = sectionItems(todo, /ouvert|open/i);
+  emit(S.pickUp, todo, open.length ? open : listItems(todo), "[todo](todo.md)");
 
-  // Derniers fils — dates + links; a not-yet-distilled session says so, never an excerpt.
+  // Recent threads — dates + links; a not-yet-distilled session says so, never an excerpt.
   const fils = dated
     .slice(0, 2)
     .map((s) =>
       s.hasSummary
-        ? `- ${fr(s.date)} → [${s.stem}](sessions/${s.stem}.summary.md)`
-        : `- ${fr(s.date)} · *en cours de distillation*`,
+        ? `- ${day(s.date)} → [${s.stem}](sessions/${s.stem}.summary.md)`
+        : `- ${day(s.date)} · ${S.distilling}`,
     );
-  if (fils.length) push("## Derniers fils", ...fils, "");
+  if (fils.length) push(S.threads, ...fils, "");
 
-  // Ton monde — the ecomap verbatim, else the names list, else a link.
+  // Your world — the ecomap verbatim, else the names list, else a link.
   const eco = mermaidBlock(people);
-  if (eco) push("## Ton monde", eco, "");
-  else emit("## Ton monde", people, listItems(people), "[people](people.md)");
+  if (eco) push(S.world, eco, "");
+  else emit(S.world, people, listItems(people), "[people](people.md)");
 
-  // Repères de vie — the last three dated items.
-  emit("## Repères de vie", timeline, listItems(timeline).slice(-3), "[timeline](timeline.md)");
+  // Life markers — the last three dated items.
+  emit(S.lifeMarkers, timeline, listItems(timeline).slice(-3), "[timeline](timeline.md)");
 
   // Footer nav — only the surfaces that actually exist (no dangling links).
   const nav = [
@@ -343,8 +430,8 @@ export function buildDashboard(input = {}) {
   ].filter(Boolean);
   push("---", "");
   if (nav.length) push(`→ ${nav.join(" · ")}`, "");
-  push("*Ce fichier est un reflet, tenu à jour tout seul — tes vraies notes vivent dans les fichiers liés.*");
-  if (generatedAt) push("", `*(généré le ${fr(generatedAt)})*`);
+  push(S.mirrorNote);
+  if (generatedAt) push("", `*(${S.generated} ${day(generatedAt)})*`);
 
   return (
     L.join("\n")

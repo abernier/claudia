@@ -18,13 +18,15 @@ import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
-  coerceBoolean,
+  coerceSetting,
   isSettingKey,
   parseConfig,
   readObject,
   renderSettings,
+  SETTINGS,
   SETTING_KEYS,
   serializeConfig,
+  showValue,
   withSetting,
 } from "../src/config.mjs";
 
@@ -48,14 +50,15 @@ const say = (line) => process.stdout.write(line + "\n");
 async function set(assignment) {
   const eq = assignment.indexOf("=");
   const key = (eq === -1 ? assignment : assignment.slice(0, eq)).trim();
-  const value = coerceBoolean(eq === -1 ? "" : assignment.slice(eq + 1));
 
   if (!isSettingKey(key)) {
     say(`unknown setting: ${key || "(none)"} — known settings: ${SETTING_KEYS.join(", ")}`);
     return 1;
   }
+  const value = coerceSetting(key, eq === -1 ? "" : assignment.slice(eq + 1));
   if (value === null) {
-    say(`${key} takes on or off (true/false) — got: ${assignment.slice(eq + 1).trim() || "(nothing)"}`);
+    const takes = SETTINGS[key].values ? SETTINGS[key].values.join(" or ") : "on or off (true/false)";
+    say(`${key} takes ${takes} — got: ${assignment.slice(eq + 1).trim() || "(nothing)"}`);
     return 1;
   }
 
@@ -70,8 +73,7 @@ async function set(assignment) {
   await fs.mkdir(root, { recursive: true });
   await fs.writeFile(file, serializeConfig(withSetting(obj, key, value)));
 
-  const word = /** @param {boolean} b */ (b) => (b ? "on" : "off");
-  say(before === value ? `${key}: already ${word(value)}` : `${key}: ${word(before)} → ${word(value)}`);
+  say(before === value ? `${key}: already ${showValue(value)}` : `${key}: ${showValue(before)} → ${showValue(value)}`);
   say(file);
   return 0;
 }

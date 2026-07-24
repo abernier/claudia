@@ -22,12 +22,15 @@ Offer, don't impose — the list is theirs, never homework you assign.
 
 ## The format — by status, session-tagged
 
-Two sections, `## Ouvert` / `## Fait`, each line a checkbox item ending in
+Two sections in the person's language — `## Ouvert` / `## Fait` (French) or
+`## Open` / `## Done` (English; ADR-0029) — each line a checkbox item ending in
 `· [<stem>](sessions/<stem>.summary.md)` — a relative link to the session that raised
 it (todo.md is at the vault root). Grouping by status keeps "what's still open"
-scannable as it grows; the tag keeps provenance.
+scannable as it grows; the tag keeps provenance. The dashboard mirror matches either
+heading pair regardless of the `language` setting, so a vault that changed language
+keeps its whole history readable.
 
-- **Add** under `## Ouvert`, in the person's language, one concrete task per line.
+- **Add** under the open heading, in the person's language, one concrete task per line.
   Tag it with the current session — `[<stem>](sessions/<stem>.summary.md)` — if you
   know the stem; else leave the tag off — `distill-session` completes it
   authoritatively (it holds the real stem when it writes the summary).
