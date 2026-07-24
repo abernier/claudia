@@ -4,7 +4,7 @@
   "nav.github": "GitHub",
   "hero.badge": "Claude Code plugin · opensource · local",
   "hero.title": "Une écoute, en plugin Claude Code",
-  "hero.subtitle": "Un toolkit de skills, de commands et de hooks déterministes. Chaque conversation écrit une base de connaissances en Markdown brut dans ~/.claudia — la suivante s'ouvre dessus.",
+  "hero.subtitle": "Un toolkit de skills, de commands et de hooks déterministes : chaque conversation écrit une base de connaissances en Markdown brut dans ~/.claudia — la suivante s'ouvre dessus.",
   "hero.copy": "Copier les commandes d'installation",
   "hero.copied": "Copié !",
   "install.title": "INSTALL",
