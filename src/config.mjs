@@ -34,7 +34,7 @@
  * The names of the settings that exist. Anything else in the file is data we carry
  * but do not act on.
  *
- * @typedef {"saveTranscripts" | "dashboard" | "emoji" | "language" | "verbose"} SettingKey
+ * @typedef {"saveTranscripts" | "dashboard" | "emoji" | "language" | "verbose" | "backups"} SettingKey
  */
 
 /**
@@ -55,6 +55,7 @@
  * @property {boolean} emoji
  * @property {MirrorLanguage} language
  * @property {boolean} verbose
+ * @property {boolean} backups
  */
 
 /**
@@ -84,6 +85,10 @@ export const SETTINGS = {
   verbose: {
     default: false,
     what: "Let Claudia narrate her machinery (the scripts she runs, the notes she reads) as she works. Off by default — the workings stay invisible.",
+  },
+  backups: {
+    default: true,
+    what: "Keep a rotating archive of your notes under ~/.claudia-backups/ (local only), so a bad write or a mistaken delete is recoverable. /forget destroys it too.",
   },
 };
 

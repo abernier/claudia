@@ -30,7 +30,12 @@ describe("the declared settings", () => {
       emoji: false,
       language: "fr",
       verbose: false,
+      backups: true,
     });
+  });
+
+  it("ships backups ON — a safety net you have to remember to switch on is not one (ADR-0032)", () => {
+    expect(SETTINGS.backups.default).toBe(true);
   });
 
   it("ships verbose OFF — the machinery stays invisible unless the person asks", () => {
@@ -49,7 +54,14 @@ describe("the declared settings", () => {
   });
 
   it("exposes every declared key, with a person-facing line for /config", () => {
-    expect([...SETTING_KEYS].sort()).toEqual(["dashboard", "emoji", "language", "saveTranscripts", "verbose"]);
+    expect([...SETTING_KEYS].sort()).toEqual([
+      "backups",
+      "dashboard",
+      "emoji",
+      "language",
+      "saveTranscripts",
+      "verbose",
+    ]);
     for (const key of SETTING_KEYS) expect(SETTINGS[key].what.length).toBeGreaterThan(20);
   });
 
@@ -168,6 +180,7 @@ describe("renderSettings()", () => {
     emoji: true,
     language: "en",
     verbose: false,
+    backups: true,
   });
 
   it("shows every declared setting, its value and its default", () => {

@@ -15,7 +15,11 @@ The first time `~/.claudia/` is created, tell the person, once and clearly (this
 is the "when it matters" moment, not a repeated disclaimer): their conversations
 and a distilled memory are saved **locally on their own machine** under
 `~/.claudia/`, nothing is uploaded, and they can export (`/export`) or delete
-(`/forget`) any of it, anytime. Mention too, in the same breath, that there is a
+(`/forget`) any of it, anytime. In the same breath: **dated safety copies** of those
+notes are kept beside them, in `~/.claudia-backups/`, so a bad write or a mistaken
+delete is recoverable — same machine, same rules, theirs to look at or clear whenever
+they like with `/backup` (ADR-0032). One clause, said once, where it reassures; never
+a second disclosure moment of its own. Mention too, in the same breath, that there is a
 bird's-eye view they can open whenever they like — `~/.claudia/dashboard.md`, or
 `/dashboard` (ADR-0019) — so the aggregated view is disclosed, never hidden.
 

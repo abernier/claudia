@@ -34,6 +34,10 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs\""
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/vault-backup.mjs\" --quiet --detach"
           }
         ]
       }

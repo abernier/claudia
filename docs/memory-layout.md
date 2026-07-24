@@ -7,7 +7,7 @@ English/universal; **content is written in the person's language**.
 ```
 ~/.claudia/
 ├── config.json          the person's settings — declared keys, closed value sets, all optional (ADR-0028, ADR-0029, ADR-0031)
-│                        { "emoji": false } · { "saveTranscripts": false } · { "dashboard": false } · { "language": "fr" } · { "verbose": false }
+│                        { "emoji": false } · { "saveTranscripts": false } · { "dashboard": false } · { "language": "fr" } · { "verbose": false } · { "backups": false }
 ├── .migrations          applied vault-migration ids, one per line — the ledger (ADR-0020)
 ├── MEMORY.md            one-line-per-entry index of what Claudia knows and where
 ├── dashboard.md         derived, person-facing mirror — bird's-eye view; transcludes or points, never summarises (ADR-0019)
@@ -76,7 +76,8 @@ English/universal; **content is written in the person's language**.
   on a kept line, ever.
 - **`config.json` is settings, not memory** — every key is declared in
   `src/config.mjs` with its default (`saveTranscripts: true`, `dashboard: true`,
-  `emoji: false`, `language: "fr"` — the mirror's own words, ADR-0029) and resolved
+  `emoji: false`, `backups: true` — the rotating archive, ADR-0032 —
+  `language: "fr"` — the mirror's own words, ADR-0029) and resolved
   through it, never parsed ad hoc. Absent, empty or malformed → the defaults; an
   unknown key is preserved on write. Shown and changed by `/config`; hand-editable.
   Nothing in it can lower the safety floor (ADR-0028).
@@ -131,3 +132,11 @@ English/universal; **content is written in the person's language**.
   `.migrations` ledger, when a versioned format upgrade is pending (ADR-0020). Runs at
   `recall` (backup first, then disclosed) and on demand via `/migrate`; pure, idempotent
   transforms live in `src/migrations/`.
+- `scripts/vault-backup.mjs` → **nothing inside the vault**. It writes compressed
+  snapshots to `~/.claudia-backups/`, a _sibling_ of the vault (ADR-0032) — which is
+  what keeps them out of `/export`'s copy, out of `/migrate`'s rewrite, and out of the
+  next snapshot's own input. Runs at `SessionEnd` (last, after `build-dashboard`,
+  `--detach`ed so the close never waits on it) and on an hourly launchd job — the two
+  are serialised by a lock in the archive directory, not by luck. Respects
+  `{ "backups": false }`, and `/forget` purges the whole set, because a backup that
+  outlives a deletion makes "permanent" a lie.

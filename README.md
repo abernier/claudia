@@ -29,7 +29,7 @@ at the open, a keepsake, a todo, `/dashboard`, and the plain-markdown vault at t
 - **Immersion with a floor.** Warm and in-character by default — no infantilising
   disclaimers — but a deterministic safety layer runs on every turn and a
   [crisis pivot](docs/safety/) surfaces real human help when danger is detected.
-- **Natural-language first.** Only ten slash commands exist — six data, safety,
+- **Natural-language first.** Only eleven slash commands exist — seven data, safety,
   and memory controls, three pull-only orientation aids, and one to keep a sentence
   that landed. Everything therapeutic happens in ordinary conversation. See
   [ADR-0003](docs/adr/0003-plugin-runtime-shape.md).
@@ -40,13 +40,14 @@ at the open, a keepsake, a todo, `/dashboard`, and the plain-markdown vault at t
 
 ## Commands
 
-Claudia deliberately ships only ten commands — the rest is conversation:
+Claudia deliberately ships only eleven commands — the rest is conversation:
 
 | Command      | What it does                                                                                                                                                             |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `/help-now`  | Immediately surface crisis resources for your region.                                                                                                                    |
 | `/forget`    | Really delete a memory, a session, or everything.                                                                                                                        |
 | `/export`    | Export your memory and deliverables.                                                                                                                                     |
+| `/backup`    | See and manage the rotating archive of your notes — what's kept, whether it still reads back, and how to recover from one.                                               |
 | `/save`      | Checkpoint your memory now — update the notes for where this conversation got to, without waiting for the session to close.                                              |
 | `/migrate`   | Update your saved notes to the latest format — with a preview and a backup first. Normally automatic.                                                                    |
 | `/config`    | See and change your settings — emoji (off by default), the conversation archive, the dashboard.                                                                          |
@@ -68,6 +69,7 @@ default. See [ADR-0028](docs/adr/0028-settings.md).
 | `dashboard`       | `true`  | Maintains the bird's-eye mirror `~/.claudia/dashboard.md` (opened with `/dashboard`).  |
 | `language`        | `"fr"`  | The language of what the scripts write for you (the dashboard mirror): `fr` or `en`.   |
 | `verbose`         | `false` | Claudia narrates her machinery as she works. Off by default — workings stay invisible. |
+| `backups`         | `true`  | Keeps a rotating archive of your notes under `~/.claudia-backups/` (local only).       |
 
 Emoji are off by default on purpose: Claudia is honest about being an AI, and a
 smiley is the cheapest way to perform a feeling she doesn't have. Nothing in this
@@ -107,6 +109,21 @@ claude plugin validate . --strict          # validate before publishing
 > repo edits until you bump `version` in `plugin.json` and run `update`. If you're
 > developing the plugin, use the live / hot-reload setup below instead.
 
+### Optional: back up between sessions too
+
+Your notes are already archived at the close of every conversation — that needs no
+setup and covers the only moment Claudia writes to them. An hourly job adds cover for
+what a session close can't see: a session that crashed before it saved, notes you
+edited by hand, weeks where you never opened Claudia.
+
+```
+~/.claude/plugins/*/claudia/scripts/install-backup-timer.sh install   # status | uninstall
+```
+
+macOS only. It is a per-user LaunchAgent in your own `~/Library/LaunchAgents/` — no
+`sudo`, nothing written outside your home directory. On Linux, point a systemd `--user`
+timer or cron at `vault-backup.mjs --quiet` every hour.
+
 ## Reaching Claudia
 
 Once installed, in any new session:
@@ -136,7 +153,7 @@ docs/
   safety/         crisis protocol, C-SSRS logic, localized resources, classifier
   bibliography.md the evidence base
 skills/           Claudia's capabilities
-commands/         the ten commands
+commands/         the eleven commands
 hooks/            the per-turn safety hook + session-save hook
 ```
 

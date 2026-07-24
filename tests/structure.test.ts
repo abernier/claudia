@@ -61,11 +61,12 @@ describe("components", () => {
     }
   });
 
-  it("ships exactly the ten commands", () => {
+  it("ships exactly the eleven commands", () => {
     const cmds = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
       .map((p) => path.basename(p))
       .sort();
     expect(cmds).toEqual([
+      "backup.md",
       "config.md",
       "dashboard.md",
       "export.md",
@@ -97,14 +98,81 @@ describe("README stays in sync with the command surface", () => {
   });
 
   it("every '<n> commands' count in the prose matches how many ship", () => {
-    const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+    const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven"];
     const expected = words[commands.length];
     expect(expected, `extend words[] past ${commands.length}`).toBeDefined();
     const counts = [
-      ...readme.matchAll(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:slash\s+)?commands?\b/gi),
+      ...readme.matchAll(
+        /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\s+(?:slash\s+)?commands?\b/gi,
+      ),
     ].map((m) => m[1]!.toLowerCase());
     expect(counts.length, "README should state the command count").toBeGreaterThan(0);
     for (const w of counts) expect(w).toBe(expected);
+  });
+});
+
+describe("rotating vault archive (ADR-0032)", () => {
+  it("ships the pass, the timer installer and the ADR", () => {
+    expect(existsSync(path.join(root, "scripts/vault-backup.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "scripts/install-backup-timer.sh"))).toBe(true);
+    expect(existsSync(path.join(root, "docs/adr/0032-vault-backups.md"))).toBe(true);
+  });
+
+  it("snapshots at SessionEnd, after the dashboard rebuild", () => {
+    // Order matters: it must capture the distilled state, not the state before
+    // save-session and build-dashboard wrote to it.
+    const h = readFileSync(path.join(root, "hooks/hooks.json"), "utf8");
+    const end = JSON.parse(h).hooks.SessionEnd[0].hooks.map((x: { command: string }) => x.command);
+    expect(end.at(-1)).toMatch(/vault-backup\.mjs/);
+    expect(end.at(-1)).toMatch(/--quiet/); // benign layer: never fails a session
+    expect(end.at(-1)).toMatch(/--detach/); // and never makes the person wait on one
+  });
+
+  it("/forget leaves the archives alone — a backup a routine command can destroy is not one", () => {
+    const forget = readFileSync(path.join(root, "commands/forget.md"), "utf8");
+    expect(/--purge/.test(forget), "/forget must not purge the archive set").toBe(false);
+    expect(/never touch .*claudia-backups/i.test(forget)).toBe(true);
+  });
+
+  it("/forget says what is true about the copies it does not touch", () => {
+    // The price of leaving archives alone is that the command must stop claiming a
+    // permanence it no longer delivers.
+    const forget = readFileSync(path.join(root, "commands/forget.md"), "utf8");
+    expect(/rotate out/.test(forget), "must say the older copies persist").toBe(true);
+    expect(/\/backup/.test(forget), "and where the person can clear them").toBe(true);
+  });
+
+  it("never mines an archive to undo a forgetting", () => {
+    // This behavioural rule is what makes leaving the archives alone compatible with
+    // honouring the deletion. It has to exist in both places that can reach one.
+    for (const f of ["commands/forget.md", "commands/backup.md"]) {
+      const txt = readFileSync(path.join(root, f), "utf8");
+      expect(/chose to forget/i.test(txt), `${f} must carry the never-retrieve rule`).toBe(true);
+    }
+  });
+
+  it("is refusable, like every other copy the plugin keeps", () => {
+    const cfg = readFileSync(path.join(root, "src/config.mjs"), "utf8");
+    expect(/^\s+backups: \{/m.test(cfg)).toBe(true);
+  });
+
+  it("is disclosed inside the existing first-run breath, not as its own prompt", () => {
+    const remember = readFileSync(path.join(root, "skills/remember/SKILL.md"), "utf8");
+    expect(/claudia-backups/.test(remember), "the archive must be disclosed at all").toBe(true);
+    expect(/same breath/.test(remember), "and folded into the one disclosure that exists").toBe(true);
+  });
+
+  it("keeps the background job out of the conversation", () => {
+    // A companion that asks to install system things stops feeling like a companion.
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/launchd|launchctl|backup-timer/i.test(persona)).toBe(false);
+    const cmd = readFileSync(path.join(root, "commands/backup.md"), "utf8");
+    expect(/never raise it mid-conversation/i.test(cmd)).toBe(true);
+  });
+
+  it("is recorded in the memory layout", () => {
+    const layout = readFileSync(path.join(root, "docs/memory-layout.md"), "utf8");
+    expect(/claudia-backups/.test(layout)).toBe(true);
   });
 });
 
