@@ -1,13 +1,18 @@
-# Claudia demo — the scenario, single source of truth (~2 min, one act).
+# Claudia demo — the scenario, single source of truth (~90 s at 2×, one act).
 #
-# This file IS the take: demo/drive-take.sh reads it line by line and performs
-# it against the real claude TUI (and `npm run demo:record` is you performing it
-# by hand — same script, human tempo). One continuing session with Nora, the
+# This file IS the take: demo/drive-take.sh reads it line by line and performs it
+# against the real claude TUI (and `npm run demo:record` is you performing it by
+# hand — same script, human tempo). One continuing session with Agnès, the
 # fictional persona in vault/ — the model's replies vary between takes; the
-# fixture guarantees the content they draw on is identical every time.
+# fixture guarantees the material they draw on is identical every time.
+#
+# The take types no slash command. She launches claude, says the name, and talks.
 #
 # Verbs (one per line; full-line # comments and blank lines are ignored):
 #   type <text>            type it like a person (char by char), then Enter
+#   draft <text>           same, but WITHOUT Enter — a multi-line prompt in progress
+#   newline                soft newline inside the prompt (backslash + Enter)
+#   send                   validate whatever the drafts have built
 #   settle                 wait until claude finishes the turn (pane stops repainting;
 #                          FAILS the take on a permission prompt — rig must be pre-allowed)
 #   expect <regex> [secs]  wait until the pane matches (space-free regex; default 90s)
@@ -24,56 +29,63 @@ type claude
 expect Claude.Code 60
 sleep 3
 
-# — Shot 2 · the recall moment (the money shot: continuity).
-# Expect a greeting BY NAME picking up an open thread — the Friday dinner with
-# Devon, or the Tess message. Nothing was typed about any of that: it came from
-# the vault.
-type Hi Claudia — I'm back.
+# — Shot 2 · naming her is the entire trigger — no command, no menu.
+# The greeting comes back with her name, her husband's name and the follow-up
+# left open three days ago. None of it was typed here; it came from the vault.
+type Claudia, I need to talk
 settle
 sleep 2
 
-# — Shot 3 · two natural-language turns, no commands.
-type Honestly, the dinner is tomorrow and the jury is already drafting its opening statement.
-settle
-sleep 2
-type Say that again more slowly — that's the sentence I needed.
+# — Shot 3 · the grievance, in three breaths. One prompt, three lines: the
+# absurd duration first, the derisory object last. Bacri-Jaoui's whole engine.
+draft Forty minutes!
+newline
+sleep 1
+draft We argued for forty minutes!!!
+newline
+sleep 1
+draft about a window.
+send
 settle
 sleep 2
 
-# — Shot 4 · keep that: the passage lands verbatim in keepsakes.md,
-# attributed and session-tagged. A picker may offer candidate lines.
-type keep that
-sleep 20
+# — Shot 4 · the punchline. The reasonable half, a beat of silence, then the
+# real reason escaping in capitals. The SILENCE is the joke — which is why this
+# is drafted line by line and not typed in one go.
+draft I wanted him to notice I was cold
+newline
+sleep 2
+draft BEFORE I HAD TO ASK!!!
+send
+settle
+sleep 3
+
+# — Shot 5 · she concedes to being named, and pulls the keep herself.
+# No guard here on purpose: "you got me" answers any reflective reply, and
+# reflecting the pattern is Claudia's baseline — an earlier take failed on an
+# `expect (telepathy|…)` while she had in fact named it perfectly, in her own
+# words ("there it is again — you wanted to be noticed before you had to ask").
+# A regex cannot tell a reflection from a non-sequitur; the guard that matters
+# is the one below, on which sentence gets kept.
+draft ok, ok. you got me.
+newline
+sleep 1
+# Two failure modes seen across takes, both closed by this one line: a bare "keep
+# that one" once kept CLAUDIA's preceding sentence ("mine, not yours"), and once
+# the model tidied the caps and the "!!!" away ("word for word" forbids that).
+draft keep that — mine, word for word, caps and all 📌
+send
+
+# — Shot 6 · the keep. Whether the choice UI (ADR-0024) opens is the model's call;
+# `picker-enter` is a no-op when no picker is up, so the take survives both paths.
+settle
+sleep 2
 picker-enter
 settle
-sleep 1
+# The one assertion that matters: HER sentence, verbatim, is now in the file. The
+# pane can't witness it (her own message shows the same words higher up).
+expect-file .claudia/keepsakes.md BEFORE.I.HAD.TO.ASK
 
-# — Shot 5 · a todo, conversationally: one line appended under ## Open.
-type add a todo: bring the invoice list to dinner
-settle
-sleep 1
-
-# — Shot 6 · the dashboard: Overview — Nora, vitals, the kept passage, goals,
-# living themes, open todos, recent threads. Let it sit a few seconds.
-type /dashboard
-settle
-sleep 5
-
-# — Shot 7 · the thread: a light, person-pulled reflection of where this very
-# session went.
-type /thread
-settle
-sleep 4
-
-# — Shot 8 · close claude, then the privacy story in the plain shell:
-# everything the session produced is plain markdown, local, hers.
-type /exit
-expect % 30
-sleep 2
-type ls ~/.claudia
-sleep 3
-type cat ~/.claudia/keepsakes.md
-sleep 4
-type cat ~/.claudia/dashboard.md
-sleep 6
-key C-d
+# — Shot 7 · the last frame: her sentence written into keepsakes.md, in plain
+# markdown, attributed to her. Held long — the site plays this cast at 2×.
+sleep 12

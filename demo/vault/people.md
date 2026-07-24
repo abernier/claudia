@@ -3,14 +3,14 @@
 ```mermaid
 graph TD
   ME(["You"])
-  ME ---|"partner · warm, tense around money lately"| DEV["Devon"]
-  ME ---|"sister · closest ally"| TESS["Tess"]
-  ME ---|"friend · clay and laughter"| PRI["Priya"]
-  click DEV "people/Devon.md"
-  click TESS "people/Tess.md"
-  click PRI "people/Priya.md"
+  ME ---|"husband · twelve years, warm, not psychic"| JP["Jean-Pierre"]
+  ME ---|"sister · asks the annoying question"| MIC["Michèle"]
+  ME ---|"friend · the Thursday hour"| SYL["Sylvie"]
+  click JP "people/Jean-Pierre.md"
+  click MIC "people/Michèle.md"
+  click SYL "people/Sylvie.md"
 ```
 
-- **Devon** — partner, six years. Warm; the money conversations go tense. → [Devon](people/Devon.md)
-- **Tess** — younger sister, the one the jury goes quiet around. → [Tess](people/Tess.md)
-- **Priya** — friend from the pottery class; easy company. → [Priya](people/Priya.md)
+- **Jean-Pierre** — husband, twelve years. Warm, literal, waits to be told. → [Jean-Pierre](people/Jean-Pierre.md)
+- **Michèle** — older sister; the one who asks "and did you tell him?" → [Michèle](people/Michèle.md)
+- **Sylvie** — friend from the studio; the Thursday drawing hour. → [Sylvie](people/Sylvie.md)

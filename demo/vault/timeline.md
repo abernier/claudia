@@ -2,12 +2,12 @@
 
 ## Growing up
 
-- **1991** — born in Eugene, Oregon.
-- **2009** — art school in Portland; first time the critic had a name ("the jury").
+- **1983** — born, second of two; Michèle was already four, and already direct.
+- **2005** — art school; first noticed she would rather be guessed than ask.
 
 ## The last decade
 
-- **2018** — met Devon at a friend's opening. _valence:_ warm
-- **2021** — went freelance; the money worry moved in with them.
-- **{{TODAY-9}}** — delivered the portfolio imperfect and on time — and let that count.
-- **{{TODAY-16}}** — first conversation with Claudia.
+- **2012** — met Jean-Pierre at a friend's housewarming. _valence:_ warm
+- **2014** — married.
+- **2019** — went freelance; the evenings got fuller and the asking got quieter.
+- **{{TODAY-16}}** — first conversation with Claudia, the morning after the dryer.

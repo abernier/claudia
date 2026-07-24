@@ -4,18 +4,18 @@ Everything needed to shoot (and later re-shoot) the "how Claudia works" video:
 a fictional pre-seeded vault, a fake `$HOME` to run it in, and the
 record → render pipeline. Nothing in here is product code.
 
-## The immersive home — `/Users/nora`
+## The immersive home — `/Users/agnes`
 
-On-screen paths should read `/Users/nora/…`, not `/Users/you/.claudia-demo/…`.
+On-screen paths should read `/Users/agnes/…`, not `/Users/you/.claudia-demo/…`.
 Create the immersive home once (a plain directory, not a macOS account):
 
 ```bash
-sudo mkdir -p /Users/nora && sudo chown "$(id -un)":staff /Users/nora
+sudo mkdir -p /Users/agnes && sudo chown "$(id -un)":staff /Users/agnes
 ```
 
-Every demo script auto-prefers `/Users/nora` when it exists and is writable
+Every demo script auto-prefers `/Users/agnes` when it exists and is writable
 (explicit `$DEMO_HOME` still wins; otherwise fallback is `~/.claudia-demo`).
-Remove it anytime with `sudo rm -rf /Users/nora`.
+Remove it anytime with `sudo rm -rf /Users/agnes`.
 
 ## Why a fake `$HOME`
 
@@ -28,10 +28,13 @@ demo session doesn't inherit the project's CLAUDE.md/git context).
 
 ## The fixture (`vault/`)
 
-**Nora**, mid-30s graphic designer in Portland — partner **Devon**, sister
-**Tess**, friend **Priya**; themes _the jury_ (her inner critic, in her words)
-and _what steadies me_. Three distilled sessions, goals, todos, a keepsake, an
-ecomap, a timeline. English content, `{ "language": "en" }` (ADR-0029).
+**Agnès**, early-forties freelance illustrator — husband **Jean-Pierre**, sister
+**Michèle**, friend **Sylvie**; themes _my telepathy problem_ (wanting to be
+noticed before having to ask — her words, and the running tally of arguments it
+has cost her) and _the plain version_. Three distilled sessions, goals, todos,
+two keepsakes, an ecomap, a timeline. English content, and
+`{ "language": "en", "emoji": true }` (ADR-0029, ADR-0028) — emoji **on**, since
+the scenario has Claudia answer a joke with one and the default is off.
 
 - **All names are invented and grep-verified absent from the repo.** Never reuse
   a name that already appears anywhere in the repo (doc examples, test fixtures) —
@@ -60,6 +63,14 @@ npm run demo:render      # .cast → .gif → .mp4 (brew install asciinema agg f
 
 Both take commands re-seed the vault AND the rig's Claude Code state on every
 run, so each take starts from the same clean slate.
+
+That state includes **the previous take's conversation**, which
+`seed-claude-config.mjs` deletes (`.claude/projects/`, `history.jsonl`, and
+friends). Re-seeding the vault alone is not enough: transcripts live under
+`.claude/`, not `.claudia/`, and `recall`'s deferred distillation
+([ADR-0016](../docs/adr/0016-deferred-distillation.md)) would find yesterday's
+take on the next run and fold a summary of it into the freshly seeded vault —
+the greeting then opens on an argument the fixture never mentions.
 
 (`npm run demo:seed` re-seeds the scratch vault on its own — useful between manual
 dry-runs; `demo:record` already does it before every take. Pass a take name with

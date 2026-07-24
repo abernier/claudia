@@ -1,4 +1,4 @@
 # Themes
 
-- **[the jury](<themes/the jury.md>)** — the voice that says it's never enough · _open_ → [Devon](people/Devon.md), [{{TODAY-3}}](sessions/{{TODAY-3}}-c94d7e12.summary.md)
-- **[what steadies me](<themes/what steadies me.md>)** — the river, clay, Tess · _resource_ → [Tess](people/Tess.md), [Priya](people/Priya.md)
+- **[my telepathy problem](<themes/my telepathy problem.md>)** — being noticed before having to ask · _open_ → [Jean-Pierre](people/Jean-Pierre.md), [{{TODAY-3}}](sessions/{{TODAY-3}}-e58a7c34.summary.md)
+- **[the plain version](<themes/the plain version.md>)** — what happens when she just says it · _resource_ → [Michèle](people/Michèle.md), [Sylvie](people/Sylvie.md)

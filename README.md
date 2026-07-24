@@ -17,8 +17,10 @@ adapts to the person in front of her.
 
 [![Claudia demo — a two-minute session with a fictional person](https://asciinema.org/a/pSrPEDSW0g4XN9BP.svg)](https://asciinema.org/a/pSrPEDSW0g4XN9BP)
 
-_A two-minute session with **Nora**, a fictional person ([`demo/`](demo/)): continuity
-at the open, a keepsake, a todo, `/dashboard`, and the plain-markdown vault at the end._
+_A session with **Agnès**, a fictional person ([`demo/`](demo/)). She types the name,
+and the greeting comes back knowing who she is and what was left open three days ago.
+Then one sentence she would rather not have shouted is kept, word for word, in her own
+notes. No command is typed at any point._
 
 ## What makes Claudia different
 

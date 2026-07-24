@@ -21,12 +21,12 @@ import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-/** Same resolution as demo/env.sh: $DEMO_HOME > /Users/nora (if ours) > ~/.claudia-demo. */
+/** Same resolution as demo/env.sh: $DEMO_HOME > /Users/agnes (if ours) > ~/.claudia-demo. */
 function resolveDemoHome() {
   if (process.env.DEMO_HOME) return process.env.DEMO_HOME;
   try {
-    accessSync("/Users/nora", constants.W_OK);
-    return "/Users/nora";
+    accessSync("/Users/agnes", constants.W_OK);
+    return "/Users/agnes";
   } catch {
     return path.join(os.homedir(), ".claudia-demo");
   }
@@ -40,12 +40,22 @@ const DEMO_HOME = resolveDemoHome();
  *
  * @typedef {Record<string, unknown> & { projects?: Record<string, Record<string, unknown>> }} ClaudeJson
  * @typedef {{ allow?: string[], deny?: string[], additionalDirectories?: string[] }} PermissionsBlock
- * @typedef {Record<string, unknown> & { permissions?: PermissionsBlock, hooks?: Record<string, unknown>, model?: string }} SettingsFile
+ * @typedef {Record<string, unknown> & { permissions?: PermissionsBlock, hooks?: Record<string, unknown>, model?: string, env?: Record<string, string> }} SettingsFile
  */
 const DEST = path.join(DEMO_HOME, ".claude.json");
 const REAL = path.join(os.homedir(), ".claude.json");
 
 async function main() {
+  // Wipe Claude Code's OWN conversation state in the fake home. Without this a take
+  // inherits the previous take's transcript: `recall`'s deferred distillation
+  // (ADR-0016) finds it on the next run and writes a summary of the LAST take into
+  // the freshly seeded vault — the greeting then opens on something the fixture
+  // never mentions. Re-seeding the vault cannot catch it; these files live under
+  // .claude/, not .claudia/.
+  for (const leftover of ["projects", "history.jsonl", "session-env", "shell-snapshots", "file-history", "todos"]) {
+    await fs.rm(path.join(DEMO_HOME, ".claude", leftover), { recursive: true, force: true });
+  }
+
   /** @type {ClaudeJson} */
   let real = {};
   try {
@@ -126,10 +136,21 @@ async function main() {
   } catch {
     /* absent or unreadable → start fresh */
   }
-  // Sonnet: the sweet spot on camera. Haiku was tried and failed the money shot —
-  // it answered turn 1 as plain Claude Code instead of activating the persona.
-  // Authoritative — the repo owns this rig knob; change it here, reseed, done.
-  settings.model = "sonnet";
+  // Sonnet: the sweet spot on camera. Haiku was once tried and failed the money
+  // shot — it answered turn 1 as plain Claude Code instead of activating the
+  // persona. `DEMO_MODEL=haiku ./demo/drive-take.sh some-take` re-tries that
+  // empirically against the current fixture without touching the committed
+  // default. The repo owns the default; the env var is a shooting-time override.
+  settings.model = process.env.DEMO_MODEL || "sonnet";
+  // Claude Code writes a *suggested next prompt* into the input box after a turn —
+  // invented words in the person's mouth, on screen, through every held beat of the
+  // recording, the last frame included. The switch is an env var: the `--prompt-
+  // suggestions` flag governs print/SDK mode only, and the `promptSuggestions`
+  // settings key (it exists in the SDK schema) is not read here — both were tried,
+  // both still suggested. `settings.env` covers the auto-pilot, `demo:record` and
+  // `npm run demo` alike.
+  settings.env = { ...(settings.env || {}), CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION: "0" };
+  delete settings.promptSuggestions; // written by an earlier seed; never read
 
   settings.permissions = settings.permissions || {};
   settings.permissions.allow = [

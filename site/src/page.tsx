@@ -134,7 +134,7 @@ export function Page() {
 
         {/* Privacy — the vault, documented as it really is. The tree
             mirrors docs/memory-layout.md; example file names come from the
-            demo fixture (Nora, a fictional person) — never a real vault. */}
+            demo fixture (Agnès, a fictional person) — never a real vault. */}
         <section className="py-16 sm:py-24">
           <div className="mx-auto max-w-5xl px-6">
             <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
@@ -400,7 +400,7 @@ function useResolvedTheme(): "light" | "dark" {
 }
 
 /**
- * The two-minute session with Nora, played by asciinema-player from the
+ * The session with Agnès, played by asciinema-player from the
  * cast file in the repo's demo kit — autoplaying and looping in the
  * hero, where a product screenshot would go. Client-only: the player
  * mounts in an effect, so the prerendered HTML ships an empty

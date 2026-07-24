@@ -20,12 +20,12 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** Same resolution as demo/env.sh: $DEMO_HOME > /Users/nora (if ours) > ~/.claudia-demo. */
+/** Same resolution as demo/env.sh: $DEMO_HOME > /Users/agnes (if ours) > ~/.claudia-demo. */
 function resolveDemoHome() {
   if (process.env.DEMO_HOME) return process.env.DEMO_HOME;
   try {
-    accessSync("/Users/nora", constants.W_OK);
-    return "/Users/nora";
+    accessSync("/Users/agnes", constants.W_OK);
+    return "/Users/agnes";
   } catch {
     return path.join(os.homedir(), ".claudia-demo");
   }

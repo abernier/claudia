@@ -1,12 +1,11 @@
 # What you keep
 
-> Saying no to the extra project wasn't you failing them — it was you keeping a
-> promise to yourself.
+> He isn't withholding. He's just not psychic.
 >
-> — Claudia · [{{TODAY-3}}-c94d7e12](sessions/{{TODAY-3}}-c94d7e12.summary.md)
+> — me · [{{TODAY-9}}-4d21f0a6](sessions/{{TODAY-9}}-4d21f0a6.summary.md)
+> _what it does for me: it takes the villain out of the room._
 
-> I don't have to win the argument with the jury. I just have to not hand it the
-> microphone.
+> You're allowed to want to be noticed. The wanting was never the problem — the
+> silence around it is.
 >
-> — me · [{{TODAY-9}}-7be14a05](sessions/{{TODAY-9}}-7be14a05.summary.md)
-> _what it does for me: it turns a courtroom into background noise._
+> — Claudia · [{{TODAY-16}}-b7c3e918](sessions/{{TODAY-16}}-b7c3e918.summary.md)

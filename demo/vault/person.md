@@ -1,27 +1,29 @@
-# Nora
+# Agnès
 
 ## Context
 
-Mid-thirties, graphic designer, freelance since 2021. Lives in Portland with her
-partner Devon (six years). Came to talk about the voice that says nothing she does
-is enough — loudest after tense evenings with Devon, and around money since going
-freelance. She calls it "the jury".
+Early forties, freelance illustrator, married to Jean-Pierre for twelve years. Came
+to talk about the arguments that are never about the thing they are about — the
+tumble dryer, the thermostat, a restaurant menu. She named the pattern herself:
+"my telepathy problem". She wants to be noticed before she has to ask, keeps a
+private tally while she waits, and hands over the total in the shape of something
+tiny.
 
 ## What helps
 
-- Naming the feeling out loud, plainly — she says it takes half its size away.
-- Early walks along the river, before the phone comes on.
-- Texting her sister Tess — the one person the jury goes quiet around.
-- Working with her hands (the pottery class with Priya became a weekly anchor).
+- Saying the plain version early, while the thing is still small.
+- Her sister Michèle, and the shortest question in her life: "and did you tell him?"
+- The Thursday drawing hour with Sylvie — two hours where nobody has to guess anything.
+- Naming the pattern in the moment instead of three days later.
 
 ## Style
 
-Direct and wry; allergic to therapy-speak. Prefers one honest sentence to three
-careful ones. Humour is a door, not a deflection — follow it.
+Dry and fast, allergic to therapy-speak. Exaggerates for effect and knows it — the
+exaggeration is how she gets to the true version. Follow the joke; it is a door.
 
 ## Follow-ups
 
-- _open_ — dinner with Devon on Friday: she wants to finally bring up the money
-  question, and is afraid it turns into the jury's evening.
-- _done_ — the portfolio deadline ({{TODAY-9}}): delivered on time; the jury was
-  loud anyway, which she noticed as data, not as a verdict.
+- _open_ — try the plain version with him once this week ({{TODAY-3}}): say it while
+  it is still small, instead of waiting to be read.
+- _done_ — asked Sylvie straight out whether Thursday still worked ({{TODAY-9}}); she
+  said yes in four seconds, and that became evidence.

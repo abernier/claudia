@@ -1,6 +1,6 @@
 # Goals
 
-- Say no without carrying it for days afterwards.
-- Notice the jury early — name it, let it finish, don't hand it the microphone.
-- Bring the money conversation to Devon before it grows another year older.
-- Keep one thing each week that is hers alone (the pottery class counts).
+- Say the plain version once, out loud, while the thing is still small.
+- Stop grading him on an exam he doesn't know he is sitting.
+- Catch the telepathy thing in the moment, not three days later.
+- Keep the Thursday hour — it is not a reward for good behaviour.
