@@ -4,7 +4,7 @@ import { renderToString } from "react-dom/server";
 import type { Locale } from "./i18n/LocaleContext";
 import { LocaleProvider } from "./i18n/LocaleContext";
 import { Page } from "./page";
-import { MCU_SOURCE, Providers } from "./providers";
+import { MCU_SCHEME, MCU_SOURCE, Providers } from "./providers";
 
 /**
  * CSS for the Material 3 colour tokens, generated at build time from
@@ -13,7 +13,7 @@ import { MCU_SOURCE, Providers } from "./providers";
  * first paint — without this, `Mcu` only injects them client-side via
  * `useInsertionEffect`, causing a white flash before the theme applies.
  */
-export const mcuCss = builder(MCU_SOURCE).toCss();
+export const mcuCss = builder(MCU_SOURCE, { scheme: MCU_SCHEME }).toCss();
 
 /**
  * Render the landing page to a static HTML string for a given locale.

@@ -434,8 +434,8 @@ function useResolvedTheme(): "light" | "dark" {
  * mounts in an effect, so the prerendered HTML ships an empty
  * (aspect-reserved) box.
  *
- * The terminal counter-shades the page: light terminal on a dark page,
- * dark terminal on a light page. Switching theme recreates the player
+ * The terminal follows the page theme — dark player on a dark page,
+ * light player on a light page. Switching theme recreates the player
  * (the loop restarts; fine for ambience).
  */
 function AsciinemaDemo() {
@@ -450,7 +450,7 @@ function AsciinemaDemo() {
         fit: "width",
         autoPlay: true,
         loop: true,
-        theme: resolvedTheme === "dark" ? "solarized-light" : "asciinema",
+        theme: resolvedTheme === "dark" ? "asciinema" : "solarized-light",
       });
     });
     return () => {
