@@ -422,6 +422,7 @@ function AsciinemaDemo() {
         fit: "width",
         autoPlay: true,
         loop: true,
+        speed: 2,
         theme: resolvedTheme === "dark" ? "asciinema" : "solarized-light",
       });
     });
