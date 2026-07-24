@@ -56,3 +56,8 @@ things to do later. Both parties write to it; the person can open and edit it di
   the same deferred-reconciliation shape distillation already uses (ADR-0016).
 - Some overlap with Follow-ups is tolerated by design; the promotion rule ("tasks, not
   every follow-up") keeps the list from degenerating into a duplicate of the summary.
+- When the person asks to _see_ the list, the skill may project the still-open items
+  into the session task widget (`TaskCreate`/`TaskUpdate`) for a live checkbox view.
+  The projection is session-scoped and discarded at close — never a second source of
+  truth: every tick lands in `todo.md` first, and a hand-edited file wins over a stale
+  widget. Projected only on explicit request, so the list stays pulled, not pinned.

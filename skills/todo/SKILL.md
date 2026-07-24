@@ -1,7 +1,7 @@
 ---
 name: todo
-description: Maintain the shared to-do-later list at ~/.claudia/todo.md — concrete things to do later that either the person or Claudia can add, each tagged with the session that raised it. Use when the person asks to note or remember something to do later ("remind me to…", "note that for later", "add a todo", "crée une todo", "note ça pour plus tard"), when you agree a concrete between-session step, or to tick an item done.
-allowed-tools: Read Write Edit Bash
+description: Maintain the shared to-do-later list at ~/.claudia/todo.md — concrete things to do later that either the person or Claudia can add, each tagged with the session that raised it. Use when the person asks to note or remember something to do later ("remind me to…", "note that for later", "add a todo", "crée une todo", "note ça pour plus tard"), when you agree a concrete between-session step, when they ask to see their list ("montre ma liste", "show my todos"), or to tick an item done.
+allowed-tools: Read Write Edit Bash TaskCreate TaskUpdate
 ---
 
 # To-do-later
@@ -41,6 +41,24 @@ keeps its whole history readable.
 
 If `todo.md` doesn't exist yet, create it: the two headers, plus a one-line note that
 it's a shared list either of you can edit. Keep it lean.
+
+## Showing the list — a live projection
+
+When the person asks to _see_ their list, don't just print the file — project it into
+the session task widget (`TaskCreate`, the checkbox tree behind `ctrl+t`) so it reads
+as live checkboxes:
+
+- Read `todo.md` first, then `TaskCreate` one `pending` task per still-open item,
+  wording verbatim from the file (tags trimmed — the widget is a glance, not the record).
+- While a projection is up, keep it in sync: a new item is also `TaskCreate`d, and a
+  tick is a double write — `Edit` todo.md first (authoritative), then `TaskUpdate` →
+  `completed`, so the ✔ strikes through on screen.
+- The widget is a **throwaway reflection**: session-scoped, gone at close, never a
+  second source of truth. If the person hand-edits the file mid-session, trust the
+  file — re-read and re-project rather than reconciling from the screen.
+- **Project only on explicit request.** The list stays something they pull, never a
+  panel pinned on them unasked; adding or ticking a single item does not by itself
+  warrant projecting the whole list.
 
 ## Boundaries
 
