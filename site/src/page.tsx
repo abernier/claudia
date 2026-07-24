@@ -1,16 +1,17 @@
 import castUrl from "../../demo/recordings/claudia-demo.cast?url";
 import {
+  Braces,
   Brain,
   Check,
+  Clock,
   Copy,
-  FlaskConical,
-  Hand,
+  FileCode,
+  Gavel,
   HandHeart,
   History,
   Monitor,
   Moon,
   NotebookPen,
-  ShieldCheck,
   Stethoscope,
   Sun,
   Waypoints,
@@ -228,21 +229,13 @@ export function Page() {
             </p>
             <div className="mt-16 grid gap-12 sm:grid-cols-2">
               <DesignPoint
-                icon={<HandHeart />}
-                titleId="design.relationship.title"
-                descriptionId="design.relationship.description"
+                icon={<FileCode />}
+                titleId="design.frontmatter.title"
+                descriptionId="design.frontmatter.description"
               />
-              <DesignPoint
-                icon={<ShieldCheck />}
-                titleId="design.immersion.title"
-                descriptionId="design.immersion.description"
-              />
-              <DesignPoint icon={<Hand />} titleId="design.pull.title" descriptionId="design.pull.description" />
-              <DesignPoint
-                icon={<FlaskConical />}
-                titleId="design.tested.title"
-                descriptionId="design.tested.description"
-              />
+              <DesignPoint icon={<Braces />} titleId="design.types.title" descriptionId="design.types.description" />
+              <DesignPoint icon={<Clock />} titleId="design.time.title" descriptionId="design.time.description" />
+              <DesignPoint icon={<Gavel />} titleId="design.audit.title" descriptionId="design.audit.description" />
             </div>
           </div>
         </section>
