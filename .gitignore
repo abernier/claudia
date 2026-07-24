@@ -11,3 +11,7 @@ node_modules/
 *.log
 .env
 .env.*
+
+# Demo renders — regenerable from the committed .cast (demo/render.sh)
+demo/recordings/*.gif
+demo/recordings/*.mp4
