@@ -44,7 +44,7 @@
   "commands.more": "Full list in the README.",
   "faq.title": "FAQ",
   "faq.deeplinkLabel": "Link to this answer",
-  "faq.q1.question": "Is Claudia therapy?",
+  "faq.q1.question": "Is Claudia a therapist?",
   "faq.q1.answer": "No. Not a clinician, not a medical device. In crisis: /help-now.",
   "faq.q2.question": "What do I need to run her?",
   "faq.q2.answer": "Claude Code + a Claude subscription. Two commands, new session, talk.",
