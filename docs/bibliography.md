@@ -170,6 +170,24 @@ corrected estimates are routinely smaller than headline figures.
   into the week is between-session engagement; a re-readable artifact is its lightest
   possible form.
 
+### Who the sentence gives the result to — attribution
+
+- **Bandura (1997).** _Self-Efficacy: The Exercise of Control._ Freeman. — Mastery
+  experience is the first and strongest of the four sources of self-efficacy, and a
+  success becomes one only when the person **attributes it to themselves**. The case
+  for making them the subject of the sentence.
+- **Miller & Rollnick.** _Motivational Interviewing._ Guilford. — _Support
+  self-efficacy_ as one of MI's founding principles: the person's belief in their own
+  capacity to change is itself a predictor, and it is built by evoking rather than
+  supplying.
+- **Marlatt & Gordon (1985).** _Relapse Prevention._ Guilford. — The **abstinence
+  violation effect**: what turns a lapse into a relapse is the attribution — internal,
+  stable and global ("I'm weak") predicts the slide. This is why attribution is
+  deliberately **asymmetric**, and why a "fair" symmetric version is the harmful one.
+- **de Shazer & Berg** (see [SFBT](approaches/solution-focused.md)). — Exception and
+  coping questions are the same stance as a named technique. The competency doc keeps
+  the distinction: a technique is chosen, a default is not.
+
 ### The page carried to a real clinician (ADR-0033)
 
 - **APA (2025).** _Health Advisory on the Use of Generative AI Chatbots and Wellness

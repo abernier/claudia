@@ -20,13 +20,14 @@ Sequence is the sequence that carries almost everything else: **open question �
 encourage → paraphrase → reflect feeling → summarise**, _before_ any advising.
 The remaining files are the higher-order competencies built on top of it.
 
-| Competency                                        | What it does                                | Effect  | Source                         |
-| ------------------------------------------------- | ------------------------------------------- | ------- | ------------------------------ |
-| [Microskills](./microskills.md)                   | The observable building blocks of listening | —       | Ivey, Ivey & Zalaquett         |
-| [Therapeutic alliance](./therapeutic-alliance.md) | Build bond, agree tasks and goals           | r ≈ .28 | Flückiger et al., 2018         |
-| [Validation](./validation.md)                     | Communicate that feelings make sense        | —       | Linehan (DBT)                  |
-| [Rupture-repair](./rupture-repair.md)             | Notice and mend strain in the bond          | r ≈ .29 | Eubanks, Muran & Safran, 2018  |
-| [Cultural humility](./cultural-humility.md)       | Treat the person as expert on their life    | —       | Tervalon & Murray-García, 1998 |
+| Competency                                        | What it does                                     | Effect  | Source                         |
+| ------------------------------------------------- | ------------------------------------------------ | ------- | ------------------------------ |
+| [Microskills](./microskills.md)                   | The observable building blocks of listening      | —       | Ivey, Ivey & Zalaquett         |
+| [Therapeutic alliance](./therapeutic-alliance.md) | Build bond, agree tasks and goals                | r ≈ .28 | Flückiger et al., 2018         |
+| [Validation](./validation.md)                     | Communicate that feelings make sense             | —       | Linehan (DBT)                  |
+| [Rupture-repair](./rupture-repair.md)             | Notice and mend strain in the bond               | r ≈ .29 | Eubanks, Muran & Safran, 2018  |
+| [Cultural humility](./cultural-humility.md)       | Treat the person as expert on their life         | —       | Tervalon & Murray-García, 1998 |
+| [Attribution](./attribution.md)                   | Credit the gain to the person, never the setback | —       | Bandura; Marlatt & Gordon      |
 
 ## The ordering principle
 
@@ -54,6 +55,9 @@ failure mode documented in the field (Moore et al., 2025).
   markers; non-defensive metacommunication as repair.
 - **[cultural-humility.md](./cultural-humility.md)** — client-as-expert, lifelong
   self-critique, and avoiding assumptions.
+- **[attribution.md](./attribution.md)** — who the sentence gives the result to;
+  the deliberate asymmetry between gains and setbacks; why credit offered is taken
+  rather than deflected; attribution vs praise.
 
 ## Related
 

@@ -608,6 +608,37 @@ describe("showing a deliverable (ADR-0026)", () => {
   });
 });
 
+describe("giving the win back (docs/competencies/attribution.md)", () => {
+  it("ships the competency, and the library index lists it", () => {
+    expect(existsSync(path.join(root, "docs/competencies/attribution.md"))).toBe(true);
+    const index = readFileSync(path.join(root, "docs/competencies/README.md"), "utf8");
+    expect(/attribution\.md/.test(index), "a competency the index doesn't list is not in the spine").toBe(true);
+  });
+
+  it("the asymmetry is written down — gains theirs, setbacks not", () => {
+    // Marlatt's abstinence violation effect: attributing a lapse to internal, stable,
+    // global causes is what turns it into a relapse. A symmetric "fair" attribution is
+    // the harmful one, so the doc must say the asymmetry is deliberate.
+    const doc = readFileSync(path.join(root, "docs/competencies/attribution.md"), "utf8");
+    expect(/[Nn]ever run it backwards/.test(doc)).toBe(true);
+    expect(/asymmetry is deliberate/.test(doc)).toBe(true);
+  });
+
+  it("credit offered is taken, not deflected — congruence over performed modesty", () => {
+    const doc = readFileSync(path.join(root, "docs/competencies/attribution.md"), "utf8");
+    expect(/[Nn]ever refuse credit that is offered/.test(doc)).toBe(true);
+    expect(/congruence/i.test(doc), "the reason is congruence, not politeness").toBe(true);
+  });
+
+  it("the persona carries it — the ADR-0018 lesson", () => {
+    // The only always-loaded file. A stance documented only in docs/ is invisible in
+    // practice, and this one has to fire on ordinary turns or it never fires at all.
+    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    expect(/competencies\/attribution\.md/.test(persona)).toBe(true);
+    expect(/needing me less/.test(persona), "the persona should name what this is for").toBe(true);
+  });
+});
+
 describe("the handover note (ADR-0033)", () => {
   const skillPath = path.join(root, "skills/handover/SKILL.md");
 
