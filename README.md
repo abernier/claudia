@@ -192,8 +192,10 @@ sync across `package.json`, `plugin.json`, and the marketplace entry:
    `claudia--vX.Y.Z`), then `git push --tags`.
 
 Pushing the tag triggers `.github/workflows/release.yml`, which publishes the
-GitHub Release automatically — title from the annotated tag's subject line, notes
-from the matching `CHANGELOG.md` section (`scripts/changelog-extract.mjs`). No
+GitHub Release automatically — titled `vX.Y.Z`, with the notes taken
+from the matching `CHANGELOG.md` section (`scripts/changelog-extract.mjs`). The
+tag's own message is annotation only; it no longer becomes the title, so what the
+release _means_ is said once, in its `**Digest.**` line. No
 manual `gh release create`.
 
 Installed users update with `claude plugin update claudia@claudia`.

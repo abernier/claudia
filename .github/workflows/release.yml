@@ -2,8 +2,8 @@ name: Release
 
 # Publish a GitHub Release whenever a `claudia--vX.Y.Z` tag is pushed.
 # The tag is still cut by hand (see README "Releasing"); this only turns that
-# tag into a Release page — title from the annotated tag's subject line, body
-# from the matching CHANGELOG.md section. No manual `gh release create` needed.
+# tag into a Release page — titled `vX.Y.Z`, with the body taken from the
+# matching CHANGELOG.md section. No manual `gh release create` needed.
 
 on:
   push:
@@ -17,29 +17,20 @@ jobs:
   github-release:
     runs-on: ubuntu-latest
     steps:
+      # Only the tree at the tag is needed — the notes come from CHANGELOG.md.
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # full history; the tag object itself is restored below
-
-      - name: Restore the annotated tag object
-        # actions/checkout delites annotated tags to lightweight ones, so the
-        # %(contents:subject) read below would fall back to the *commit* subject
-        # ("Release claudia--vX.Y.Z") instead of the tag message. Re-fetch the tag
-        # object itself so its subject can become the Release title.
-        run: git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
 
       - name: Build title + notes
         id: meta
         run: |
           tag="${GITHUB_REF_NAME}"
           version="${tag#claudia--v}"
-          # Title = the annotated tag's subject (e.g. "claudia v0.2.1 — …");
-          # fall back to a plain "claudia vX.Y.Z" for a lightweight tag.
-          title="$(git tag -l --format='%(contents:subject)' "$tag")"
-          [ -n "$title" ] || title="claudia v${version}"
+          # Title is just the version. What the release *means* is the `**Digest.**`
+          # line at the top of its CHANGELOG section, so a tagline here would only
+          # say it twice — and saying it twice is what let the two drift apart.
           node scripts/changelog-extract.mjs "$version" > RELEASE_NOTES.md
           echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "title=$title" >> "$GITHUB_OUTPUT"
+          echo "title=v$version" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         env:
