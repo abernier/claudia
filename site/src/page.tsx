@@ -2,16 +2,16 @@ import castUrl from "../../demo/recordings/claudia-demo.cast?url";
 import {
   Brain,
   Check,
-  Clock,
   Copy,
   FileText,
-  Hand,
   HandHeart,
+  HardDrive,
   History,
+  Layers,
   Monitor,
   Moon,
   NotebookPen,
-  PencilLine,
+  Settings2,
   Stethoscope,
   Sun,
   Waypoints,
@@ -228,18 +228,18 @@ export function Page() {
               <FormattedMessage id="design.subtitle" />
             </p>
             <div className="mt-16 grid gap-12 sm:grid-cols-2">
+              <DesignPoint icon={<HardDrive />} titleId="design.local.title" descriptionId="design.local.description" />
+              <DesignPoint
+                icon={<Settings2 />}
+                titleId="design.config.title"
+                descriptionId="design.config.description"
+              />
+              <DesignPoint icon={<Layers />} titleId="design.multi.title" descriptionId="design.multi.description" />
               <DesignPoint
                 icon={<FileText />}
                 titleId="design.distilled.title"
                 descriptionId="design.distilled.description"
               />
-              <DesignPoint icon={<Hand />} titleId="design.pull.title" descriptionId="design.pull.description" />
-              <DesignPoint
-                icon={<PencilLine />}
-                titleId="design.understanding.title"
-                descriptionId="design.understanding.description"
-              />
-              <DesignPoint icon={<Clock />} titleId="design.time.title" descriptionId="design.time.description" />
             </div>
           </div>
         </section>
