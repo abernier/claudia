@@ -8,7 +8,7 @@
  * In Node.js contexts (the prerender script) `import.meta.env` is
  * `undefined`; callers there read `process.env.VITE_SITE_URL` directly.
  */
-export const SITE_URL = import.meta.env?.VITE_SITE_URL ?? "https://claudia-site.vercel.app";
+export const SITE_URL = import.meta.env?.VITE_SITE_URL ?? "https://claudia-site-theta.vercel.app";
 
 /** Application name. */
 export const APP_NAME = "Claudia";
