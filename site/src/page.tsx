@@ -2,7 +2,6 @@ import castUrl from "../../demo/recordings/claudia-demo.cast?url";
 import {
   Check,
   Copy,
-  FolderLock,
   HandHeart,
   History,
   Languages,
@@ -10,9 +9,10 @@ import {
   MessagesSquare,
   Monitor,
   Moon,
+  NotebookPen,
   ShieldCheck,
-  Siren,
   Sun,
+  Waypoints,
 } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -161,77 +161,32 @@ export function Page() {
           </div>
         </section>
 
-        {/* Safety — first-class, not fine print */}
+        {/* Skills — what actually ships in the plugin */}
         <section className="bg-muted/50 py-16 sm:py-24">
           <div className="mx-auto max-w-5xl px-6">
             <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
-              <FormattedMessage id="safety.title" />
+              <FormattedMessage id="skills.title" />
             </h2>
             <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-center text-lg text-pretty">
-              <FormattedMessage id="safety.body" />
-            </p>
-            <div className="mt-16 grid gap-12 sm:grid-cols-3">
-              <SafetyPoint
-                icon={<ShieldCheck />}
-                titleId="safety.point1.title"
-                descriptionId="safety.point1.description"
-              />
-              <SafetyPoint
-                icon={<LifeBuoy />}
-                titleId="safety.point2.title"
-                descriptionId="safety.point2.description"
-              />
-              <SafetyPoint icon={<Siren />} titleId="safety.point3.title" descriptionId="safety.point3.description" />
-            </div>
-          </div>
-        </section>
-
-        {/* What makes Claudia different */}
-        <section className="py-16 sm:py-24">
-          <div className="mx-auto max-w-5xl px-6">
-            <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
-              <FormattedMessage id="different.title" />
-            </h2>
-            <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-center text-lg text-pretty">
-              <FormattedMessage id="different.subtitle" />
+              <FormattedMessage id="skills.subtitle" />
             </p>
             <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              <Feature icon={<HandHeart />} titleId="skills.claudia.title" descriptionId="skills.claudia.description" />
+              <Feature icon={<History />} titleId="skills.memory.title" descriptionId="skills.memory.description" />
+              <Feature icon={<LifeBuoy />} titleId="skills.crisis.title" descriptionId="skills.crisis.description" />
               <Feature
-                icon={<HandHeart />}
-                titleId="different.relationship.title"
-                descriptionId="different.relationship.description"
+                icon={<NotebookPen />}
+                titleId="skills.exercise.title"
+                descriptionId="skills.exercise.description"
               />
-              <Feature
-                icon={<ShieldCheck />}
-                titleId="different.immersion.title"
-                descriptionId="different.immersion.description"
-              />
-              <Feature
-                icon={<MessagesSquare />}
-                titleId="different.natural.title"
-                descriptionId="different.natural.description"
-              />
-              <Feature
-                icon={<FolderLock />}
-                titleId="different.local.title"
-                descriptionId="different.local.description"
-              />
-              <Feature
-                icon={<Languages />}
-                titleId="different.language.title"
-                descriptionId="different.language.description"
-              />
-              <Feature
-                icon={<History />}
-                titleId="different.continuity.title"
-                descriptionId="different.continuity.description"
-              />
+              <Feature icon={<Waypoints />} titleId="skills.maps.title" descriptionId="skills.maps.description" />
+              <Feature icon={<ShieldCheck />} titleId="skills.author.title" descriptionId="skills.author.description" />
             </div>
           </div>
         </section>
 
         {/* Commands — a taste of the ten */}
-        <section className="bg-muted/50 py-16 sm:py-24">
+        <section className="py-16 sm:py-24">
           <div className="mx-auto max-w-5xl px-6">
             <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
               <FormattedMessage id="commands.title" />
@@ -259,6 +214,40 @@ export function Page() {
                 <FormattedMessage id="commands.more" />
               </a>
             </p>
+          </div>
+        </section>
+
+        {/* Design — the deliberate choices behind the persona, each an ADR */}
+        <section className="bg-muted/50 py-16 sm:py-24">
+          <div className="mx-auto max-w-5xl px-6">
+            <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
+              <FormattedMessage id="design.title" />
+            </h2>
+            <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-center text-lg text-pretty">
+              <FormattedMessage id="design.subtitle" />
+            </p>
+            <div className="mt-16 grid gap-12 sm:grid-cols-2">
+              <DesignPoint
+                icon={<HandHeart />}
+                titleId="design.relationship.title"
+                descriptionId="design.relationship.description"
+              />
+              <DesignPoint
+                icon={<ShieldCheck />}
+                titleId="design.immersion.title"
+                descriptionId="design.immersion.description"
+              />
+              <DesignPoint
+                icon={<MessagesSquare />}
+                titleId="design.natural.title"
+                descriptionId="design.natural.description"
+              />
+              <DesignPoint
+                icon={<Languages />}
+                titleId="design.language.title"
+                descriptionId="design.language.description"
+              />
+            </div>
           </div>
         </section>
 
@@ -459,7 +448,8 @@ function Feature({ icon, titleId, descriptionId }: { icon: ReactNode; titleId: s
     <Card>
       <CardContent>
         <div className="text-primary mb-4">{icon}</div>
-        <h3 className="text-lg font-semibold tracking-tight">
+        {/* Skill names are tokens — mono, like the code they point to */}
+        <h3 className="font-mono text-base font-semibold tracking-tight">
           <FormattedMessage id={titleId} />
         </h3>
         <p className="text-muted-foreground mt-3 text-pretty">
@@ -470,7 +460,7 @@ function Feature({ icon, titleId, descriptionId }: { icon: ReactNode; titleId: s
   );
 }
 
-function SafetyPoint({ icon, titleId, descriptionId }: { icon: ReactNode; titleId: string; descriptionId: string }) {
+function DesignPoint({ icon, titleId, descriptionId }: { icon: ReactNode; titleId: string; descriptionId: string }) {
   return (
     <div className="text-center">
       <div className="bg-primary text-primary-foreground mx-auto mb-4 flex size-12 items-center justify-center rounded-full">
