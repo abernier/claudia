@@ -674,3 +674,16 @@ describe("documentation links resolve", () => {
     expect(broken, `broken links:\n${broken.join("\n")}`).toEqual([]);
   });
 });
+
+describe("consultation (ADR-0030)", () => {
+  it("ships the consult agent with a one-tool allowlist (secrecy by construction)", () => {
+    const p = path.join(root, "agents/consult.md");
+    expect(existsSync(p)).toBe(true);
+    const txt = readFileSync(p, "utf8");
+    // The allowlist is the guarantee: WebSearch alone — no filesystem, no MCP,
+    // so ~/.claudia is unreachable no matter what the prompt is talked into.
+    const tools = txt.match(/^tools:\s*(.+)$/m)?.[1] ?? "";
+    expect(tools.trim(), "consult must grant exactly WebSearch").toBe("WebSearch");
+    expect(/neither confirm nor deny/i.test(txt), "the clinical stance must be stated").toBe(true);
+  });
+});
