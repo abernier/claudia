@@ -1,4 +1,4 @@
-import castUrl from "../../demo/recordings/claudia-demo.en.cast?url";
+import castUrl from "../../demo/recordings/claudia-demo.cast?url";
 import {
   Brain,
   Check,
