@@ -666,7 +666,11 @@ describe("documentation links resolve", () => {
       while ((m = linkRe.exec(txt))) {
         const target = m[1]!;
         if (/^https?:/.test(target)) continue;
-        if (!existsSync(path.resolve(path.dirname(f), target))) {
+        // The demo fixture's evergreen date tokens ({{TODAY-N}} in links, TODAY-N-
+        // in filenames — rendered by demo/seed-vault.mjs) normalize to the on-disk
+        // template names, so fixture links are genuinely checked, not skipped.
+        const onDisk = target.replace(/\{\{(TODAY-\d+)\}\}/g, "$1");
+        if (!existsSync(path.resolve(path.dirname(f), onDisk))) {
           broken.push(`${path.relative(root, f)} -> ${target}`);
         }
       }

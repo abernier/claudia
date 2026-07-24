@@ -1,3 +1,8 @@
 node_modules
 package-lock.json
 CHANGELOG.md
+# The demo fixture must stay byte-exact: its {{TODAY-N}} frontmatter tokens are
+# valid template, not YAML — prettier "fixes" them into { { TODAY-N } } and
+# breaks the seed's date rendering.
+demo/vault
+demo/recordings

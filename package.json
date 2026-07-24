@@ -10,7 +10,14 @@
     "typecheck": "tsc --noEmit",
     "changeset": "changeset",
     "release:version": "changeset version && node scripts/sync-version.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "demo:setup": "./demo/setup-home.sh",
+    "demo:seed": "node demo/seed-vault.mjs",
+    "demo": ". ./demo/env.sh && cd \"$DEMO_HOME/desk\" && HOME=\"$DEMO_HOME\" claude",
+    "demo:record": "./demo/record.sh",
+    "demo:take": "./demo/drive-take.sh",
+    "demo:render": "./demo/render.sh",
+    "demo:publish": "./demo/publish.sh"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
