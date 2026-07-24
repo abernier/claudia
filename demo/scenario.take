@@ -1,0 +1,79 @@
+# Claudia demo — the scenario, single source of truth (~2 min, one act).
+#
+# This file IS the take: demo/drive-take.sh reads it line by line and performs
+# it against the real claude TUI (and `npm run demo:record` is you performing it
+# by hand — same script, human tempo). One continuing session with Nora, the
+# fictional persona in vault/ — the model's replies vary between takes; the
+# fixture guarantees the content they draw on is identical every time.
+#
+# Verbs (one per line; full-line # comments and blank lines are ignored):
+#   type <text>            type it like a person (char by char), then Enter
+#   settle                 wait until claude finishes the turn (pane stops repainting;
+#                          FAILS the take on a permission prompt — rig must be pre-allowed)
+#   expect <regex> [secs]  wait until the pane matches (space-free regex; default 90s)
+#   sleep <secs>           fixed pause — a beat of stillness reads well on video
+#   picker-enter           if a skill picker is open, take the highlighted option
+#                          (fails the take on a permission prompt instead)
+#   key <tmux-key>         send a raw key (e.g. C-d)
+#
+# Validate edits without recording: DRY_RUN=1 ./demo/drive-take.sh
+
+# — Shot 1 · cold open: an empty prompt breathing one beat, then claude
+sleep 2
+type claude
+expect Claude.Code 60
+sleep 3
+
+# — Shot 2 · the recall moment (the money shot: continuity).
+# Expect a greeting BY NAME picking up an open thread — the Friday dinner with
+# Devon, or the Tess message. Nothing was typed about any of that: it came from
+# the vault.
+type Hi Claudia — I'm back.
+settle
+sleep 2
+
+# — Shot 3 · two natural-language turns, no commands.
+type Honestly, the dinner is tomorrow and the jury is already drafting its opening statement.
+settle
+sleep 2
+type Say that again more slowly — that's the sentence I needed.
+settle
+sleep 2
+
+# — Shot 4 · keep that: the passage lands verbatim in keepsakes.md,
+# attributed and session-tagged. A picker may offer candidate lines.
+type keep that
+sleep 20
+picker-enter
+settle
+sleep 1
+
+# — Shot 5 · a todo, conversationally: one line appended under ## Open.
+type add a todo: bring the invoice list to dinner
+settle
+sleep 1
+
+# — Shot 6 · the dashboard: Overview — Nora, vitals, the kept passage, goals,
+# living themes, open todos, recent threads. Let it sit a few seconds.
+type /dashboard
+settle
+sleep 5
+
+# — Shot 7 · the thread: a light, person-pulled reflection of where this very
+# session went.
+type /thread
+settle
+sleep 4
+
+# — Shot 8 · close claude, then the privacy story in the plain shell:
+# everything the session produced is plain markdown, local, hers.
+type /exit
+expect % 30
+sleep 2
+type ls ~/.claudia
+sleep 3
+type cat ~/.claudia/keepsakes.md
+sleep 4
+type cat ~/.claudia/dashboard.md
+sleep 6
+key C-d

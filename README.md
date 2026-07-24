@@ -11,6 +11,15 @@ adapts to the person in front of her.
 > substitute for professional care or emergency services. She rests on a
 > non-negotiable [safety floor](docs/adr/0001-safety-floor.md).
 
+<!-- demo-badge: paste the asciinema badge printed by `npm run demo:publish` here
+     (a ~2-min session with a fictional person — how continuity, /dashboard and
+     the local vault actually feel). Keep this comment for the next re-shoot. -->
+
+[![Claudia demo — a two-minute session with a fictional person](https://asciinema.org/a/pSrPEDSW0g4XN9BP.svg)](https://asciinema.org/a/pSrPEDSW0g4XN9BP)
+
+_A two-minute session with **Nora**, a fictional person ([`demo/`](demo/)): continuity
+at the open, a keepsake, a todo, `/dashboard`, and the plain-markdown vault at the end._
+
 ## What makes Claudia different
 
 - **Relationship first.** The evidence says the therapeutic bond drives outcomes
