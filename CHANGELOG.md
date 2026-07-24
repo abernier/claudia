@@ -4,6 +4,36 @@ Written for the person using Claudia: what changed, and what it means for you. T
 reasoning behind each decision lives in the ADRs under `docs/adr/`, referenced here
 by number.
 
+## 0.12.0
+
+**Digest.** Your notes now keep a rotating archive beside them, a handful of settings
+are yours to change with `/config`, and `/handover` prepares the one page you bring to
+a real therapist — written in your voice, and carried by you.
+
+### Minor Changes
+
+- 85a008f: **A rotating archive under your notes** (ADR-0032):
+
+  - **Your notes now have a second copy.** A snapshot of `~/.claudia/` lands in `~/.claudia-backups/` at each session close and every hour — local only, uploaded nowhere.
+  - **Kept as a ladder, not a pile.** Everything from the last two days, then one per day, per week, per month, per year — so a mistake you notice weeks late still has an ancestor.
+  - **It refuses to archive nothing over something.** An empty vault never overwrites real history, and every archive is read back before it counts.
+  - **`/backup`** — see what's kept, verify it, or restore one into a new folder, never over your live notes.
+  - **An archive is a record.** `/forget` clears your notes and leaves the archives alone; Claudia never reaches into one to bring back what you chose to forget. Clearing them is yours to ask.
+
+- 3c23371: **A page you can bring to a real therapist** (ADR-0033):
+
+  - **`/handover`** — or just mention the appointment. One page for the person you're about to see: what keeps coming up, what you're hoping for, what you tried and what came of it, what's still open, what Claudia wasn't equipped for.
+  - **Written in your voice, and you choose what's in it.** She lists what she noticed across your conversations, a line of why under each — nothing ticked in advance. You pick what travels; she asks what's missing, drafts only what you chose, reads it back before anything is saved.
+  - **One line you can't cut**: that it was written with an AI companion, not a clinician.
+  - **You carry it, not her.** She never sends it anywhere, and never writes to your therapist herself.
+  - **A referral always comes first**, and the page never delays it.
+
+- 6c306c6: **Settings you own, and plain words by default** (ADR-0028):
+
+  - **`/config`** — see and change your settings without hand-editing JSON: whether Claudia uses emoji, whether she keeps an archive of each conversation, whether she maintains your dashboard.
+  - **No emoji, by default.** She writes plainly — an emoji is the cheapest performance of a feeling she doesn't have. Your own are untouched: quoting your smiley back is your word, not her decoration. Turn it on in `/config`.
+  - **Settings fail safe.** A half-edited `config.json` falls back to the shipped defaults instead of breaking a hook, keys from a newer version survive a change, and an unreadable file is backed up before it's replaced. Nothing that could lower the safety floor is configurable.
+
 ## 0.11.0
 
 **Digest.** Claudia now **shows** what she makes — your relationship map, timeline,
