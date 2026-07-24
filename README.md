@@ -52,11 +52,13 @@ A few switches you own, in `~/.claudia/config.json` on your own machine — show
 changed by `/config`, or edited by hand. All optional; an absent key means the
 default. See [ADR-0028](docs/adr/0028-settings.md).
 
-| Setting           | Default | What it does                                                                          |
-| ----------------- | ------- | ------------------------------------------------------------------------------------- |
-| `emoji`           | `false` | Claudia writes in plain words. Set `true` if you'd rather she used emoji.             |
-| `saveTranscripts` | `true`  | Keeps a verbatim archive of each conversation under `~/.claudia/sessions/`.           |
-| `dashboard`       | `true`  | Maintains the bird's-eye mirror `~/.claudia/dashboard.md` (opened with `/dashboard`). |
+| Setting           | Default | What it does                                                                           |
+| ----------------- | ------- | -------------------------------------------------------------------------------------- |
+| `emoji`           | `false` | Claudia writes in plain words. Set `true` if you'd rather she used emoji.              |
+| `saveTranscripts` | `true`  | Keeps a verbatim archive of each conversation under `~/.claudia/sessions/`.            |
+| `dashboard`       | `true`  | Maintains the bird's-eye mirror `~/.claudia/dashboard.md` (opened with `/dashboard`).  |
+| `language`        | `"fr"`  | The language of what the scripts write for you (the dashboard mirror): `fr` or `en`.   |
+| `verbose`         | `false` | Claudia narrates her machinery as she works. Off by default — workings stay invisible. |
 
 Emoji are off by default on purpose: Claudia is honest about being an AI, and a
 smiley is the cheapest way to perform a feeling she doesn't have. Nothing in this

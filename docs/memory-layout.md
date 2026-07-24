@@ -6,8 +6,8 @@ English/universal; **content is written in the person's language**.
 
 ```
 ~/.claudia/
-├── config.json          the person's settings — declared booleans, all optional (ADR-0028)
-│                        { "emoji": false } · { "saveTranscripts": false } · { "dashboard": false }
+├── config.json          the person's settings — declared keys, closed value sets, all optional (ADR-0028, ADR-0029, ADR-0031)
+│                        { "emoji": false } · { "saveTranscripts": false } · { "dashboard": false } · { "language": "fr" } · { "verbose": false }
 ├── .migrations          applied vault-migration ids, one per line — the ledger (ADR-0020)
 ├── MEMORY.md            one-line-per-entry index of what Claudia knows and where
 ├── dashboard.md         derived, person-facing mirror — bird's-eye view; transcludes or points, never summarises (ADR-0019)
@@ -76,9 +76,10 @@ English/universal; **content is written in the person's language**.
   on a kept line, ever.
 - **`config.json` is settings, not memory** — every key is declared in
   `src/config.mjs` with its default (`saveTranscripts: true`, `dashboard: true`,
-  `emoji: false`) and resolved through it, never parsed ad hoc. Absent, empty or
-  malformed → the defaults; an unknown key is preserved on write. Shown and changed by
-  `/config`; hand-editable. Nothing in it can lower the safety floor (ADR-0028).
+  `emoji: false`, `language: "fr"` — the mirror's own words, ADR-0029) and resolved
+  through it, never parsed ad hoc. Absent, empty or malformed → the defaults; an
+  unknown key is preserved on write. Shown and changed by `/config`; hand-editable.
+  Nothing in it can lower the safety floor (ADR-0028).
 - **Recall reads the working layer only** — never a raw transcript (context
   economy, avoid re-exposing crisis content, limit dependency). See `recall`.
 - **Summaries are distilled, never verbatim**, and respect the safety floor (no
@@ -98,8 +99,8 @@ English/universal; **content is written in the person's language**.
   `<date>-<id>.pending-summary` dirty flag every close.
 - `distill-session` skill → `<date>-<id>.summary.md`. Runs live at close when possible,
   but is normally **deferred**: `recall` detects any `pending-summary` (via
-  `scripts/pending-sessions.mjs`) and distills that session at the next open, then
-  clears the marker (ADR-0016).
+  `scripts/recall-open.mjs`, which wraps `scripts/pending-sessions.mjs`) and distills
+  that session at the next open, then clears the marker (ADR-0016).
 - `scripts/finish-distillation.mjs` → stamps the identity frontmatter onto
   `<stem>.summary.md` (and onto any exercise/teaching the session wrote), then clears the
   `pending-summary` marker — in that order, so a summary is never left un-identified and a

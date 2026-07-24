@@ -92,6 +92,7 @@ export async function rebuildDashboard(root) {
       timeline,
       understandingExists: understanding != null,
       generatedAt: todayStamp(),
+      language: cfg.language,
     });
 
     await fs.writeFile(dashboardPath, md);

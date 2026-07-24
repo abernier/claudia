@@ -19,6 +19,17 @@ and a distilled memory are saved **locally on their own machine** under
 bird's-eye view they can open whenever they like — `~/.claudia/dashboard.md`, or
 `/dashboard` (ADR-0019) — so the aggregated view is disclosed, never hidden.
 
+In the same first run, **stamp the language you're speaking with them** so the
+deterministic mirror speaks it too (ADR-0029) — silently, no question asked; you
+already know it from the conversation:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/config.mjs" --set language=en
+```
+
+(`fr` or `en` for now; if you're speaking neither, leave it unset and the mirror
+falls back to its default — never guess a value outside the shipped set.)
+
 ## What to write (working layer)
 
 - `person.md` — a short, evolving model: the person's **name**, context, what

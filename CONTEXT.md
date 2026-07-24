@@ -226,11 +226,13 @@ reversible tidy-up of _their_ notes, not a data operation done _to_ them).
 
 **Settings**:
 The handful of switches the person owns — `~/.claudia/config.json`, shown and changed
-by `/config`. Declared booleans only, each with a shipped default (`emoji` **off**,
-`saveTranscripts` and `dashboard` on), resolved through one module (`src/config.mjs`);
-absent or unreadable means the default. They sit **above** the
-[Safety floor](#safety--register): no setting softens a never/always rule, and there
-is no free-text style key. `emoji` defaults off out of congruence — Claudia doesn't
+by `/config`. Declared keys with closed value sets — booleans plus the `language`
+enum (`fr`/`en`, the mirror's own words, ADR-0029) — each with a shipped default
+(`emoji` and `verbose` **off**, `saveTranscripts` and `dashboard` on, `language`
+`fr`), resolved through one module (`src/config.mjs`); absent or unreadable means
+the default. `verbose` is the machinery-visibility switch (ADR-0031). They
+sit **above** the [Safety floor](#safety--register): no setting softens a
+never/always rule, and there is no free-text key. `emoji` defaults off out of congruence — Claudia doesn't
 perform a feeling she doesn't have — not out of house style. Defined in ADR-0028.
 _Avoid_: "preferences panel", "options screen", "customise Claudia" (it is a few
 switches, not a personalisation surface); and never treat a setting as a symptom to

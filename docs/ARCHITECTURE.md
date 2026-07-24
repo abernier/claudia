@@ -71,8 +71,9 @@ decisions live as ADRs in [`docs/adr/`](adr/), the vocabulary in
 - **`commands/`** — the person-pulled surface: `/help-now`, `/forget`, `/export`,
   `/save`, `/migrate`, `/config`, `/thread`, `/dashboard`, `/keep`, `/menu`.
 - **`src/config.mjs`** — the person's settings (`~/.claudia/config.json`): declared
-  booleans with defaults, read by `/config`, `recall`, and the two hook scripts that
-  carry an opt-out ([ADR-0028](adr/0028-settings.md)).
+  keys with closed value sets and shipped defaults — booleans plus the `language`
+  enum — read by `/config`, `recall`, and the two hook scripts that carry an
+  opt-out ([ADR-0028](adr/0028-settings.md), [ADR-0029](adr/0029-mirror-language.md)).
 
 ## The person's data (`~/.claudia/`, never in this repo)
 

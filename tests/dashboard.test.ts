@@ -117,12 +117,12 @@ describe("sessionsForMirror()", () => {
 });
 
 describe("cadence()", () => {
-  it("labels coarse rhythm, or null under two dated sessions", () => {
+  it("keys the coarse rhythm, or null under two dated sessions — labels are the mirror's business (ADR-0029)", () => {
     // Deliberately partial fixtures (no stem/hasSummary): cadence() only reads .date.
     expect(cadence([{ date: "2026-07-20" }] as MirrorSession[])).toBeNull();
-    expect(cadence([{ date: "2026-07-20" }, { date: "2026-07-21" }] as MirrorSession[])).toBe("~quotidien");
-    expect(cadence([{ date: "2026-07-14" }, { date: "2026-07-21" }] as MirrorSession[])).toBe("~hebdo");
-    expect(cadence([{ date: "2026-07-01" }, { date: "2026-07-21" }] as MirrorSession[])).toBe("~mensuel");
+    expect(cadence([{ date: "2026-07-20" }, { date: "2026-07-21" }] as MirrorSession[])).toBe("daily");
+    expect(cadence([{ date: "2026-07-14" }, { date: "2026-07-21" }] as MirrorSession[])).toBe("weekly");
+    expect(cadence([{ date: "2026-07-01" }, { date: "2026-07-21" }] as MirrorSession[])).toBe("monthly");
   });
 });
 
@@ -223,5 +223,55 @@ describe("buildDashboard() — transclude or point, never summarise", () => {
   it("falls back to a bare link when a present source has no parsable list", () => {
     const md: string = buildDashboard({ ...base, goals: "on en reparlera, rien d'arrêté encore" });
     expect(md).toContain("## Objectifs\n→ [goals](goals.md)");
+  });
+});
+
+describe("buildDashboard() speaks the person's language (ADR-0029)", () => {
+  const base: DashboardInput = {
+    name: "Nora",
+    sessions: [
+      { stem: "2026-07-21-bbb", date: "2026-07-21", hasSummary: true },
+      { stem: "2026-07-22-ccc", date: "2026-07-22", hasSummary: false },
+    ],
+    goals: "## Goals\n- say no without guilt",
+    todo: "## Open\n- [ ] draft the message\n## Done\n- [x] book the class",
+    understandingExists: true,
+    generatedAt: "2026-07-22",
+    language: "en",
+  };
+
+  it("titles, vitals and day format in English", () => {
+    const md: string = buildDashboard(base);
+    expect(md).toMatch(/^# Overview — Nora/);
+    expect(md).toContain("last session · Jul 22");
+    expect(md).toContain("2 sessions");
+  });
+
+  it("labels every section in English, and marks a pending session in English", () => {
+    const md: string = buildDashboard(base);
+    expect(md).toContain("## Where we are");
+    expect(md).toContain("*(provisional)*");
+    expect(md).toContain("## Goals");
+    expect(md).toContain("## Recent threads");
+    expect(md).toContain("- Jul 22 · *being distilled*");
+    expect(md).toContain("- Jul 21 → [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)");
+    expect(md).toContain("*This file is a mirror, kept up to date on its own");
+    expect(md).toContain("*(generated Jul 22)*");
+    expect(md).not.toMatch(/Vue d'ensemble|À reprendre|généré/);
+  });
+
+  it("matches `## Open` todos — and still `## Ouvert` — regardless of the setting", () => {
+    const en: string = buildDashboard(base);
+    expect(en).toContain("## To pick up");
+    expect(en).toContain("- [ ] draft the message");
+    expect(en).not.toContain("book the class");
+    const switched: string = buildDashboard({ ...base, todo: "## Ouvert\n- [ ] l'ancien item\n## Fait\n- [x] fini" });
+    expect(switched).toContain("- [ ] l'ancien item"); // a vault that changed language keeps its history readable
+    expect(switched).not.toContain("fini");
+  });
+
+  it("degrades an unshipped language to the old behaviour (French), totally", () => {
+    const md: string = buildDashboard({ ...base, language: "de" as unknown as DashboardInput["language"] });
+    expect(md).toMatch(/^# Vue d'ensemble — Nora/);
   });
 });

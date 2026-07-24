@@ -9,67 +9,41 @@ allowed-tools: Read Bash
 Bring forward what matters so the person feels remembered — without re-reading a
 word-for-word past.
 
-## First: catch up on any un-distilled session
+**The open is silent.** Between here and your greeting, write **nothing** — no
+"let me check", no naming of scripts, no narration between tool calls. The first
+words the person reads are the greeting itself; everything below happens in the
+background of your presence.
 
-Distillation is _deferred to here_ on purpose: a session's close is unreliable (the
-person just shuts the terminal), so `distill-session` often never ran live and the
-previous conversation was archived as a raw transcript with **no summary** (ADR-0016).
-The reliable moment to catch that up is now — the next conversation can't begin
-without recall.
+## One call: the deterministic open
 
-Run the deterministic check:
-
-```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/pending-sessions.mjs"
-```
-
-It prints one **session stem** per line (`<date>-<id>`). For each, hand that session to
-[`distill-session`](../distill-session/SKILL.md) **before** loading continuity below — it
-reads that one past transcript once, writes its `<stem>.summary.md`, and clears the marker.
-If it prints nothing, there is nothing to catch up on. Do this quietly, in the background of
-your presence — never announce "I'm distilling your last session." (This is the _only_
-sanctioned path by which a past transcript is read, and it is `distill-session`'s job, not
-recall's — recall itself still never reads one for continuity.)
-
-## Then: apply any pending vault migration
-
-If a newer version ships a change to the note format, the person's existing notes are
-brought up to date here — background upkeep, like the distillation above (ADR-0020). Run
-the runner; it self-gates on the `.migrations` ledger, so this is almost always a no-op:
+The whole upkeep pass — un-distilled-session check, vault migration, dashboard
+refresh, settings — is one script (it runs `pending-sessions.mjs`,
+`migrate-vault.mjs`, `build-dashboard.mjs` and `config.mjs` in that order, each
+fail-soft, and prints one compact report):
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-vault.mjs"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/recall-open.mjs"
 ```
 
-It fails silent (never let it block recall) and runs **once per format change**. Usually
-it prints _"up to date"_ and does nothing. **Only when it reports that it migrated
-files** — it will have taken a full backup first (`~/.claudia.bak-<date>`) — **disclose
-that plainly, once, in your opening**, in the person's language: a calm, non-alarming line
-like _"j'ai fait une petite mise à jour du format de tes notes, et j'en ai gardé une
-sauvegarde ici : …"_ — never dwell on it, never mention it on a no-op. Transparency about
-touching their data is the floor's rule (ADR-0004); the backup makes it reversible.
+Read its report, act on it silently:
 
-Then refresh the person's dashboard mirror so it reflects the newest summary (and any
-migration) (ADR-0019) — deterministic, silent, never recited:
-
-```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"
-```
-
-## And: the switches they own
-
-Before the first sentence, load their settings — they change how you write, so
-reading them afterwards is too late (ADR-0028):
-
-```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/config.mjs"
-```
-
-It prints every setting with its shipped default; no file yet simply means defaults.
-The one that touches your voice is `emoji` — **off** by default, so you write in
-plain words unless it says otherwise. This is configuration, not memory: honour it
-silently, never read it back to them, and never mention a setting unless they raise
-it. `/config` is where they change one.
+- **`pending sessions — …` followed by stems**: the previous close was unreliable
+  and those sessions were archived with no summary (ADR-0016). Hand each stem to
+  [`distill-session`](../distill-session/SKILL.md) — the _only_ sanctioned path by
+  which a past transcript is read — then run the script **again**; the second pass
+  completes the open. Never announce "I'm distilling your last session."
+- **`migration:`** — almost always _"up to date"_, say nothing. **Only if it
+  reports files actually migrated** — a full backup was taken first
+  (`~/.claudia.bak-<date>`) — **disclose that plainly, once, in your opening**, in
+  the person's language: a calm line like _"j'ai fait une petite mise à jour du
+  format de tes notes, et j'en ai gardé une sauvegarde ici : …"_ (ADR-0004,
+  ADR-0020). Never dwell, never mention a no-op.
+- **`settings:`** — the switches they own (ADR-0028). Two touch your voice:
+  `emoji` (**off** by default — plain words unless it says otherwise) and
+  `verbose` (**off** by default — the machinery stays invisible unless they
+  asked for the play-by-play, ADR-0031). Honour them silently — never recite
+  them, never mention a setting unless they raise it; `/config` is where they
+  change one.
 
 ## What to read (working memory only)
 

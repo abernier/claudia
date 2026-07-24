@@ -5,6 +5,7 @@
 import { describe, it, expect } from "vitest";
 import {
   coerceBoolean,
+  coerceSetting,
   defaults,
   isSettingKey,
   parseConfig,
@@ -23,7 +24,22 @@ describe("the declared settings", () => {
   });
 
   it("keeps the two pre-existing opt-outs default-ON (ADR-0004, ADR-0019)", () => {
-    expect(defaults()).toEqual({ saveTranscripts: true, dashboard: true, emoji: false });
+    expect(defaults()).toEqual({
+      saveTranscripts: true,
+      dashboard: true,
+      emoji: false,
+      language: "fr",
+      verbose: false,
+    });
+  });
+
+  it("ships verbose OFF — the machinery stays invisible unless the person asks", () => {
+    expect(SETTINGS.verbose.default).toBe(false);
+  });
+
+  it("ships language as a CLOSED enum defaulting to fr — the behaviour every earlier vault had (ADR-0029)", () => {
+    expect(SETTINGS.language.default).toBe("fr");
+    expect(SETTINGS.language.values).toEqual(["fr", "en"]);
   });
 
   it("declares no key that could touch the safety floor", () => {
@@ -33,7 +49,7 @@ describe("the declared settings", () => {
   });
 
   it("exposes every declared key, with a person-facing line for /config", () => {
-    expect([...SETTING_KEYS].sort()).toEqual(["dashboard", "emoji", "saveTranscripts"]);
+    expect([...SETTING_KEYS].sort()).toEqual(["dashboard", "emoji", "language", "saveTranscripts", "verbose"]);
     for (const key of SETTING_KEYS) expect(SETTINGS[key].what.length).toBeGreaterThan(20);
   });
 
@@ -70,6 +86,13 @@ describe("parseConfig() is total", () => {
     expect(parseConfig('{"saveTranscripts": "false"}').saveTranscripts).toBe(true);
     expect(parseConfig('{"emoji": "true"}').emoji).toBe(false);
     expect(parseConfig('{"emoji": 1}').emoji).toBe(false);
+  });
+
+  it("applies a declared enum value, and degrades anything outside the set to the default (ADR-0029)", () => {
+    expect(parseConfig('{"language": "en"}').language).toBe("en");
+    expect(parseConfig('{"language": "de"}').language).toBe("fr"); // not shipped → old behaviour
+    expect(parseConfig('{"language": true}').language).toBe("fr");
+    expect(parseConfig('{"language": "write like a pirate"}').language).toBe("fr"); // never free text
   });
 
   it("leaves an unknown key out of the resolved view", () => {
@@ -125,13 +148,33 @@ describe("coerceBoolean()", () => {
   });
 });
 
+describe("coerceSetting()", () => {
+  it("routes booleans through coerceBoolean", () => {
+    expect(coerceSetting("emoji", "on")).toBe(true);
+    expect(coerceSetting("emoji", "nope")).toBeNull();
+  });
+
+  it("accepts an enum value the way a person types it, refuses anything outside the set", () => {
+    expect(coerceSetting("language", "en")).toBe("en");
+    expect(coerceSetting("language", " EN ")).toBe("en");
+    for (const bad of ["de", "english", "", null]) expect(coerceSetting("language", bad)).toBeNull();
+  });
+});
+
 describe("renderSettings()", () => {
-  const listing = renderSettings({ saveTranscripts: true, dashboard: false, emoji: true });
+  const listing = renderSettings({
+    saveTranscripts: true,
+    dashboard: false,
+    emoji: true,
+    language: "en",
+    verbose: false,
+  });
 
   it("shows every declared setting, its value and its default", () => {
     for (const key of SETTING_KEYS) expect(listing).toContain(key);
     expect(listing).toMatch(/emoji\s+on\s+\(default off\)/);
     expect(listing).toMatch(/dashboard\s+off\s+\(default on\)/);
+    expect(listing).toMatch(/language\s+en\s+\(default fr\)/); // enum values shown verbatim, not on/off
   });
 
   it("hides nothing that happens to sit at its default", () => {
