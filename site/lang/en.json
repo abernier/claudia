@@ -2,7 +2,7 @@
   "locale.label": "Language",
   "theme.label": "Theme",
   "nav.github": "GitHub",
-  "hero.badge": "Claude Code plugin · opensource · local",
+  "hero.badge": "opensource · local",
   "hero.title": "A listening ear, as a Claude Code plugin",
   "hero.subtitle": "A toolkit of skills, commands and hooks around a self-feeding knowledge base.",
   "hero.copy": "Copy install commands",
