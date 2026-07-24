@@ -7,6 +7,7 @@
   "hero.subtitle": "Evidence-based reflection and emotional support, as a free, open-source Claude Code plugin. Everything she remembers stays on your machine.",
   "hero.copy": "Copy install commands",
   "hero.copied": "Copied!",
+  "install.title": "Install Claudia",
   "different.title": "What makes Claudia different",
   "different.subtitle": "Six deliberate choices, each recorded as an architecture decision in the repo.",
   "different.relationship.title": "Relationship first",

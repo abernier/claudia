@@ -82,15 +82,9 @@ export function Page() {
     <div className="bg-background text-foreground min-h-screen">
       {/* Above-the-fold band — header + hero share a viewport-height flex
           column so the hero (flex-1) fills exactly the space the header
-          doesn't, sizematters-style. The session plays as a full-bleed
-          background layer under a translucent veil: player z-0, veil z-10,
-          header and copy layered on top via z-20. */}
-      <div className="relative flex h-dvh flex-col overflow-hidden">
-        <div aria-hidden className="absolute inset-0 z-0">
-          <AsciinemaDemo />
-        </div>
-        <div aria-hidden className="bg-background/50 absolute inset-0 z-10" />
-        <header className="relative z-20 border-b">
+          doesn't, sizematters-style. */}
+      <div className="flex min-h-dvh flex-col">
+        <header className="border-b">
           <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
             <a href={homeHref} className="text-lg font-semibold tracking-tight">
               {APP_NAME}
@@ -106,9 +100,10 @@ export function Page() {
           </nav>
         </header>
 
-        {/* Hero — centered copy + install over the playing session */}
-        <section className="relative z-20 flex flex-1 items-center">
-          <div className="mx-auto w-full max-w-2xl px-6 text-center">
+        {/* Hero — centered copy, the session playing where a screenshot
+            would go */}
+        <section className="flex flex-1 items-center py-10">
+          <div className="mx-auto w-full max-w-3xl px-6 text-center">
             <Badge variant="outline" className="font-normal">
               <FormattedMessage id="hero.badge" />
             </Badge>
@@ -118,14 +113,27 @@ export function Page() {
             <p className="text-muted-foreground mt-6 text-lg text-pretty sm:text-xl">
               <FormattedMessage id="hero.subtitle" />
             </p>
-            <InstallBlock />
+            <div className="mt-8 overflow-hidden rounded-lg border text-left shadow-lg">
+              <AsciinemaDemo />
+            </div>
           </div>
         </section>
       </div>
 
       <main>
+        {/* Install — the two commands, in their own section right after
+            the hero (the bottom CTA's #install anchor lands here) */}
+        <section id="install" className="bg-muted/50 scroll-mt-8 py-16 sm:py-24">
+          <div className="mx-auto max-w-2xl px-6">
+            <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
+              <FormattedMessage id="install.title" />
+            </h2>
+            <InstallBlock />
+          </div>
+        </section>
+
         {/* Privacy — the vault, shown as it really is */}
-        <section className="bg-muted/50 py-16 sm:py-24">
+        <section className="py-16 sm:py-24">
           <div className="mx-auto grid max-w-5xl items-center gap-12 px-6 md:grid-cols-2">
             <div>
               <h2 className="text-3xl font-bold tracking-tight text-balance">
@@ -164,7 +172,7 @@ export function Page() {
         </section>
 
         {/* Safety — first-class, not fine print */}
-        <section className="py-16 sm:py-24">
+        <section className="bg-muted/50 py-16 sm:py-24">
           <div className="mx-auto max-w-5xl px-6">
             <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
               <FormattedMessage id="safety.title" />
@@ -189,7 +197,7 @@ export function Page() {
         </section>
 
         {/* What makes Claudia different */}
-        <section className="bg-muted/50 py-16 sm:py-24">
+        <section className="py-16 sm:py-24">
           <div className="mx-auto max-w-5xl px-6">
             <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
               <FormattedMessage id="different.title" />
@@ -233,7 +241,7 @@ export function Page() {
         </section>
 
         {/* Commands — a taste of the ten */}
-        <section className="py-16 sm:py-24">
+        <section className="bg-muted/50 py-16 sm:py-24">
           <div className="mx-auto max-w-5xl px-6">
             <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
               <FormattedMessage id="commands.title" />
@@ -265,7 +273,7 @@ export function Page() {
         </section>
 
         {/* FAQ */}
-        <section className="bg-muted/50 py-16 sm:py-24">
+        <section className="py-16 sm:py-24">
           <div className="mx-auto max-w-3xl px-6">
             <h2 className="text-center text-3xl font-bold tracking-tight text-balance">
               <FormattedMessage id="faq.title" />
@@ -377,7 +385,7 @@ function InstallBlock() {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <div id="install" className="mt-8 scroll-mt-8 text-left">
+    <div className="mt-8 text-left">
       <div className="bg-card relative rounded-lg border shadow-sm">
         <pre className="overflow-x-auto p-4 pr-14 font-mono text-sm leading-7">
           {INSTALL_COMMANDS.map((cmd) => (
@@ -421,15 +429,14 @@ function useResolvedTheme(): "light" | "dark" {
 
 /**
  * The two-minute session with Nora, played by asciinema-player from the
- * cast file in the repo's demo kit — the hero's full-bleed background:
- * autoplaying, looping, chromeless (it sits under the veil, so it is
- * ambience, not a control surface). Client-only: the player mounts in an
- * effect, so the prerendered HTML ships an empty box.
+ * cast file in the repo's demo kit — autoplaying and looping in the
+ * hero, where a product screenshot would go. Client-only: the player
+ * mounts in an effect, so the prerendered HTML ships an empty
+ * (aspect-reserved) box.
  *
  * The terminal counter-shades the page: light terminal on a dark page,
- * dark terminal on a light page — the veil then reads as contrast, not
- * mud. Switching theme recreates the player (the loop restarts; fine
- * for ambience).
+ * dark terminal on a light page. Switching theme recreates the player
+ * (the loop restarts; fine for ambience).
  */
 function AsciinemaDemo() {
   const ref = useRef<HTMLDivElement>(null);
@@ -443,7 +450,6 @@ function AsciinemaDemo() {
         fit: "width",
         autoPlay: true,
         loop: true,
-        controls: false,
         theme: resolvedTheme === "dark" ? "solarized-light" : "asciinema",
       });
     });
@@ -452,14 +458,10 @@ function AsciinemaDemo() {
       player?.dispose();
     };
   }, [resolvedTheme]);
-  return (
-    // The element handed to the player must be a block — inside a flex
-    // container, `.ap-wrapper` shrinks to its (initially 0-wide) content
-    // and the fit-width math latches onto 0. The outer flex only centers.
-    <div className="flex h-full w-full items-center justify-center">
-      <div ref={ref} className="w-full" />
-    </div>
-  );
+  // The element handed to the player must be a block — inside a flex
+  // container, `.ap-wrapper` shrinks to its (initially 0-wide) content
+  // and the fit-width math latches onto 0.
+  return <div ref={ref} className="aspect-video [&_.ap-player]:rounded-none" />;
 }
 
 function Feature({ icon, titleId, descriptionId }: { icon: ReactNode; titleId: string; descriptionId: string }) {
