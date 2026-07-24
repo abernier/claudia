@@ -3,10 +3,10 @@ import {
   Brain,
   Check,
   Copy,
+  FlaskConical,
+  Hand,
   HandHeart,
   History,
-  Languages,
-  MessagesSquare,
   Monitor,
   Moon,
   NotebookPen,
@@ -237,12 +237,12 @@ export function Page() {
                 titleId="design.immersion.title"
                 descriptionId="design.immersion.description"
               />
+              <DesignPoint icon={<Hand />} titleId="design.pull.title" descriptionId="design.pull.description" />
               <DesignPoint
-                icon={<MessagesSquare />}
-                titleId="design.cli.title"
-                descriptionId="design.cli.description"
+                icon={<FlaskConical />}
+                titleId="design.tested.title"
+                descriptionId="design.tested.description"
               />
-              <DesignPoint icon={<Languages />} titleId="design.i18n.title" descriptionId="design.i18n.description" />
             </div>
           </div>
         </section>
