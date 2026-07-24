@@ -5,8 +5,6 @@ import {
   Copy,
   HandHeart,
   History,
-  Languages,
-  MessagesSquare,
   Monitor,
   Moon,
   NotebookPen,
@@ -236,16 +234,6 @@ export function Page() {
                 icon={<ShieldCheck />}
                 titleId="design.immersion.title"
                 descriptionId="design.immersion.description"
-              />
-              <DesignPoint
-                icon={<MessagesSquare />}
-                titleId="design.natural.title"
-                descriptionId="design.natural.description"
-              />
-              <DesignPoint
-                icon={<Languages />}
-                titleId="design.language.title"
-                descriptionId="design.language.description"
               />
             </div>
           </div>
