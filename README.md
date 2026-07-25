@@ -30,7 +30,7 @@ notes. No command is typed at any point._
   toolbox she reaches into when indicated. See [ADR-0002](docs/adr/0002-knowledge-architecture.md).
 - **Immersion with a floor.** Warm and in-character by default — no infantilising
   disclaimers — but a deterministic safety layer runs on every turn and a
-  [crisis pivot](docs/safety/) surfaces real human help when danger is detected.
+  [crisis pivot](domains/psychotherapy/docs/safety/) surfaces real human help when danger is detected.
 - **Natural-language first.** Only ten slash commands exist — six data, safety,
   and memory controls, three pull-only orientation aids, and one to keep a sentence
   that landed. Everything therapeutic happens in ordinary conversation. See

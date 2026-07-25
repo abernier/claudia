@@ -892,9 +892,12 @@ describe("the person's settings (ADR-0028)", () => {
 });
 
 describe("documentation links resolve", () => {
-  it("every relative .md link points to an existing file", () => {
+  it("every relative .md or directory link points to something that exists", () => {
     const mdFiles = walk(root, (p) => p.endsWith(".md"));
-    const linkRe = /\]\(([^)]+?\.md)(#[^)]*)?\)/g;
+    // Directory targets count too. A link to `docs/safety/` is exactly as dead as a
+    // link to a file once the directory moves, and one slipped through that way when
+    // the domain got its own package.
+    const linkRe = /\]\(([^)]+?(?:\.md|\/))(#[^)]*)?\)/g;
     const broken: string[] = [];
     for (const f of mdFiles) {
       // Strip code (fenced + inline) so example link-syntax isn't link-checked.

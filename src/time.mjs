@@ -212,7 +212,7 @@ export function buildTimeContext({ now, prevMs, timeZone }) {
 
 /**
  * The note injected into the turn. Facts only — HOW Claudia wears a gap lives in
- * her persona (skills/claudia/SKILL.md), not here, so this stays persona-neutral.
+ * her persona (the domain's claudia skill), not here, so this stays persona-neutral.
  *
  * @param {TimeContext} ctx
  * @returns {string}
