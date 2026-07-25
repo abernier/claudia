@@ -6,3 +6,10 @@ CHANGELOG.md
 # breaks the seed's date rendering.
 demo/vault
 demo/recordings
+# shadcn owns these files: `shadcn add` and `shadcn apply` rewrite them wholesale
+# from the registry, in the registry's own style (no semicolons). Formatting them
+# turns every regeneration into a whole-file diff and buries the real change.
+# Leave them byte-identical to the registry and `apply` stays a no-op. Don't add
+# project-specific code or comments here either — a preset silently eats it.
+site/src/components/ui
+site/src/lib/utils.ts
