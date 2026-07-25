@@ -8,6 +8,7 @@
     "dev": "npm --prefix site run dev",
     "test": "npm run typecheck && vitest run",
     "test:watch": "vitest",
+    "e2e": "node evals/e2e/run.mjs",
     "typecheck": "tsc --noEmit",
     "changeset": "changeset",
     "release:version": "changeset version && node scripts/sync-version.mjs",
