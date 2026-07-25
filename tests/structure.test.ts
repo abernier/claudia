@@ -111,6 +111,41 @@ describe("README stays in sync with the command surface", () => {
   });
 });
 
+describe("the architecture diagram stays in sync with the wiring", () => {
+  // Same rot as the README's command table, one file over: the ASCII picture this
+  // replaced still advertised a `Stop` hook writing the summary, long after
+  // hooks.json had moved to SessionEnd and ADR-0016 had moved distillation to the
+  // next open. A diagram is prose too, so tie it back to the thing it draws.
+  const diagram =
+    readFileSync(path.join(root, "docs/ARCHITECTURE.md"), "utf8").match(/```mermaid\n([\s\S]*?)```/)?.[1] ?? "";
+
+  it("pictures every hook event and every script hooks.json wires", () => {
+    expect(diagram, "docs/ARCHITECTURE.md must carry a mermaid block").not.toBe("");
+    const wired: Record<string, Array<{ hooks: Array<{ command: string }> }>> = JSON.parse(
+      readFileSync(path.join(root, "hooks/hooks.json"), "utf8"),
+    ).hooks;
+    for (const [event, groups] of Object.entries(wired)) {
+      expect(diagram, `${event} is wired but not pictured`).toContain(event);
+      for (const g of groups)
+        for (const h of g.hooks) {
+          const script = h.command.match(/([\w-]+\.mjs)/)![1]!;
+          expect(diagram, `${script} is wired but not pictured`).toContain(script);
+        }
+    }
+  });
+
+  it("pictures nothing that no longer exists", () => {
+    // The other direction: a rename in scripts/ or skills/ leaves the picture
+    // naming a file that is gone. `(?<!-)` keeps "proposed-skills/" out of it.
+    const named = new Set([
+      ...[...diagram.matchAll(/\b([\w-]+\.mjs)\b/g)].map((m) => path.join("scripts", m[1]!)),
+      ...[...diagram.matchAll(/(?<!-)\bskills\/([\w-]+)/g)].map((m) => path.join("skills", m[1]!)),
+    ]);
+    expect(named.size, "the diagram should name some of what it draws").toBeGreaterThan(0);
+    for (const rel of named) expect(existsSync(path.join(root, rel)), `${rel} is pictured but gone`).toBe(true);
+  });
+});
+
 describe("rotating vault archive (ADR-0032)", () => {
   it("ships the pass, the timer installer and the ADR", () => {
     expect(existsSync(path.join(root, "scripts/vault-backup.mjs"))).toBe(true);

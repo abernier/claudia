@@ -6,33 +6,77 @@ decisions live as ADRs in [`docs/adr/`](adr/), the vocabulary in
 
 ## The shape in one picture
 
+One session, top to bottom. The hooks are deterministic and run without the model;
+everything between them is the conversation, and every path ends in the person's
+own Markdown.
+
+```mermaid
+flowchart TB
+  P(["the person names her, or just opens up"])
+
+  subgraph OPEN["① open — the reliable edge of the lifecycle"]
+    direction TB
+    A["<b>SessionStart</b> hook · session-anchor.mjs<br/>re-asserts the persona after a resume or a compaction"]
+    S["<b>skills/claudia</b> — the persona<br/>loads SOUL.md + the relational spine"]
+    R["<b>skills/recall</b> · recall-open.mjs<br/>pending → migrate → dashboard → settings"]
+    D["<b>skills/distill-session</b><br/>the transcript flagged by the <i>previous</i> close:<br/>reads it, writes its summary, clears the flag —<br/>the one sanctioned transcript read"]
+  end
+
+  G(["the greeting — she already knows who they are"])
+
+  subgraph TURN["② every turn — deterministic, outside the persona"]
+    direction TB
+    H["<b>UserPromptSubmit</b> · safety-check.mjs<br/>heuristic pre-filter → fast-model classifier<br/>fail-safe: any doubt or error escalates<br/>+ time-context.mjs"]
+  end
+
+  subgraph TALK["③ the conversation — everything therapeutic happens here"]
+    direction TB
+    CA["<b>choose-approach</b> — relationship-first by default,<br/>a modality from docs/approaches/*.md when indicated"]
+    CR["<b>crisis</b> → docs/safety/* — routes to real human help"]
+    WR["<b>remember · understand · themes · relationships · timeline · todo</b><br/><b>teach · exercise · handover · quiz · keep</b>"]
+    AU["<b>author-skill</b> → proposed-skills/ quarantine<br/>3 adversarial auditors in parallel · unanimity to promote"]
+  end
+
+  subgraph CLOSE["④ close — hooks again, no model"]
+    direction TB
+    SV["<b>SessionEnd</b> · save-session.mjs<br/>verbatim transcript + a .pending-summary flag"]
+    BB["build-dashboard.mjs · vault-backup.mjs"]
+  end
+
+  V[("<b>~/.claudia/</b><br/>plain Markdown, local only")]
+
+  P --> A
+  A --> S
+  S --> R
+  R --> G
+  G --> H
+  H -->|"safe"| CA
+  H -->|"danger"| CR
+  CA --> WR
+  CR --> WR
+  WR --> AU
+  WR --> SV
+  SV --> BB
+  R -.->|"a flag is pending"| D
+  R -.->|"read by path — never a transcript"| V
+  D --> V
+  WR --> V
+  BB --> V
+
+  classDef code fill:#eef2ff,stroke:#6366f1,color:#1e1b4b
+  classDef vault fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#052e16
+  classDef human fill:#fff7ed,stroke:#ea580c,color:#431407
+  class A,H,SV,BB code
+  class V vault
+  class P,G human
 ```
-                         ┌───────────────────────────────────────┐
-   person's message ───▶ │  UserPromptSubmit hook (safety)        │  every turn,
-                         │  heuristic pre-filter → fast-model      │  outside the
-                         │  risk classifier → fail-safe escalate   │  persona
-                         └───────────────┬───────────────────────┘
-                                         │ safe
-                                         ▼
-                         ┌───────────────────────────────────────┐
-                         │  skills/claudia  (the persona)         │  always-on
-                         │  loads SOUL.md + relational spine       │  relational
-                         │  (qualities + competencies + alliance)  │  core
-                         └───────────────┬───────────────────────┘
-                            reaches for  │  when indicated
-                                         ▼
-              ┌──────────────────────────────────────────────────────┐
-              │ choose-approach ──▶ docs/approaches/*.md  (JIT)       │  toolbox
-              │ crisis ───────────▶ docs/safety/*         (on danger) │
-              │ teach / exercise ─▶ deliverables                      │
-              │ recall / remember / distill-session ─▶ ~/.claudia/    │
-              └──────────────────────────────────────────────────────┘
-                                         │ at session close
-                                         ▼
-                         ┌───────────────────────────────────────┐
-                         │  Stop hook: write transcript + summary │
-                         └───────────────────────────────────────┘
-```
+
+Two edges are deliberately **not** drawn, because a cycle would flip the stages out
+of reading order: `③ → ②` (the next turn re-enters the safety hook) and
+`④ → ①` (the `.pending-summary` flag left at close is picked up at the _next_
+session's open — [ADR-0016](adr/0016-deferred-distillation.md)). Both live in the
+node labels instead. The memory loop they form is the subject of
+[ADR-0004](adr/0004-memory-model.md).
 
 ## The five load-bearing decisions
 
@@ -58,8 +102,12 @@ decisions live as ADRs in [`docs/adr/`](adr/), the vocabulary in
 
 - **`skills/claudia/`** — the persona entry. Loads `SOUL.md` and the relational
   spine, then conducts the conversation. Model-invoked (and available as a door).
-- **`hooks/hooks.json`** — `UserPromptSubmit` runs the safety check on every turn;
-  `Stop` writes the transcript and a distilled summary to `~/.claudia/`.
+- **`hooks/hooks.json`** — `UserPromptSubmit` runs the safety check and the date
+  context on every turn; `SessionStart` re-anchors the persona after a resume or a
+  compaction ([ADR-0013](adr/0013-persona-continuity.md)); `SessionEnd` writes the
+  verbatim transcript plus a `.pending-summary` flag, refreshes the dashboard, and
+  backs the vault up. No hook writes a summary — a hook cannot run a skill, so
+  distillation happens at the next open ([ADR-0016](adr/0016-deferred-distillation.md)).
 - **`skills/choose-approach/`** — selects the modality for the moment
   (relationship-first default; approach leads when indicated).
 - **`skills/crisis/`** — the structured crisis pivot, invoked when the safety
