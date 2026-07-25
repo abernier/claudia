@@ -1,0 +1,66 @@
+{
+  "_note": "Machine-readable form of this domain's one site-1 floor rule. Prose authority: red-lines.md (N9/A1, A2/A3) and ADR-0001. Criteria are DATA: the chassis fixes the evaluation machine, this file fills its slots.",
+  "owner": "psychotherapy",
+  "rules": [
+    {
+      "id": "F7a",
+      "act": "on a turn carrying risk signals, hand the turn to this domain's crisis conduct",
+      "polarity": "obligation",
+      "conditionality": "unconditional",
+      "site": 1,
+      "criteria": {
+        "clear": [
+          {
+            "name": "suicide",
+            "pattern": "\\b(kill(ing)? myself|end(ing)? (it all|it|my life)|suicid|take my (own )?life|don'?t want to (be here|live|wake up)|better off dead|no reason to live|jump off|hang myself|overdose)\\b",
+            "flags": "i"
+          },
+          {
+            "name": "self-harm",
+            "pattern": "\\b(cut(ting)? myself|hurt myself|self.?harm|burn myself)\\b",
+            "flags": "i"
+          },
+          {
+            "name": "violence",
+            "pattern": "\\b(kill (him|her|them|someone)|hurt (him|her|them|someone)|want to (kill|hurt)|shoot (him|her|them|up)|stab)\\b",
+            "flags": "i"
+          },
+          {
+            "name": "abuse",
+            "pattern": "\\b(is (hitting|abusing|hurting|raping) me|being abused|was raped|assaulted me)\\b",
+            "flags": "i"
+          },
+          {
+            "name": "medical",
+            "pattern": "\\b(overdosed|can'?t breathe|chest pain|bleeding (a lot|out)|took (all|too many) (the )?pills|passed out|unconscious)\\b",
+            "flags": "i"
+          },
+          {
+            "name": "psychosis",
+            "pattern": "\\b(voices telling me|they'?re watching me|being controlled|not real anymore|losing my mind)\\b",
+            "flags": "i"
+          }
+        ],
+        "clearMultilingual": {
+          "name": "risk",
+          "pattern": "\\b(me suicider|me tuer|en finir|plus envie de vivre|me faire du mal|passer à l'acte|suizidieren|umbringen|matarme|suicidarme|quitar la vida|farla finita|uccidermi)\\b",
+          "flags": "i"
+        },
+        "uncertain": [
+          {
+            "name": "veiled-distress",
+            "pattern": "\\b(can'?t (do this|go on|take (it|this)) anymore|want (it|the pain) to stop|so tired of (it all|everything|living)|what'?s the point|give up on everything|don'?t see a way out|everyone would be better off without me|disappear forever)\\b",
+            "flags": "i"
+          },
+          {
+            "name": "veiled-distress",
+            "pattern": "\\b(je (n'?en peux plus|veux que (ça|tout) s'arrête|suis fatigué de (tout|vivre))|à quoi bon|aucune issue|tout le monde serait mieux sans moi|disparaître pour de bon)\\b",
+            "flags": "i"
+          }
+        ]
+      },
+      "classifierPrompt": "You are a mental-health risk classifier for a support chatbot. Read the USER MESSAGE and output ONLY a JSON object, no prose: {\"risk\":\"none|elevated|imminent\",\"category\":\"suicide|self-harm|violence|abuse|medical|psychosis|none\"}. \"imminent\" = plan/intent/means, active violence, or a medical emergency. \"elevated\" = distress or veiled ideation without a plan. When unsure, choose the higher risk.\n\nUSER MESSAGE:\n{text}",
+      "conduct": "[CLAUDIA SAFETY] The per-turn safety check flagged possible risk ({reason}). Invoke the `crisis` skill NOW: read docs/safety/crisis-protocol.md, assess with C-SSRS logic, stay WITH the person, and surface region-appropriate human help (docs/safety/resources.md). Do not counsel-and-continue as if this were an ordinary turn. This note is from the safety layer, not the person."
+    }
+  ]
+}

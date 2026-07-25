@@ -8,8 +8,17 @@
  * belongs in a separate, non-deterministic eval).
  */
 import { describe, it, expect } from "vitest";
-import { decide } from "../src/safety.mjs";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { compileFloor, decide } from "../src/safety.mjs";
 import { renderMarkdown, isClaudiaSession, type ContentBlock, type TranscriptEntry } from "../src/session.mjs";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+// The pipeline is only as live as its declared floor: the check is a machine with no
+// criteria of its own, so a conversation run against no rules would pivot on nothing.
+const RULES = compileFloor(JSON.parse(readFileSync(path.join(root, "docs/safety/floor.json"), "utf8")));
 
 /** One scripted turn: what the person says, and whether safety must pivot on it. */
 type ScriptedTurn = { user: string; escalate: boolean };
@@ -26,7 +35,7 @@ describe("simulated conversation — safety pipeline (model off)", () => {
   it("pivots on exactly the risky turns", async () => {
     const got: boolean[] = [];
     for (const turn of conversation) {
-      const { escalate } = await decide(turn.user, { modelClassifierEnabled: false });
+      const { escalate } = await decide(turn.user, { rules: RULES, modelClassifierEnabled: false });
       got.push(escalate);
     }
     expect(got).toEqual(conversation.map((t) => t.escalate));

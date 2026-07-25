@@ -26,12 +26,16 @@
  * What this module deliberately does NOT do:
  *
  * - **No auto-pinning.** An earlier sketch pinned the last archive whenever the vault
- *   shrank, so a "suspicious" deletion could never be rotated out. That silently
- *   preserves exactly what `/forget` promises to destroy ("permanent, no undo" —
- *   safety-floor rule 10). Pins are a manual affordance only (a `.keep` sidecar the
- *   person can touch by hand), and deletion outranks backup: `/forget` purges the
- *   archive set. A shrinking vault therefore only ever produces a *warning*
- *   ({@link checkVault}) — never a refusal, and never a pin.
+ *   shrank, so a "suspicious" deletion could never be rotated out. Pins are a manual
+ *   affordance only (a `.keep` sidecar the person can touch by hand), and a shrinking
+ *   vault only ever produces a *warning* ({@link checkVault}) — never a refusal, and
+ *   never a pin.
+ *
+ *   What it does NOT mean is that deletion reaches in here. **ADR-0032: an archive is a
+ *   record, and `/forget` does not rewrite records** — it deletes from `~/.claudia/` and
+ *   leaves `~/.claudia-backups/` entirely alone. The purge was the rejected first draft
+ *   ("a backup a routine command can destroy is no longer a backup"); the person clears
+ *   the archive set explicitly, with `/backup --purge`.
  * - **No repair.** {@link checkVault} refuses to archive an empty vault, because
  *   overwriting a good ladder with nothing is the one unrecoverable case. Everything
  *   else it merely reports; guessing which of two states is "right" is not its job.

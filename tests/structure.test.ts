@@ -896,3 +896,35 @@ describe("consultation (ADR-0030)", () => {
     expect(/neither confirm nor deny/i.test(txt), "the clinical stance must be stated").toBe(true);
   });
 });
+
+// The check is a MECHANISM WITHOUT CONTENT (docs/composable-domains.md §4.3): the
+// chassis owns the machine, and every criterion, every prompt and every word of
+// conduct is authored by the domain that declared the rule. This is the guard that
+// keeps it that way — the shipped code carried a hardcoded crisis instruction for
+// months, and nothing was watching.
+describe("the per-turn check holds no domain content", () => {
+  const chassis = ["src/safety.mjs", "scripts/safety-check.mjs"];
+  // Conduct vocabulary, not machine vocabulary: bands, verdicts and fail-safes are
+  // the chassis's own words and stay welcome here.
+  const domainWords = /crisis|C-SSRS|suicid|self.?harm|psychosis|eating.?disorder|mental.?health|therap|resources\.md/i;
+
+  for (const rel of chassis) {
+    it(`${rel} names no domain conduct, criterion or resource`, () => {
+      const txt = readFileSync(path.join(root, rel), "utf8");
+      const offending = txt
+        .split("\n")
+        .map((line, i) => ({ line, n: i + 1 }))
+        .filter(({ line }) => domainWords.test(line))
+        .map(({ line, n }) => `${rel}:${n}: ${line.trim()}`);
+      expect(offending, `domain content in chassis code:\n${offending.join("\n")}`).toEqual([]);
+    });
+  }
+
+  it("the domain's floor is where that content lives, and it is data", () => {
+    const spec = JSON.parse(readFileSync(path.join(root, "docs/safety/floor.json"), "utf8"));
+    // Criteria are data, never code: the chassis fixes the evaluation machine and the
+    // domain fills its slots, so a pattern is a string and never a function.
+    for (const c of spec.rules[0].criteria.clear) expect(typeof c.pattern).toBe("string");
+    expect(domainWords.test(spec.rules[0].conduct)).toBe(true);
+  });
+});
