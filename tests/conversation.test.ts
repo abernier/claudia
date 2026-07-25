@@ -18,7 +18,9 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 // The pipeline is only as live as its declared floor: the check is a machine with no
 // criteria of its own, so a conversation run against no rules would pivot on nothing.
-const RULES = compileFloor(JSON.parse(readFileSync(path.join(root, "docs/safety/floor.json"), "utf8")));
+const RULES = compileFloor(
+  JSON.parse(readFileSync(path.join(root, "domains/psychotherapy/docs/safety/floor.json"), "utf8")),
+);
 
 /** One scripted turn: what the person says, and whether safety must pivot on it. */
 type ScriptedTurn = { user: string; escalate: boolean };

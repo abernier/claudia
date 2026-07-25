@@ -29,7 +29,10 @@ import { fileURLToPath } from "node:url";
 import { compileFloor, decide, renderConduct, NO_RULES } from "../src/safety.mjs";
 
 /** Where the shipped domain keeps its site-1 rule. Stands in for the declaration. */
-const FLOOR_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../docs/safety/floor.json");
+const FLOOR_PATH = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../domains/psychotherapy/docs/safety/floor.json",
+);
 
 /**
  * The declared site-1 rules, compiled once at startup. Never throws: an unreadable or

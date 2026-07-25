@@ -4,7 +4,7 @@
  * **Mechanism without content.** This module owns the evaluation machine — the two
  * stages, the bands, the fail-safe direction — and holds no criterion of its own. Every
  * pattern arrives as DATA from whichever domain declared the rule
- * ([`docs/safety/floor.json`](../docs/safety/floor.json) is the one shipped today), and
+ * ([`floor.json`](../domains/psychotherapy/docs/safety/floor.json) is the one shipped today), and
  * the conduct an interrupt hands the turn to is **opaque** here: this module carries the
  * string, never reads it, and never says it. See
  * [`docs/composable-domains.md`](../docs/composable-domains.md) §4.3.

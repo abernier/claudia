@@ -40,7 +40,7 @@ flowchart TB
   subgraph CLOSE["④ close — hooks again, no model"]
     direction TB
     SV["<b>SessionEnd</b> · save-session.mjs<br/>verbatim transcript + a .pending-summary flag"]
-    BB["build-dashboard.mjs · vault-backup.mjs"]
+    BB["domains/psychotherapy/scripts/build-dashboard.mjs · vault-backup.mjs"]
   end
 
   V[("<b>~/.claudia/</b><br/>plain Markdown, local only")]
@@ -116,8 +116,10 @@ node labels instead. The memory loop they form is the subject of
 - **`skills/teach` · `exercise`** — deliverables (with mermaid diagrams), written
   in the person's language under `~/.claudia/`.
 - **`skills/research/`** — lets Claudia look up a technique or fact when useful.
-- **`commands/`** — the person-pulled surface: `/help-now`, `/export`,
-  `/save`, `/migrate`, `/config`, `/thread`, `/dashboard`, `/keep`, `/menu`.
+- **`commands/`** — the person-pulled surface, split by what it acts on: the
+  chassis keeps `/backup`, `/config`, `/migrate` (the **store**), and the domain
+  brings `/help-now`, `/export`, `/save`, `/thread`, `/dashboard`, `/keep`, `/menu`
+  (the **content**) — see [composable-domains.md](composable-domains.md).
 - **`src/config.mjs`** — the person's settings (`~/.claudia/config.json`): declared
   keys with closed value sets and shipped defaults — booleans plus the `language`
   enum — read by `/config`, `recall`, and the two hook scripts that carry an
@@ -138,4 +140,4 @@ node labels instead. The memory loop they form is the subject of
     └── teachings/
 ```
 
-See [`docs/memory-layout.md`](memory-layout.md) for the full contract.
+See [`docs/memory-layout.md`](../domains/psychotherapy/docs/memory-layout.md) for the full contract.

@@ -44,5 +44,5 @@ backup, and it **never touches the verbatim transcripts**.
 - Never run this as a recital or make it feel like a chore — it's housekeeping on _their_
   data, offered plainly.
 - Never skip the backup or touch a `*.transcript.md`.
-- If anything in the moment trips a risk signal, [crisis](../skills/crisis/SKILL.md)
+- If anything in the moment trips a risk signal, [crisis](../domains/psychotherapy/skills/crisis/SKILL.md)
   comes first — never "let's migrate your notes".

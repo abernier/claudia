@@ -16,7 +16,7 @@ tidy options, clicks one instead of saying what is wrong. Two further reasons th
 are specific to the opening:
 
 - **It would displace something better.** The opening is not a blank prompt.
-  [`recall`](../../skills/recall/SKILL.md) has already read `person.md`, `goals.md`,
+  [`recall`](../../domains/psychotherapy/skills/recall/SKILL.md) has already read `person.md`, `goals.md`,
   `todo.md` and the last summary, and the persona turns that into **one** warm,
   specific check-in — _"how did the dinner with Liliana go?"_. A generic list is a
   downgrade, and a recital of four threads is the "dossier" feeling the whole design

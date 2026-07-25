@@ -149,18 +149,27 @@ instead, and the persona comes to you.
 
 ```
 .claude-plugin/   plugin.json + marketplace.json (manifests)
-SOUL.md           who Claudia is (loaded by the persona skill)
 CONTEXT.md        the project glossary
-docs/
-  adr/            the decisions and why
-  qualities/      how Claudia is (empathy, positive regard, congruence)
-  competencies/   what Claudia does (microskills, alliance, rupture-repair)
-  approaches/     the modality library (loaded just-in-time) + refer-only list
-  safety/         crisis protocol, C-SSRS logic, localized resources, classifier
-  bibliography.md the evidence base
-skills/           Claudia's capabilities
-commands/         the ten commands
-hooks/            the per-turn safety hook + session-save hook
+
+the chassis — a machine that authors nothing
+  commands/       three commands, all acting on the store: /backup /config /migrate
+  hooks/          the moments it fires: open, every turn, close
+  src/ scripts/   the per-turn check mechanism, the store, migrations, settings
+  docs/adr/       the decisions and why
+  docs/ARCHITECTURE.md · docs/composable-domains.md
+
+domains/psychotherapy/   the one domain it ships with — everything Claudia says or knows
+  DOMAIN.md       what the package declares
+  SOUL.md         who Claudia is (worn while this domain is active)
+  commands/       the other seven: /dashboard /export /help-now /keep /menu /save /thread
+  skills/         Claudia's capabilities
+  docs/
+    qualities/    how Claudia is (empathy, positive regard, congruence)
+    competencies/ what Claudia does (microskills, alliance, rupture-repair)
+    approaches/   the modality library (loaded just-in-time) + refer-only list
+    safety/       crisis protocol, C-SSRS logic, localized resources, the floor
+    memory-layout.md · bibliography.md
+  src/ scripts/   the dashboard mirror and the export pass
 ```
 
 ## Development

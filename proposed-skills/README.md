@@ -7,7 +7,7 @@ until:
 
 1. the adversarial [`skill-auditor`](../agents/skill-auditor.md) returns
    `VERDICT: APPROVED`, and
-2. the [`author-skill`](../skills/author-skill/SKILL.md) meta-skill promotes it
+2. the [`author-skill`](../domains/psychotherapy/skills/author-skill/SKILL.md) meta-skill promotes it
    into `skills/`, and
 3. it loads at the next `/reload-plugins` or session.
 

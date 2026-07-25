@@ -17,7 +17,9 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // The behavioural suite runs against the SHIPPED domain floor, not a fixture: these
 // assertions are the regression guard on the crisis path, so they must exercise the
 // patterns the hook actually loads.
-const RULES: FloorRule[] = compileFloor(JSON.parse(readFileSync(path.join(root, "docs/safety/floor.json"), "utf8")));
+const RULES: FloorRule[] = compileFloor(
+  JSON.parse(readFileSync(path.join(root, "domains/psychotherapy/docs/safety/floor.json"), "utf8")),
+);
 
 /** The one site-1 rule the shipped domain declares. Absent it, the suite is testing nothing. */
 const RULE: FloorRule = (() => {
@@ -253,7 +255,7 @@ describe("the interrupt is a pointer", () => {
 // shipped floor must be readable, complete, and the only place the patterns live.
 describe("the shipped domain floor is well-formed", () => {
   it("declares one site-1 rule, owned by the domain, with criteria as data", () => {
-    const spec = JSON.parse(readFileSync(path.join(root, "docs/safety/floor.json"), "utf8"));
+    const spec = JSON.parse(readFileSync(path.join(root, "domains/psychotherapy/docs/safety/floor.json"), "utf8"));
     expect(spec.owner).toBe("psychotherapy");
     expect(spec.rules).toHaveLength(1);
     const rule = spec.rules[0];
@@ -267,7 +269,7 @@ describe("the shipped domain floor is well-formed", () => {
 
   it("compiles without throwing — a malformed pattern must fail here, never on a turn", () => {
     expect(() =>
-      compileFloor(JSON.parse(readFileSync(path.join(root, "docs/safety/floor.json"), "utf8"))),
+      compileFloor(JSON.parse(readFileSync(path.join(root, "domains/psychotherapy/docs/safety/floor.json"), "utf8"))),
     ).not.toThrow();
   });
 });

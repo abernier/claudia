@@ -49,13 +49,13 @@ refuse. Settings sit **above** the floor, like immersion does.
 | ----------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `emoji`           | **off** | Claudia writes in plain words. On, she may use emoji sparingly (ADR-0028).                                                                         |
 | `saveTranscripts` | on      | The verbatim archive of each conversation under `~/.claudia/sessions/` (ADR-0004).                                                                 |
-| `dashboard`       | on      | The bird's-eye mirror `~/.claudia/dashboard.md`, opened with [`/dashboard`](dashboard.md) (ADR-0019).                                              |
+| `dashboard`       | on      | The bird's-eye mirror `~/.claudia/dashboard.md`, opened with [`/dashboard`](../domains/psychotherapy/commands/dashboard.md) (ADR-0019).            |
 | `language`        | `fr`    | The language of what the scripts write (the dashboard mirror): `fr` or `en` (ADR-0029). Claudia herself always speaks the person's language.       |
 | `verbose`         | off     | Claudia narrates her machinery (scripts run, notes read) as she works. Off: the workings stay invisible. For tinkering and development (ADR-0031). |
 
 ## After a change
 
-- **`dashboard` turned off** — run `node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"`
+- **`dashboard` turned off** — run `node "${CLAUDE_PLUGIN_ROOT}/domains/psychotherapy/scripts/build-dashboard.mjs"`
   once so the existing mirror is actually removed, and say so. An opt-out that leaves
   the file sitting there isn't one.
 - **`saveTranscripts` turned off** — new conversations stop being archived; the ones
@@ -63,7 +63,7 @@ refuse. Settings sit **above** the floor, like immersion does.
   the vault itself — plain Markdown they own — as the way to remove what's there.
 - **`emoji` turned on** — use them **sparingly**, where they genuinely fit her voice,
   never as decoration on every line.
-- **`language` changed** — run `node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"`
+- **`language` changed** — run `node "${CLAUDE_PLUGIN_ROOT}/domains/psychotherapy/scripts/build-dashboard.mjs"`
   once so the mirror is rebuilt in the new language right away, not at the next close.
 
 ## Never
@@ -76,5 +76,5 @@ refuse. Settings sit **above** the floor, like immersion does.
 - **Never invent a setting.** The known keys are the ones the script lists; if they
   ask for something that doesn't exist, say so plainly rather than writing a key
   nothing reads.
-- If anything in the moment trips a risk signal, [crisis](../skills/crisis/SKILL.md)
+- If anything in the moment trips a risk signal, [crisis](../domains/psychotherapy/skills/crisis/SKILL.md)
   comes first — never "let's look at your settings".

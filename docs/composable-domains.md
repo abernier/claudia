@@ -435,19 +435,26 @@ untouched by all of this and keeps shipping as-is.
 
 ## 9. Divergences in the shipped repo
 
-Recorded because this model makes them visible, **not** scheduled: implementation is out of
-scope, and none of these is a decision this document may take.
+The model made these visible. Four have since been closed; the table keeps them, with
+what closed them, because the point is the _shape_ — psychotherapy content promoted to a
+generic level by the accident of shipping one domain — and that shape is what a reader
+should learn to recognise.
 
-| where                                              | what                                                                                                                                                                                                                                                                                                                  |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/safety.mjs:67-75`                             | psychotherapy conduct text — _"Invoke the crisis skill NOW"_, `crisis-protocol.md`, `C-SSRS`, `resources.md` — hardcoded in chassis code. The exact contraband the opaque pointer exists to evict                                                                                                                     |
-| `src/dashboard.mjs`, `scripts/build-dashboard.mjs` | chassis code that knows psychotherapy's record **kinds**, their **order** and their **labels**. The same shape, one level up                                                                                                                                                                                          |
-| `commands/` (flat)                                 | the three system commands and the domain's seven sit in one directory, which masks the split entirely                                                                                                                                                                                                                 |
-| `docs/safety/classifier.md` vs `src/safety.mjs`    | a documented eating-disorder bucket that does not exist in the heuristic; that rule's gate is entirely practice-borne today                                                                                                                                                                                           |
-| the verdict contract                               | `minor_signal` is specified and never persisted                                                                                                                                                                                                                                                                       |
-| `src/backup.mjs:31-33`                             | the module contract states _"deletion outranks backup: `/forget` purges the archive set"_ while **ADR-0032 decided the opposite and is authoritative**. The comment describes the rejected first draft — the only contradiction in this table rather than a gap, and it sits on a command this model deletes outright |
+| where                                              | what                                                                                                                                                                             | status                                                                                                                              |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `src/safety.mjs:67-75`                             | psychotherapy conduct text — _"Invoke the `crisis` skill NOW"_, `C-SSRS`, the protocol path — hardcoded in chassis code. The exact contraband the opaque pointer exists to evict | **closed** — criteria, prompt and conduct are the domain's data; a test fails the build if domain vocabulary returns to the machine |
+| `src/dashboard.mjs`, `scripts/build-dashboard.mjs` | chassis code that knows psychotherapy's record **kinds**, their **order** and their **labels**. The same shape, one level up                                                     | **closed** — moved into the domain's package                                                                                        |
+| `commands/` (flat)                                 | the three system commands and the domain's seven sat in one directory, which masked the split entirely                                                                           | **closed** — two component roots, declared in `plugin.json`                                                                         |
+| `src/backup.mjs:31-33`                             | the module contract stated _"deletion outranks backup: `/forget` purges the archive set"_ while **ADR-0032 decided the opposite and is authoritative**                           | **closed** — the claim turned out to be in five places, and a test now refuses it ([ADR-0034](adr/0034-remove-forget.md))           |
+| `docs/safety/classifier.md` vs the heuristic       | a documented eating-disorder bucket that does not exist in the patterns; that rule's gate is entirely practice-borne today                                                       | open — and correctly so: its gating condition needs history, so it cannot be site 1 (§3.4)                                          |
+| the verdict contract                               | `minor_signal` is specified and never persisted                                                                                                                                  | open                                                                                                                                |
 
----
+**What is deliberately not done yet.** The domain's lifecycle scripts still sit under the
+chassis's `scripts/` and are wired by name in `hooks/hooks.json`, rather than being
+declared by the domain and run by a dispatcher. That is the next structural step, and it
+was kept out of the packaging move on purpose: the same hook event carries the per-turn
+safety check, and two structural changes at once on the path that catches suicidal
+ideation is not a trade worth making.
 
 ## 10. Two clauses settled by default
 

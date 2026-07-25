@@ -72,7 +72,7 @@ command that pull it into reach mid-conversation.
 - **Read where it earns its place, never recited.** The
   [dashboard](0019-dashboard.md) transcludes the most recent keepsake — verbatim
   quoting is exactly that mirror's contract ("transclude or point, never
-  summarise"). [`quiz`](../../skills/quiz/SKILL.md) may draw on keepsakes as
+  summarise"). [`quiz`](../../domains/psychotherapy/skills/quiz/SKILL.md) may draw on keepsakes as
   material, which closes the loop: `keep` captures the lesson, `quiz` makes it last.
   **`recall` does not load them** — context economy, and an opening that quotes a
   past session back at the person is a recital, the failure mode every pull-only

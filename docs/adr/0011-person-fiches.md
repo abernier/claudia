@@ -5,7 +5,7 @@ status: accepted
 # Person fiches — a reflective, cross-linked vault
 
 Each important person can get a markdown **fiche** at `~/.claudia/people/<name>.md`,
-following a common reflective template ([`docs/person-fiche-template.md`](../person-fiche-template.md))
+following a common reflective template ([`docs/person-fiche-template.md`](../../domains/psychotherapy/docs/person-fiche-template.md))
 and heavily cross-linked to other fiches, session summaries, the working
 understanding, and themes. The relationship graph (`people.md`, ADR-0010) links each
 node to its fiche (mermaid `click`), and an index/MOC lives in the existing

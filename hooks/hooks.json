@@ -33,7 +33,7 @@
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs\""
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/domains/psychotherapy/scripts/build-dashboard.mjs\""
           },
           {
             "type": "command",

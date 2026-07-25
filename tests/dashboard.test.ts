@@ -8,8 +8,8 @@ import {
   sessionsForMirror,
   cadence,
   buildDashboard,
-} from "../src/dashboard.mjs";
-import type { DashboardInput, MirrorSession } from "../src/dashboard.mjs";
+} from "../domains/psychotherapy/src/dashboard.mjs";
+import type { DashboardInput, MirrorSession } from "../domains/psychotherapy/src/dashboard.mjs";
 
 describe("listItems()", () => {
   it("transcludes bullet / numbered / checkbox lines verbatim, right-trimmed", () => {

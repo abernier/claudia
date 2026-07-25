@@ -29,7 +29,7 @@ timeline is _not_ a container for processing trauma.
 - **Positive and neutral events are first-class** — otherwise reminiscence can
   worsen mood in ruminators (Brinker, 2013). Externalise problems; surface
   strengths and "what got you through" (resilience / unique outcomes).
-- **Safety floor first.** On risk signals, invoke [crisis](../../skills/crisis/SKILL.md),
+- **Safety floor first.** On risk signals, invoke [crisis](../../domains/psychotherapy/skills/crisis/SKILL.md),
   never "continue the timeline". The person can edit, redact, or delete anything.
 
 ## Shape & rendering

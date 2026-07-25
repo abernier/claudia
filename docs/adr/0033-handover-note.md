@@ -4,7 +4,7 @@ status: accepted
 
 # The handover note — the person's page, carried by the person
 
-[`refer-only.md`](../approaches/refer-only.md) tells Claudia to **recognise and
+[`refer-only.md`](../../domains/psychotherapy/docs/approaches/refer-only.md) tells Claudia to **recognise and
 refer**, and stops there. Nothing follows the referral. A person who books an
 appointment after months of conversation walks in with fifty minutes and no way to
 say what those months held; the material is sitting in `~/.claudia/` and cannot
@@ -52,8 +52,8 @@ it is not a privacy right they are exercising.
 way `/intake` already is, so the person's explicit door costs nothing.
 [ADR-0003](0003-plugin-runtime-shape.md) reserves `commands/` for data, safety and
 orientation affordances; composing a note with someone is a therapeutic act, and
-belongs beside [`exercise`](../../skills/exercise/SKILL.md) and
-[`teach`](../../skills/teach/SKILL.md).
+belongs beside [`exercise`](../../domains/psychotherapy/skills/exercise/SKILL.md) and
+[`teach`](../../domains/psychotherapy/skills/teach/SKILL.md).
 
 **Claudia poses; she never pre-decides.** She builds the **inventory** — what recurred
 across sessions, which is the one thing she can produce that the person cannot, since
@@ -74,10 +74,10 @@ own limits, and **inline attribution** in the drafted prose — _"Claudia pointe
 that…, and I think she's right"_ — each such sentence ratified in conversation before
 it is written.
 
-**Five sections, one page.** _What keeps coming up_ ([`themes.md`](../memory-layout.md),
+**Five sections, one page.** _What keeps coming up_ ([`themes.md`](../../domains/psychotherapy/docs/memory-layout.md),
 `understanding.md`) · _What I'm hoping for_ (`goals.md`) · _What we tried, and what came
 of it_ (`exercises/`, `teachings/`) · _What's still open_ (`todo.md`) · _What we couldn't
-get to_ ([refer-only](../approaches/refer-only.md) territory, named plainly). An empty
+get to_ ([refer-only](../../domains/psychotherapy/docs/approaches/refer-only.md) territory, named plainly). An empty
 section is omitted. The length cap **is** the curation mechanism: without one, "include"
 wins by default and the note becomes the case file this project refuses everywhere else.
 
@@ -106,7 +106,7 @@ handover **reads** the earlier one and may open on what has moved since — it n
 patches it. Accretion over a year produces the case file by another route.
 
 **Frontmatter is `type` / `created` / `slug`, and never `session:`.** Exactly the block
-[`exercise`](../../skills/exercise/SKILL.md) writes, with one difference:
+[`exercise`](../../domains/psychotherapy/skills/exercise/SKILL.md) writes, with one difference:
 `finish-distillation.mjs` does not come back at close to stamp the stem. Its regex
 already matches `exercises|teachings` only, so this costs no code — it is a deliberate
 non-extension. The opaque session id means nothing to the reader and reads as record-keeping
@@ -155,7 +155,7 @@ the person's business.
   humility. The deference would also be uncalibrated, since she has no idea what the
   clinician is working on. The collision this was meant to prevent (coaching around
   avoidance while a clinician runs exposure) is thin in practice, because
-  [refer-only](../approaches/refer-only.md) already keeps her out of exposure, ERP and
+  [refer-only](../../domains/psychotherapy/docs/approaches/refer-only.md) already keeps her out of exposure, ERP and
   trauma processing. The one part worth having — not taking sides when someone criticises
   their therapist — is not clinical at all: it is the same stance she owes a partner, a
   parent or a boss, and it needs no feature.
@@ -168,7 +168,7 @@ the person's business.
 ## Consequences
 
 - New `skills/handover/`; `~/.claudia/sessions/handovers/` in
-  [`memory-layout.md`](../memory-layout.md). `/export` and `/forget` need no change —
+  [`memory-layout.md`](../../domains/psychotherapy/docs/memory-layout.md). `/export` and `/forget` need no change —
   `vault-export.mjs` walks the tree recursively.
 - [ADR-0026](0026-showing-the-deliverable.md) gains a row: `handover` → `attach`.
 - `tests/structure.test.ts` pins the fences that a later change would erode first: the

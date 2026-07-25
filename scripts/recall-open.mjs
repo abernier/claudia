@@ -39,7 +39,7 @@ if (pending) {
 }
 
 const migration = run("migrate-vault.mjs"); // self-gates on the ledger; discloses only real work
-run("build-dashboard.mjs"); // silent mirror refresh (ADR-0019)
+run("../domains/psychotherapy/scripts/build-dashboard.mjs"); // silent mirror refresh (ADR-0019) — the domain's
 const settings = run("config.mjs"); // the switches that shape the voice (ADR-0028)
 
 // The first line lands exactly where narration tends to slip out — a

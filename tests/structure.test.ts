@@ -25,6 +25,9 @@ type PluginManifest = { name?: string; hooks?: unknown };
 type MarketplaceManifest = { name?: string; plugins: Array<{ source?: string }> };
 type HooksManifest = { hooks: Record<string, unknown> };
 
+/** The two component roots: the chassis keeps three commands, the domain brings its own. */
+const COMMAND_ROOTS = ["commands", "domains/psychotherapy/commands"];
+
 describe("manifests", () => {
   it("plugin.json is valid and names the plugin", () => {
     const m: PluginManifest = JSON.parse(readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"));
@@ -51,7 +54,7 @@ describe("manifests", () => {
 
 describe("components", () => {
   it("every skill has name + description frontmatter", () => {
-    const skills = walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md"));
+    const skills = walk(path.join(root, "domains/psychotherapy/skills"), (p) => p.endsWith("SKILL.md"));
     expect(skills.length).toBeGreaterThan(0);
     for (const s of skills) {
       const txt = readFileSync(s, "utf8");
@@ -61,8 +64,8 @@ describe("components", () => {
     }
   });
 
-  it("ships exactly the eleven commands", () => {
-    const cmds = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
+  it("ships exactly the ten commands, split between the chassis and the domain", () => {
+    const cmds = COMMAND_ROOTS.flatMap((r) => walk(path.join(root, r), (p) => p.endsWith(".md")))
       .map((p) => path.basename(p))
       .sort();
     expect(cmds).toEqual([
@@ -86,7 +89,7 @@ describe("README stays in sync with the command surface", () => {
   // count — back to it, so the README kept saying "three". These assert that
   // link, so the docs can't drift on the next command added or removed (the
   // README must be current before each merge).
-  const commands = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
+  const commands = COMMAND_ROOTS.flatMap((r) => walk(path.join(root, r), (p) => p.endsWith(".md")))
     .map((p) => "/" + path.basename(p, ".md"))
     .sort();
   const readme = readFileSync(path.join(root, "README.md"), "utf8");
@@ -96,17 +99,21 @@ describe("README stays in sync with the command surface", () => {
     expect(tabled).toEqual(commands);
   });
 
-  it("every '<n> commands' count in the prose matches how many ship", () => {
+  it("every '<n> commands' count in the prose matches a real one", () => {
+    // Three counts are now true at once: the whole surface, the chassis's share, and
+    // the domain's. Each claim in the prose must be one of them — a stale total is
+    // exactly as wrong as it ever was, and the split does not license a free number.
     const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven"];
-    const expected = words[commands.length];
-    expect(expected, `extend words[] past ${commands.length}`).toBeDefined();
+    const chassis = walk(path.join(root, "commands"), (p) => p.endsWith(".md")).length;
+    const legal = new Set([commands.length, chassis, commands.length - chassis].map((n) => words[n]));
     const counts = [
       ...readme.matchAll(
         /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\s+(?:slash\s+)?commands?\b/gi,
       ),
     ].map((m) => m[1]!.toLowerCase());
     expect(counts.length, "README should state the command count").toBeGreaterThan(0);
-    for (const w of counts) expect(w).toBe(expected);
+    expect(counts, `legal counts: ${[...legal].join(", ")}`).toContain(words[commands.length]);
+    for (const w of counts) expect(legal.has(w), `"${w} commands" matches no real count`).toBe(true);
   });
 });
 
@@ -137,11 +144,17 @@ describe("the architecture diagram stays in sync with the wiring", () => {
     // The other direction: a rename in scripts/ or skills/ leaves the picture
     // naming a file that is gone. `(?<!-)` keeps "proposed-skills/" out of it.
     const named = new Set([
-      ...[...diagram.matchAll(/\b([\w-]+\.mjs)\b/g)].map((m) => path.join("scripts", m[1]!)),
+      ...[...diagram.matchAll(/\b([\w-]+\.mjs)\b/g)].map((m) => m[1]!),
       ...[...diagram.matchAll(/(?<!-)\bskills\/([\w-]+)/g)].map((m) => path.join("skills", m[1]!)),
     ]);
     expect(named.size, "the diagram should name some of what it draws").toBeGreaterThan(0);
-    for (const rel of named) expect(existsSync(path.join(root, rel)), `${rel} is pictured but gone`).toBe(true);
+    // A component lives under the chassis or under a domain's package; the picture
+    // names it, and either root may hold it.
+    const roots = ["scripts", "domains/psychotherapy/scripts", "", "domains/psychotherapy"];
+    for (const rel of named) {
+      const found = roots.some((r) => existsSync(path.join(root, r, rel)));
+      expect(found, `${rel} is pictured but gone`).toBe(true);
+    }
   });
 });
 
@@ -165,7 +178,12 @@ describe("rotating vault archive (ADR-0032)", () => {
   it("no code path purges the archive set except the person's own --purge (ADR-0032)", () => {
     // The claim "deletion outranks backup" survived in five places after ADR-0032
     // decided the opposite. An archive is a record; nothing routine rewrites one.
-    for (const f of ["src/backup.mjs", "src/config.mjs", "scripts/vault-backup.mjs", "docs/memory-layout.md"]) {
+    for (const f of [
+      "src/backup.mjs",
+      "src/config.mjs",
+      "scripts/vault-backup.mjs",
+      "domains/psychotherapy/docs/memory-layout.md",
+    ]) {
       const txt = readFileSync(path.join(root, f), "utf8");
       expect(/deletion outranks backup/i.test(txt), `${f} contradicts ADR-0032`).toBe(false);
     }
@@ -184,21 +202,21 @@ describe("rotating vault archive (ADR-0032)", () => {
   });
 
   it("is disclosed inside the existing first-run breath, not as its own prompt", () => {
-    const remember = readFileSync(path.join(root, "skills/remember/SKILL.md"), "utf8");
+    const remember = readFileSync(path.join(root, "domains/psychotherapy/skills/remember/SKILL.md"), "utf8");
     expect(/claudia-backups/.test(remember), "the archive must be disclosed at all").toBe(true);
     expect(/same breath/.test(remember), "and folded into the one disclosure that exists").toBe(true);
   });
 
   it("keeps the background job out of the conversation", () => {
     // A companion that asks to install system things stops feeling like a companion.
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/launchd|launchctl|backup-timer/i.test(persona)).toBe(false);
     const cmd = readFileSync(path.join(root, "commands/backup.md"), "utf8");
     expect(/never raise it mid-conversation/i.test(cmd)).toBe(true);
   });
 
   it("is recorded in the memory layout", () => {
-    const layout = readFileSync(path.join(root, "docs/memory-layout.md"), "utf8");
+    const layout = readFileSync(path.join(root, "domains/psychotherapy/docs/memory-layout.md"), "utf8");
     expect(/claudia-backups/.test(layout)).toBe(true);
   });
 });
@@ -212,12 +230,12 @@ describe("self-authoring (ADR-0006)", () => {
   });
 
   it("ships the author-skill meta-skill", () => {
-    expect(existsSync(path.join(root, "skills/author-skill/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/skills/author-skill/SKILL.md"))).toBe(true);
   });
 
   it("the persona knows it can author skills (self-concept, not just capability)", () => {
-    const soul = readFileSync(path.join(root, "SOUL.md"), "utf8");
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const soul = readFileSync(path.join(root, "domains/psychotherapy/SOUL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/grow|build myself|extend yourself/i.test(soul), "SOUL should express self-extension").toBe(true);
     expect(/author-skill/.test(persona), "persona should point to author-skill").toBe(true);
   });
@@ -226,13 +244,13 @@ describe("self-authoring (ADR-0006)", () => {
     // proposed-skills/ holds drafts and is NOT under skills/ (the only load path),
     // so a draft is inert until promoted.
     expect(existsSync(path.join(root, "proposed-skills"))).toBe(true);
-    expect(existsSync(path.join(root, "skills/proposed-skills"))).toBe(false);
+    expect(existsSync(path.join(root, "domains/psychotherapy/skills/proposed-skills"))).toBe(false);
   });
 });
 
 describe("opening ritual", () => {
   it("greets by name, checks in on a still-open thread, handles first-timers, skips resolved", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/still.?open/i.test(persona), "opening should target a still-open thread").toBe(true);
     expect(/by name/i.test(persona), "opening should greet by name").toBe(true);
     expect(/First time/i.test(persona), "opening should handle first-timers").toBe(true);
@@ -240,20 +258,20 @@ describe("opening ritual", () => {
   });
 
   it("recall surfaces anticipated events (follow-ups) and skips resolved ones", () => {
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    const recall = readFileSync(path.join(root, "domains/psychotherapy/skills/recall/SKILL.md"), "utf8");
     expect(/anticipat/i.test(recall)).toBe(true);
     expect(/resolved/i.test(recall)).toBe(true);
   });
 
   it("the persona is reachable by name (model-invocation trigger)", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/names Claudia|talk to Claudia|@Claudia/i.test(persona)).toBe(true);
   });
 });
 
 describe("delegation (ephemeral specialists)", () => {
   it("the persona can delegate backroom work, bounded away from the relationship/crisis", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/Task/.test(persona), "persona should use the Task tool to delegate").toBe(true);
     expect(/never delegate the relationship or a crisis/i.test(persona), "delegation must be bounded").toBe(true);
     expect(/^allowed-tools:.*\bTask\b/m.test(persona), "Task should be pre-approved to avoid mid-session prompts").toBe(
@@ -264,18 +282,18 @@ describe("delegation (ephemeral specialists)", () => {
 
 describe("working understanding (ADR-0008)", () => {
   it("ships the understand skill and the ADR", () => {
-    expect(existsSync(path.join(root, "skills/understand/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/skills/understand/SKILL.md"))).toBe(true);
     expect(existsSync(path.join(root, "docs/adr/0008-working-understanding.md"))).toBe(true);
   });
 
   it("recall loads it, held provisionally", () => {
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    const recall = readFileSync(path.join(root, "domains/psychotherapy/skills/recall/SKILL.md"), "utf8");
     expect(/understanding\.md/.test(recall)).toBe(true);
     expect(/provisional|hold it lightly|hypothesis/i.test(recall)).toBe(true);
   });
 
   it("the persona holds it lightly, reflects it back, and stays anti-dependency", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/working understanding/i.test(persona)).toBe(true);
     expect(/does that fit/i.test(persona)).toBe(true);
     expect(/need you.{0,8}less/i.test(persona), "must be designed against dependency").toBe(true);
@@ -285,32 +303,34 @@ describe("working understanding (ADR-0008)", () => {
     const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
     expect(/Working understanding/.test(ctx)).toBe(true);
     expect(/_Avoid_.*(formulation|dossier|clinical)/i.test(ctx)).toBe(true);
-    const skill = readFileSync(path.join(root, "skills/understand/SKILL.md"), "utf8");
+    const skill = readFileSync(path.join(root, "domains/psychotherapy/skills/understand/SKILL.md"), "utf8");
     expect(/no diagnosis/i.test(skill)).toBe(true);
   });
 
   it("is recorded in the memory layout", () => {
-    const layout = readFileSync(path.join(root, "docs/memory-layout.md"), "utf8");
+    const layout = readFileSync(path.join(root, "domains/psychotherapy/docs/memory-layout.md"), "utf8");
     expect(/understanding\.md/.test(layout)).toBe(true);
   });
 });
 
 describe("curiosity & intake (ADR-0009)", () => {
   it("ships the intake skill, the ADR, and the cited reference doc", () => {
-    expect(existsSync(path.join(root, "skills/intake/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/skills/intake/SKILL.md"))).toBe(true);
     expect(existsSync(path.join(root, "docs/adr/0009-curiosity-and-intake.md"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/competencies/curiosity-and-questions.md"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/docs/competencies/curiosity-and-questions.md"))).toBe(
+      true,
+    );
   });
 
   it("the persona is reflection-led but actively curious, and offers intake", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/reflection-led/i.test(persona), "must stay reflection-led").toBe(true);
     expect(/never three questions in a\s+row/i.test(persona), "anti-interrogation dosage").toBe(true);
     expect(/intake/i.test(persona), "persona should offer the intake").toBe(true);
   });
 
   it("intake is offered (declinable) and yields to safety", () => {
-    const intake = readFileSync(path.join(root, "skills/intake/SKILL.md"), "utf8");
+    const intake = readFileSync(path.join(root, "domains/psychotherapy/skills/intake/SKILL.md"), "utf8");
     expect(/declinable/i.test(intake)).toBe(true);
     expect(/crisis/i.test(intake)).toBe(true);
   });
@@ -318,12 +338,12 @@ describe("curiosity & intake (ADR-0009)", () => {
 
 describe("relationship map (ADR-0010)", () => {
   it("ships the relationships skill and the ADR", () => {
-    expect(existsSync(path.join(root, "skills/relationships/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/skills/relationships/SKILL.md"))).toBe(true);
     expect(existsSync(path.join(root, "docs/adr/0010-relationship-map.md"))).toBe(true);
   });
 
   it("uses mermaid and stays non-judgmental about third parties", () => {
-    const skill = readFileSync(path.join(root, "skills/relationships/SKILL.md"), "utf8");
+    const skill = readFileSync(path.join(root, "domains/psychotherapy/skills/relationships/SKILL.md"), "utf8");
     expect(/mermaid/i.test(skill)).toBe(true);
     expect(/non-judgmental/i.test(skill)).toBe(true);
     expect(/accusatory/i.test(skill) && /never/i.test(skill), "no clinical/accusatory labels on third parties").toBe(
@@ -332,42 +352,48 @@ describe("relationship map (ADR-0010)", () => {
   });
 
   it("is recorded in the memory layout and surfaced by recall", () => {
-    expect(/people\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
-    expect(/people\.md/.test(readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8"))).toBe(true);
+    expect(
+      /people\.md/.test(readFileSync(path.join(root, "domains/psychotherapy/docs/memory-layout.md"), "utf8")),
+    ).toBe(true);
+    expect(
+      /people\.md/.test(readFileSync(path.join(root, "domains/psychotherapy/skills/recall/SKILL.md"), "utf8")),
+    ).toBe(true);
   });
 });
 
 describe("person fiches (ADR-0011)", () => {
   it("ships the ADR and the common template", () => {
     expect(existsSync(path.join(root, "docs/adr/0011-person-fiches.md"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/person-fiche-template.md"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/docs/person-fiche-template.md"))).toBe(true);
   });
 
   it("relationships maintains fiches, cross-linked, transcript only via summary", () => {
-    const skill = readFileSync(path.join(root, "skills/relationships/SKILL.md"), "utf8");
+    const skill = readFileSync(path.join(root, "domains/psychotherapy/skills/relationships/SKILL.md"), "utf8");
     expect(/per-person fiches/i.test(skill)).toBe(true);
     expect(/relative markdown link/i.test(skill)).toBe(true);
     expect(/only through/i.test(skill), "reach a transcript only through its summary").toBe(true);
   });
 
   it("export runs the vault export pass", () => {
-    expect(/vault-export\.mjs/.test(readFileSync(path.join(root, "commands/export.md"), "utf8"))).toBe(true);
+    expect(
+      /vault-export\.mjs/.test(readFileSync(path.join(root, "domains/psychotherapy/commands/export.md"), "utf8")),
+    ).toBe(true);
   });
 
   it("the template stays a mirror, not a dossier", () => {
-    const tmpl = readFileSync(path.join(root, "docs/person-fiche-template.md"), "utf8");
+    const tmpl = readFileSync(path.join(root, "domains/psychotherapy/docs/person-fiche-template.md"), "utf8");
     expect(/mirror/i.test(tmpl) && /never a dossier/i.test(tmpl)).toBe(true);
   });
 });
 
 describe("life timeline (ADR-0014)", () => {
   it("ships the timeline skill and the ADR", () => {
-    expect(existsSync(path.join(root, "skills/timeline/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/skills/timeline/SKILL.md"))).toBe(true);
     expect(existsSync(path.join(root, "docs/adr/0014-life-timeline.md"))).toBe(true);
   });
 
   it("is person-led, trauma-informed; dated-list canonical, mermaid optional", () => {
-    const skill = readFileSync(path.join(root, "skills/timeline/SKILL.md"), "utf8");
+    const skill = readFileSync(path.join(root, "domains/psychotherapy/skills/timeline/SKILL.md"), "utf8");
     expect(/never force/i.test(skill), "never force a chronological trauma inventory").toBe(true);
     expect(/never infer/i.test(skill), "never infer unstated events").toBe(true);
     expect(/sectioned list/i.test(skill), "dated sectioned list is canonical").toBe(true);
@@ -375,13 +401,15 @@ describe("life timeline (ADR-0014)", () => {
   });
 
   it("is recorded in the memory layout", () => {
-    expect(/timeline\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+    expect(
+      /timeline\.md/.test(readFileSync(path.join(root, "domains/psychotherapy/docs/memory-layout.md"), "utf8")),
+    ).toBe(true);
   });
 });
 
 describe("to-do-later surface (ADR-0018)", () => {
   it("ships the todo skill and the ADR", () => {
-    expect(existsSync(path.join(root, "skills/todo/SKILL.md"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/skills/todo/SKILL.md"))).toBe(true);
     expect(existsSync(path.join(root, "docs/adr/0018-todo-surface.md"))).toBe(true);
   });
 
@@ -391,55 +419,63 @@ describe("to-do-later surface (ADR-0018)", () => {
     // so asking Claudia to "create a todo" mid-conversation routed nowhere. A
     // wired-but-untriggerable capability is invisible until found by hand — this
     // asserts the reachability, not just the plumbing.
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/todo/i.test(persona), "persona should point to the todo capability").toBe(true);
   });
 
   it("recall reads it and memory-layout records it", () => {
-    expect(/todo\.md/.test(readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8"))).toBe(true);
-    expect(/todo\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+    expect(/todo\.md/.test(readFileSync(path.join(root, "domains/psychotherapy/skills/recall/SKILL.md"), "utf8"))).toBe(
+      true,
+    );
+    expect(/todo\.md/.test(readFileSync(path.join(root, "domains/psychotherapy/docs/memory-layout.md"), "utf8"))).toBe(
+      true,
+    );
   });
 });
 
 describe("dashboard mirror (ADR-0019)", () => {
   it("ships the command, the script, the pure module, and the ADR", () => {
-    expect(existsSync(path.join(root, "commands/dashboard.md"))).toBe(true);
-    expect(existsSync(path.join(root, "scripts/build-dashboard.mjs"))).toBe(true);
-    expect(existsSync(path.join(root, "src/dashboard.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/commands/dashboard.md"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/scripts/build-dashboard.mjs"))).toBe(true);
+    expect(existsSync(path.join(root, "domains/psychotherapy/src/dashboard.mjs"))).toBe(true);
     expect(existsSync(path.join(root, "docs/adr/0019-dashboard.md"))).toBe(true);
   });
 
   it("is rebuilt at SessionEnd and at the tail of recall (a zero-lag mirror)", () => {
     const h: HooksManifest = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
     expect(/build-dashboard\.mjs/.test(JSON.stringify(h.hooks.SessionEnd)), "SessionEnd should rebuild it").toBe(true);
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    const recall = readFileSync(path.join(root, "domains/psychotherapy/skills/recall/SKILL.md"), "utf8");
     expect(/build-dashboard\.mjs/.test(recall), "recall should rebuild after deferred distillation").toBe(true);
   });
 
   it("is a mirror that transcludes or points — never summarises prose", () => {
     const adr = readFileSync(path.join(root, "docs/adr/0019-dashboard.md"), "utf8");
     expect(/never summarise|linked, never excerpted/i.test(adr)).toBe(true);
-    const mod = readFileSync(path.join(root, "src/dashboard.mjs"), "utf8");
+    const mod = readFileSync(path.join(root, "domains/psychotherapy/src/dashboard.mjs"), "utf8");
     expect(/transclude/i.test(mod) && /never/i.test(mod)).toBe(true);
   });
 
   it("never mirrors safety.md (no risk profile at a glance)", () => {
     const adr = readFileSync(path.join(root, "docs/adr/0019-dashboard.md"), "utf8");
     expect(/deliberately absent/i.test(adr)).toBe(true);
-    const script = readFileSync(path.join(root, "scripts/build-dashboard.mjs"), "utf8");
+    const script = readFileSync(path.join(root, "domains/psychotherapy/scripts/build-dashboard.mjs"), "utf8");
     expect(/"safety\.md"/.test(script), "the builder must not read safety.md").toBe(false);
   });
 
   it("is disclosed once (remember) and refusable via config.json", () => {
-    expect(/dashboard/i.test(readFileSync(path.join(root, "skills/remember/SKILL.md"), "utf8"))).toBe(true);
-    const script = readFileSync(path.join(root, "scripts/build-dashboard.mjs"), "utf8");
+    expect(
+      /dashboard/i.test(readFileSync(path.join(root, "domains/psychotherapy/skills/remember/SKILL.md"), "utf8")),
+    ).toBe(true);
+    const script = readFileSync(path.join(root, "domains/psychotherapy/scripts/build-dashboard.mjs"), "utf8");
     expect(/cfg\.dashboard === false/.test(script)).toBe(true);
     // Through the declared reader, not an inline JSON.parse (ADR-0028).
     expect(/parseConfig/.test(script), "the opt-out reads the shared settings module").toBe(true);
   });
 
   it("is recorded in the memory layout and the glossary (non-dossier)", () => {
-    expect(/dashboard\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+    expect(
+      /dashboard\.md/.test(readFileSync(path.join(root, "domains/psychotherapy/docs/memory-layout.md"), "utf8")),
+    ).toBe(true);
     const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
     expect(/\*\*Dashboard\*\*/.test(ctx)).toBe(true);
     expect(/_Avoid_.*(dossier|profile|clinical)/i.test(ctx)).toBe(true);
@@ -455,7 +491,7 @@ describe("vault migrations (ADR-0020)", () => {
   });
 
   it("is auto-applied at recall as background upkeep, and disclosed when it acts", () => {
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    const recall = readFileSync(path.join(root, "domains/psychotherapy/skills/recall/SKILL.md"), "utf8");
     expect(/migrate-vault\.mjs/.test(recall), "recall should run the migration runner").toBe(true);
     expect(/disclose/i.test(recall), "recall must disclose when it migrates").toBe(true);
   });
@@ -475,7 +511,9 @@ describe("vault migrations (ADR-0020)", () => {
 
   it("ships the ADR and is recorded in the layout + glossary", () => {
     expect(existsSync(path.join(root, "docs/adr/0020-vault-migrations.md"))).toBe(true);
-    expect(/\.migrations/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+    expect(
+      /\.migrations/.test(readFileSync(path.join(root, "domains/psychotherapy/docs/memory-layout.md"), "utf8")),
+    ).toBe(true);
     expect(/\*\*Migration\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
   });
 });
@@ -483,8 +521,8 @@ describe("vault migrations (ADR-0020)", () => {
 // Every skill and command, split into (frontmatter, body) so the allowed-tools
 // declaration itself never counts as a "use" of the tool.
 const surfaces = [
-  ...walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md")),
-  ...walk(path.join(root, "commands"), (p) => p.endsWith(".md")),
+  ...walk(path.join(root, "domains/psychotherapy/skills"), (p) => p.endsWith("SKILL.md")),
+  ...COMMAND_ROOTS.flatMap((r) => walk(path.join(root, r), (p) => p.endsWith(".md"))),
 ].map((file) => {
   const txt = readFileSync(file, "utf8");
   const end = txt.indexOf("\n---", 3);
@@ -522,19 +560,19 @@ describe("the choice UI (ADR-0024)", () => {
     // a theme, walking a life timeline, checking a relationship map, and crisis.
     const exploratory = ["intake", "themes", "timeline", "relationships", "understand", "crisis"];
     for (const name of exploratory) {
-      const txt = readFileSync(path.join(root, `skills/${name}/SKILL.md`), "utf8");
+      const txt = readFileSync(path.join(root, `domains/psychotherapy/skills/${name}/SKILL.md`), "utf8");
       expect(/AskUserQuestion/.test(txt), `${name} must ask openly, not with options (ADR-0024)`).toBe(false);
     }
   });
 
   it("keep shows the words in the preview pane, not squeezed into a description", () => {
     // The person is choosing *words*; `preview` is the only field with room for them.
-    const keep = readFileSync(path.join(root, "skills/keep/SKILL.md"), "utf8");
+    const keep = readFileSync(path.join(root, "domains/psychotherapy/skills/keep/SKILL.md"), "utf8");
     expect(/`preview`/.test(keep), "the verbatim passage belongs in preview (ADR-0024)").toBe(true);
   });
 
   it("the persona carries the rule and is pre-approved for it", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/^allowed-tools:.*\bAskUserQuestion\b/m.test(persona), "pre-approved, to avoid mid-session prompts").toBe(
       true,
     );
@@ -547,15 +585,15 @@ describe("the choice UI (ADR-0024)", () => {
   it("crisis and the irreversible commands keep their plain-text asks", () => {
     // Non-goals with reasons (ADR-0024): /help-now is "not the moment for
     // exploration", and friction is protective on a write that cannot be undone.
-    for (const cmd of ["help-now", "migrate"]) {
-      const txt = readFileSync(path.join(root, `commands/${cmd}.md`), "utf8");
-      expect(/AskUserQuestion/.test(txt), `/${cmd} asks in plain text on purpose (ADR-0024)`).toBe(false);
+    for (const cmd of ["domains/psychotherapy/commands/help-now", "commands/migrate"]) {
+      const txt = readFileSync(path.join(root, `${cmd}.md`), "utf8");
+      expect(/AskUserQuestion/.test(txt), `${cmd} asks in plain text on purpose (ADR-0024)`).toBe(false);
     }
   });
 });
 
 describe("the pulled menu (ADR-0027)", () => {
-  const menu = readFileSync(path.join(root, "commands/menu.md"), "utf8");
+  const menu = readFileSync(path.join(root, "domains/psychotherapy/commands/menu.md"), "utf8");
 
   it("ships the command, the ADR and the glossary entry", () => {
     expect(existsSync(path.join(root, "docs/adr/0027-the-menu.md"))).toBe(true);
@@ -567,7 +605,7 @@ describe("the pulled menu (ADR-0027)", () => {
     // This is the single fact that makes a picker legitimate here and forbidden at
     // the opening (ADR-0024): the person asked to be shown, so nothing is pre-written.
     expect(/Never open it unprompted/i.test(menu)).toBe(true);
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/never at the opening/i.test(persona), "the persona may name /menu, never open it").toBe(true);
   });
 
@@ -584,7 +622,7 @@ describe("the pulled menu (ADR-0027)", () => {
   it("leaves the opening ritual in plain text", () => {
     // recall earns one specific check-in from the person's own files; a picker there
     // would displace it with a generic list — the ADR's first half.
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    const recall = readFileSync(path.join(root, "domains/psychotherapy/skills/recall/SKILL.md"), "utf8");
     expect(/AskUserQuestion/.test(recall), "recall must open in plain text (ADR-0027)").toBe(false);
   });
 });
@@ -621,7 +659,7 @@ describe("showing a deliverable (ADR-0026)", () => {
   });
 
   it("crisis never sends a file", () => {
-    const crisis = readFileSync(path.join(root, "skills/crisis/SKILL.md"), "utf8");
+    const crisis = readFileSync(path.join(root, "domains/psychotherapy/skills/crisis/SKILL.md"), "utf8");
     expect(/SendUserFile/.test(crisis), "stay with the person; a download card is a detour").toBe(false);
   });
 
@@ -637,8 +675,8 @@ describe("showing a deliverable (ADR-0026)", () => {
 
 describe("giving the win back (docs/competencies/attribution.md)", () => {
   it("ships the competency, and the library index lists it", () => {
-    expect(existsSync(path.join(root, "docs/competencies/attribution.md"))).toBe(true);
-    const index = readFileSync(path.join(root, "docs/competencies/README.md"), "utf8");
+    expect(existsSync(path.join(root, "domains/psychotherapy/docs/competencies/attribution.md"))).toBe(true);
+    const index = readFileSync(path.join(root, "domains/psychotherapy/docs/competencies/README.md"), "utf8");
     expect(/attribution\.md/.test(index), "a competency the index doesn't list is not in the spine").toBe(true);
   });
 
@@ -646,13 +684,13 @@ describe("giving the win back (docs/competencies/attribution.md)", () => {
     // Marlatt's abstinence violation effect: attributing a lapse to internal, stable,
     // global causes is what turns it into a relapse. A symmetric "fair" attribution is
     // the harmful one, so the doc must say the asymmetry is deliberate.
-    const doc = readFileSync(path.join(root, "docs/competencies/attribution.md"), "utf8");
+    const doc = readFileSync(path.join(root, "domains/psychotherapy/docs/competencies/attribution.md"), "utf8");
     expect(/[Nn]ever run it backwards/.test(doc)).toBe(true);
     expect(/asymmetry is deliberate/.test(doc)).toBe(true);
   });
 
   it("credit offered is taken, not deflected — congruence over performed modesty", () => {
-    const doc = readFileSync(path.join(root, "docs/competencies/attribution.md"), "utf8");
+    const doc = readFileSync(path.join(root, "domains/psychotherapy/docs/competencies/attribution.md"), "utf8");
     expect(/[Nn]ever refuse credit that is offered/.test(doc)).toBe(true);
     expect(/congruence/i.test(doc), "the reason is congruence, not politeness").toBe(true);
   });
@@ -660,14 +698,14 @@ describe("giving the win back (docs/competencies/attribution.md)", () => {
   it("the persona carries it — the ADR-0018 lesson", () => {
     // The only always-loaded file. A stance documented only in docs/ is invisible in
     // practice, and this one has to fire on ordinary turns or it never fires at all.
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/competencies\/attribution\.md/.test(persona)).toBe(true);
     expect(/needing me less/.test(persona), "the persona should name what this is for").toBe(true);
   });
 });
 
 describe("the handover note (ADR-0033)", () => {
-  const skillPath = path.join(root, "skills/handover/SKILL.md");
+  const skillPath = path.join(root, "domains/psychotherapy/skills/handover/SKILL.md");
 
   it("ships the skill, the ADR, and the glossary entry", () => {
     expect(existsSync(skillPath)).toBe(true);
@@ -723,7 +761,7 @@ describe("the handover note (ADR-0033)", () => {
     const skill = readFileSync(skillPath, "utf8");
     expect(/referral goes first/.test(skill)).toBe(true);
     expect(/never a precondition for getting help/.test(skill)).toBe(true);
-    const referOnly = readFileSync(path.join(root, "docs/approaches/refer-only.md"), "utf8");
+    const referOnly = readFileSync(path.join(root, "domains/psychotherapy/docs/approaches/refer-only.md"), "utf8");
     expect(/handover/.test(referOnly), "recognise → refer used to stop here").toBe(true);
     expect(/never before/.test(referOnly)).toBe(true);
   });
@@ -731,7 +769,7 @@ describe("the handover note (ADR-0033)", () => {
   it("the persona knows it exists — the ADR-0018 lesson", () => {
     // A capability documented everywhere except skills/claudia/SKILL.md is invisible in
     // practice, because that is the only always-loaded file.
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+    const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
     expect(/`handover`/.test(persona)).toBe(true);
     expect(/ADR-0033/.test(persona)).toBe(true);
   });
@@ -746,7 +784,7 @@ describe("frontmatter contract (ADR-0025)", () => {
   });
 
   it("identity is stamped by code — distill-session runs the script, never a bare rm", () => {
-    const skill = readFileSync(path.join(root, "skills/distill-session/SKILL.md"), "utf8");
+    const skill = readFileSync(path.join(root, "domains/psychotherapy/skills/distill-session/SKILL.md"), "utf8");
     expect(/finish-distillation\.mjs/.test(skill), "distill-session must close via the script").toBe(true);
     expect(/rm -f[^\n]*pending-summary/.test(skill), "the bare rm -f must be gone — it was the enforcement point").toBe(
       false,
@@ -754,14 +792,14 @@ describe("frontmatter contract (ADR-0025)", () => {
   });
 
   it("the model is told it writes only the judgment half", () => {
-    const skill = readFileSync(path.join(root, "skills/distill-session/SKILL.md"), "utf8");
+    const skill = readFileSync(path.join(root, "domains/psychotherapy/skills/distill-session/SKILL.md"), "utf8");
     expect(/people:/.test(skill) && /themes:/.test(skill)).toBe(true);
     expect(/ratified/i.test(skill), "themes: must be ratified threads only (ADR-0015)").toBe(true);
     expect(/[Nn]o safety key/.test(skill), "no safety facet in frontmatter (ADR-0019 symmetry)").toBe(true);
   });
 
   it("deliverables never invent a stem — the value comes from the close", () => {
-    for (const s of ["skills/exercise/SKILL.md", "skills/teach/SKILL.md"]) {
+    for (const s of ["domains/psychotherapy/skills/exercise/SKILL.md", "domains/psychotherapy/skills/teach/SKILL.md"]) {
       const skill = readFileSync(path.join(root, s), "utf8");
       expect(/type: (exercise|teaching)/.test(skill), `${s} should show its block`).toBe(true);
       expect(/[Nn]ever write a `?session:`? key/.test(skill), `${s} must forbid inventing a stem`).toBe(true);
@@ -780,7 +818,7 @@ describe("frontmatter contract (ADR-0025)", () => {
 
   it("dates stay day-grained, and the layout records the contract", () => {
     expect(/export function localDay/.test(readFileSync(path.join(root, "src/time.mjs"), "utf8"))).toBe(true);
-    const layout = readFileSync(path.join(root, "docs/memory-layout.md"), "utf8");
+    const layout = readFileSync(path.join(root, "domains/psychotherapy/docs/memory-layout.md"), "utf8");
     expect(/ADR-0025/.test(layout)).toBe(true);
     expect(/never timestamps/.test(layout)).toBe(true);
     expect(/\*\*Frontmatter contract\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
@@ -789,7 +827,7 @@ describe("frontmatter contract (ADR-0025)", () => {
 
 describe("the person's settings (ADR-0028)", () => {
   const command = readFileSync(path.join(root, "commands/config.md"), "utf8");
-  const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
+  const persona = readFileSync(path.join(root, "domains/psychotherapy/skills/claudia/SKILL.md"), "utf8");
 
   it("ships the command, the script, the pure module, and the ADR", () => {
     expect(existsSync(path.join(root, "commands/config.md"))).toBe(true);
@@ -801,9 +839,13 @@ describe("the person's settings (ADR-0028)", () => {
   it("every reader goes through the one module — no ad-hoc JSON.parse of config.json", () => {
     // The state this ADR replaced: two scripts each parsing the file inline, with the
     // default living only in an `=== false` check and nothing declaring the key set.
-    for (const s of ["scripts/save-session.mjs", "scripts/build-dashboard.mjs", "scripts/config.mjs"]) {
+    for (const s of [
+      "scripts/save-session.mjs",
+      "domains/psychotherapy/scripts/build-dashboard.mjs",
+      "scripts/config.mjs",
+    ]) {
       const txt = readFileSync(path.join(root, s), "utf8");
-      expect(/from "\.\.\/src\/config\.mjs"/.test(txt), `${s} should import the settings module`).toBe(true);
+      expect(/from "[./]*src\/config\.mjs"/.test(txt), `${s} should import the settings module`).toBe(true);
       expect(/JSON\.parse\([^)]*config\.json/.test(txt), `${s} must not parse config.json itself`).toBe(false);
     }
   });
@@ -822,11 +864,14 @@ describe("the person's settings (ADR-0028)", () => {
       true,
     );
     expect(/without emoji/i.test(persona), "the persona must carry the register rule").toBe(true);
-    expect(/emoji/i.test(readFileSync(path.join(root, "SOUL.md"), "utf8")), "and the soul, as congruence").toBe(true);
+    expect(
+      /emoji/i.test(readFileSync(path.join(root, "domains/psychotherapy/SOUL.md"), "utf8")),
+      "and the soul, as congruence",
+    ).toBe(true);
   });
 
   it("recall loads the settings before the first sentence, and never recites them", () => {
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
+    const recall = readFileSync(path.join(root, "domains/psychotherapy/skills/recall/SKILL.md"), "utf8");
     expect(/config\.mjs/.test(recall), "recall should read the settings").toBe(true);
     expect(/never read it back|never recite/i.test(recall), "settings are honoured silently, like memory").toBe(true);
   });
@@ -839,7 +884,9 @@ describe("the person's settings (ADR-0028)", () => {
   });
 
   it("is recorded in the layout and the glossary", () => {
-    expect(/config\.json/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+    expect(
+      /config\.json/.test(readFileSync(path.join(root, "domains/psychotherapy/docs/memory-layout.md"), "utf8")),
+    ).toBe(true);
     expect(/\*\*Settings\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
   });
 });
@@ -902,7 +949,9 @@ describe("the per-turn check holds no domain content", () => {
 
   for (const rel of chassis) {
     it(`${rel} names no domain conduct, criterion or resource`, () => {
-      const txt = readFileSync(path.join(root, rel), "utf8");
+      // The domain's own name appears in the paths the chassis loads from; a path is
+      // not content, and "psychotherapy" would otherwise trip the /therap/ probe.
+      const txt = readFileSync(path.join(root, rel), "utf8").split("psychotherapy").join("<domain>");
       const offending = txt
         .split("\n")
         .map((line, i) => ({ line, n: i + 1 }))
@@ -913,10 +962,72 @@ describe("the per-turn check holds no domain content", () => {
   }
 
   it("the domain's floor is where that content lives, and it is data", () => {
-    const spec = JSON.parse(readFileSync(path.join(root, "docs/safety/floor.json"), "utf8"));
+    const spec = JSON.parse(readFileSync(path.join(root, "domains/psychotherapy/docs/safety/floor.json"), "utf8"));
     // Criteria are data, never code: the chassis fixes the evaluation machine and the
     // domain fills its slots, so a pattern is a string and never a function.
     for (const c of spec.rules[0].criteria.clear) expect(typeof c.pattern).toBe("string");
     expect(domainWords.test(spec.rules[0].conduct)).toBe(true);
+  });
+});
+
+// The split the composable-domains model draws, made enforceable. The chassis is a
+// machine: it fires moments, runs a check with no criteria, keeps three commands that
+// never open a note, and stores a directory it does not read. Everything else is the
+// domain's package. These tests are what stop the line drifting back.
+describe("the chassis holds no domain content", () => {
+  const DOMAIN = "domains/psychotherapy";
+
+  it("keeps exactly the three commands that act on the store", () => {
+    const chassis = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
+      .map((p) => path.basename(p))
+      .sort();
+    expect(chassis).toEqual(["backup.md", "config.md", "migrate.md"]);
+  });
+
+  it("ships no skills of its own — every skill is the domain's", () => {
+    expect(existsSync(path.join(root, "skills")), "skills/ moved into the domain's package").toBe(false);
+    expect(walk(path.join(root, `${DOMAIN}/skills`), (p) => p.endsWith("SKILL.md")).length).toBeGreaterThan(0);
+  });
+
+  it("holds no soul — the character is a field of the domain's package", () => {
+    expect(existsSync(path.join(root, "SOUL.md"))).toBe(false);
+    expect(existsSync(path.join(root, `${DOMAIN}/SOUL.md`))).toBe(true);
+  });
+
+  it("keeps only its own docs — the library, the floor and the vault contract are the domain's", () => {
+    const chassisDocs = readdirSync(path.join(root, "docs")).sort();
+    expect(chassisDocs).toEqual(["ARCHITECTURE.md", "adr", "composable-domains.md"]);
+    for (const d of ["approaches", "competencies", "qualities", "safety", "memory-layout.md"]) {
+      expect(existsSync(path.join(root, DOMAIN, "docs", d)), `${d} belongs to the domain`).toBe(true);
+    }
+  });
+
+  it("declares the package, so a reader finds the split from inside it", () => {
+    const decl = readFileSync(path.join(root, `${DOMAIN}/DOMAIN.md`), "utf8");
+    for (const part of ["soul", "floor", "escalation map", "record kinds", "commands"]) {
+      expect(new RegExp(`^##.*${part}`, "im").test(decl), `DOMAIN.md should declare its ${part}`).toBe(true);
+    }
+  });
+
+  it("the manifest points the platform at both component roots", () => {
+    const m = JSON.parse(readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"));
+    expect(m.commands).toEqual(["./commands", `./${DOMAIN}/commands`]);
+    expect(m.skills).toBe(`./${DOMAIN}/skills`);
+    for (const p of [...m.commands, m.skills, m.agents]) {
+      expect(existsSync(path.join(root, p)), `${p} is declared but missing`).toBe(true);
+    }
+  });
+
+  it("every hook command points at a script that exists", () => {
+    const h: HooksManifest = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
+    for (const groups of Object.values(h.hooks)) {
+      for (const g of groups as Array<{ hooks: Array<{ command: string }> }>) {
+        for (const { command } of g.hooks) {
+          const rel = command.match(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"]+?\.mjs)/)?.[1];
+          expect(rel, `no script path in: ${command}`).toBeTruthy();
+          expect(existsSync(path.join(root, rel!)), `${rel} is wired but missing`).toBe(true);
+        }
+      }
+    }
   });
 });

@@ -45,12 +45,12 @@ Claudia may render a deliverable she has written, **when the person is here and 
 serves the conversation**.
 
 - **`render`** for what is looked at **together, now** — a conversational support:
-  the [`relationships`](../../skills/relationships/SKILL.md) ecomap, the
-  [`timeline`](../../skills/timeline/SKILL.md), a
-  [`teach`](../../skills/teach/SKILL.md) explainer with its diagram,
-  [`/dashboard`](../../commands/dashboard.md).
+  the [`relationships`](../../domains/psychotherapy/skills/relationships/SKILL.md) ecomap, the
+  [`timeline`](../../domains/psychotherapy/skills/timeline/SKILL.md), a
+  [`teach`](../../domains/psychotherapy/skills/teach/SKILL.md) explainer with its diagram,
+  [`/dashboard`](../../domains/psychotherapy/commands/dashboard.md).
 - **`attach`** for what is **taken away** — an
-  [`exercise`](../../skills/exercise/SKILL.md) worksheet to fill in elsewhere. An
+  [`exercise`](../../domains/psychotherapy/skills/exercise/SKILL.md) worksheet to fill in elsewhere. An
   inline preview there is noise, not help.
 - **`status: 'normal'`, always.**
 
@@ -90,9 +90,9 @@ contact is building the dependency this whole design refuses.
   declines to support.
 - **`safety.md`.** The [dashboard](0019-dashboard.md) already omits it deliberately —
   no risk profile handed over as an object to open.
-- **Anything mid-crisis.** [`crisis`](../../skills/crisis/SKILL.md) says stay _with_
+- **Anything mid-crisis.** [`crisis`](../../domains/psychotherapy/skills/crisis/SKILL.md) says stay _with_
   the person; a download card is a detour at the worst possible moment.
-- **The ephemeral views.** [`/thread`](../../commands/thread.md) promises to "write
+- **The ephemeral views.** [`/thread`](../../domains/psychotherapy/commands/thread.md) promises to "write
   **nothing**", and the optional mermaid in `themes` / `timeline` is "a regenerated
   view, **never** the store". Sending one would require writing a file first, which
   breaks the promise that nothing was stored. They stay inline in the reply. Writing

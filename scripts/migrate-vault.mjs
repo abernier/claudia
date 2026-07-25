@@ -26,7 +26,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { migrations } from "../src/migrations/index.mjs";
-import { rebuildDashboard } from "./build-dashboard.mjs";
+import { rebuildDashboard } from "../domains/psychotherapy/scripts/build-dashboard.mjs";
 
 const LEDGER = ".migrations";
 

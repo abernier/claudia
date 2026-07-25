@@ -5,8 +5,8 @@ status: accepted
 # The frontmatter contract — identity is derived, judgment is written
 
 Every note in `~/.claudia/` opens with a YAML block, but only two of them were ever
-specified: the theme note ([`themes`](../../skills/themes/SKILL.md)) and the person
-fiche ([`person-fiche-template.md`](../person-fiche-template.md)). The session summary,
+specified: the theme note ([`themes`](../../domains/psychotherapy/skills/themes/SKILL.md)) and the person
+fiche ([`person-fiche-template.md`](../../domains/psychotherapy/docs/person-fiche-template.md)). The session summary,
 the exercise and the teaching had no written contract at all — the model re-improvised
 the block at every write.
 

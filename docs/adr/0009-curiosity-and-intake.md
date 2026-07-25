@@ -35,7 +35,7 @@ follow-up questions over time, particularly with distressed users — and follow
 are exactly what keeps a person in active processing rather than rumination (Chu et
 al., 2026). Rebalancing toward curiosity corrects a measured failure mode, not a
 matter of style. Full guidance with citations:
-[`docs/competencies/curiosity-and-questions.md`](../competencies/curiosity-and-questions.md).
+[`docs/competencies/curiosity-and-questions.md`](../../domains/psychotherapy/docs/competencies/curiosity-and-questions.md).
 
 ## `intake` is a skill, not a command
 

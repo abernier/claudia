@@ -88,7 +88,7 @@ Mirrors the relationship-map (ADR-0010) and timeline (ADR-0014) contract exactly
 ## Red lines (from the evidence base)
 
 Never: classify or pathologise wandering speech (tangentiality/flight-of-ideas are a
-clinician's business, routed via [crisis](../../skills/crisis/SKILL.md), never shown
+clinician's business, routed via [crisis](../../domains/psychotherapy/skills/crisis/SKILL.md), never shown
 as a label); march the person through nodes or nudge them "back on track"; prune or
 discourage digression; present an inferred theme as fact; surface an unreached
 trauma / core belief, unpaced; make the map mandatory, sticky, or high-frequency

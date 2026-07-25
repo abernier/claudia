@@ -10,15 +10,15 @@ field. It is the most integrated way to put a question in front of the person �
 scannable, one click, no typing.
 
 Two of Claudia's surfaces already use it, and both arrived at it independently:
-[`keep`](../../skills/keep/SKILL.md) offers candidate passages from the last
-exchange, and [`quiz`](../../skills/quiz/SKILL.md) is built on it end to end
+[`keep`](../../domains/psychotherapy/skills/keep/SKILL.md) offers candidate passages from the last
+exchange, and [`quiz`](../../domains/psychotherapy/skills/quiz/SKILL.md) is built on it end to end
 (scope, format, pacing, and multiple-choice items). Nothing said _why_ those two and
 not the others, so the obvious next thought — _generalise it everywhere Claudia asks
 something_ — had nothing to push back against.
 
 It should be pushed back against. A menu is the most **closed** question that can be
 asked: it pre-writes the answers. That is precisely what
-[`docs/competencies/curiosity-and-questions.md`](../competencies/curiosity-and-questions.md)
+[`docs/competencies/curiosity-and-questions.md`](../../domains/psychotherapy/docs/competencies/curiosity-and-questions.md)
 already forbids as Claudia's default. Ivey's _Intentional Interviewing_ is blunt
 about the cost of closed and stacked questions: they "give too much control to the
 interviewer" and elicit "socially acceptable answers rather than honest ones."
@@ -29,8 +29,8 @@ _"leave the door ajar"_ — end open in register, the floor is yours. A menu clo
 the door and hands back a form.
 
 The rest of the repo has been quietly consistent about this already.
-[`intake`](../../skills/intake/SKILL.md) states it is "not a clinical assessment or a
-form"; [`themes`](../../skills/themes/SKILL.md) offers a candidate thread "as a
+[`intake`](../../domains/psychotherapy/skills/intake/SKILL.md) states it is "not a clinical assessment or a
+form"; [`themes`](../../domains/psychotherapy/skills/themes/SKILL.md) offers a candidate thread "as a
 _question_, never a verdict"; the [dashboard](0019-dashboard.md) transcludes rather
 than summarises so it "cannot put words in the person's mouth". A picker in any of
 those places would put words in their mouth by construction — the four options _are_
@@ -61,14 +61,14 @@ the person tells me?_ If yes, it is exploration — ask openly.
 
 **Where it applies**, beyond `keep` and `quiz`:
 
-- [`/export`](../../commands/export.md) — the destination (default vs. elsewhere),
+- [`/export`](../../domains/psychotherapy/commands/export.md) — the destination (default vs. elsewhere),
   with the auto-"Other" field carrying a free path.
-- [`/menu`](../../commands/menu.md) — the person asks to be shown what's open for
+- [`/menu`](../../domains/psychotherapy/commands/menu.md) — the person asks to be shown what's open for
   them; they are picking an activity, and they **pulled** the picker, so it
   pre-writes nothing. The options are their own threads, never a capability list
   (ADR-0027).
-- [`exercise`](../../skills/exercise/SKILL.md) and
-  [`teach`](../../skills/teach/SKILL.md) — _may_ offer two or three candidates as
+- [`exercise`](../../domains/psychotherapy/skills/exercise/SKILL.md) and
+  [`teach`](../../domains/psychotherapy/skills/teach/SKILL.md) — _may_ offer two or three candidates as
   options instead of prose. **May, never must**: the exercise skill's own rule is
   "offered collaboratively (never as homework imposed)", and a menu must not harden a
   collaborative offer into a form. The closing "does this fit your experience?" stays
@@ -94,17 +94,17 @@ the person tells me?_ If yes, it is exploration — ask openly.
   place: it pre-writes what they came to say, it displaces the specific check-in
   `recall` just earned, and a first turn spent clicking arrives as a tool result
   rather than a prompt — so `safety-check.mjs`, which runs on `UserPromptSubmit`, has
-  nothing to read on the turn that matters most. The pulled [`/menu`](../../commands/menu.md)
+  nothing to read on the turn that matters most. The pulled [`/menu`](../../domains/psychotherapy/commands/menu.md)
   is the sanctioned answer to the need underneath it (ADR-0027).
 
 **Operational shape** is already documented where it is used and is not restated
-here: see [`skills/quiz/SKILL.md`](../../skills/quiz/SKILL.md) — one question at a
+here: see [`skills/quiz/SKILL.md`](../../domains/psychotherapy/skills/quiz/SKILL.md) — one question at a
 time, 2–4 options, a short header, radio vs. multi-select, and the auto-"Other"
 field that keeps every menu declinable.
 _(Amended: the tool's `preview` field renders markdown beside the focused option and
 is used where the person is choosing between things worth **seeing** rather than
-labels — the verbatim passage in [`keep`](../../skills/keep/SKILL.md), the worksheet's
-shape in [`exercise`](../../skills/exercise/SKILL.md). It is **single-select only**,
+labels — the verbatim passage in [`keep`](../../domains/psychotherapy/skills/keep/SKILL.md), the worksheet's
+shape in [`exercise`](../../domains/psychotherapy/skills/exercise/SKILL.md). It is **single-select only**,
 so a multi-select question cannot carry one.)_
 
 **Declared where used.** A skill or command whose body reaches for
@@ -114,7 +114,7 @@ the wrong moment — the same reasoning already applied to `Task` in the persona
 
 ## Consequences
 
-- [`quiz`](../../skills/quiz/SKILL.md) was shipping with the tool undeclared while
+- [`quiz`](../../domains/psychotherapy/skills/quiz/SKILL.md) was shipping with the tool undeclared while
   being built entirely on it. Fixed here; this ADR is partly a bug report.
 - The persona (`skills/claudia/SKILL.md`) carries the rule, because it is the only
   always-loaded file — the ADR-0018 lesson (a capability documented everywhere except
