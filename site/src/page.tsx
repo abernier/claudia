@@ -4,6 +4,7 @@ import {
   Check,
   Copy,
   FileText,
+  FolderTree,
   HandHeart,
   HardDrive,
   History,
@@ -12,6 +13,7 @@ import {
   Moon,
   NotebookPen,
   Settings2,
+  ShieldCheck,
   Stethoscope,
   Sun,
   Waypoints,
@@ -240,6 +242,16 @@ export function Page() {
                 titleId="design.distilled.title"
                 descriptionId="design.distilled.description"
               />
+              <DesignPoint
+                icon={<FolderTree />}
+                titleId="design.retrieval.title"
+                descriptionId="design.retrieval.description"
+              />
+              <DesignPoint
+                icon={<ShieldCheck />}
+                titleId="design.authoring.title"
+                descriptionId="design.authoring.description"
+              />
             </div>
           </div>
         </section>
@@ -263,7 +275,9 @@ export function Page() {
                 history.replaceState(null, "", v ? `#faq-${v}` : " ");
               }}
             >
-              {(["q1", "q2", "q3", "q4", "q5"] as const).map((q) => (
+              {/* `q6` sits after the data question — same family — without
+                  renumbering the others, so existing #faq-qN links keep working. */}
+              {(["q1", "q2", "q3", "q6", "q4", "q5"] as const).map((q) => (
                 <FaqItem key={q} value={q} questionId={`faq.${q}.question`} answerId={`faq.${q}.answer`} />
               ))}
             </Accordion>
