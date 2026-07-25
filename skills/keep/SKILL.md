@@ -85,7 +85,7 @@ ceremony. If they add what it means to them, put it on the italic line.
   that's theirs — but you can gently wonder aloud what they'd want beside it.
 - **No counting.** Never "you've kept 12 things", never a streak, never a nudge to
   keep more. The collection is not a score (ADR-0023).
-- Local, deleted for real by `/forget`, carried out by `/export`, mirrored (top entry
+- Local, theirs to delete in the vault itself, carried out by `/export`, mirrored (top entry
   only) on the [dashboard](../../commands/dashboard.md). `recall` doesn't load it —
   keepsakes are pulled, never recited back at the person.
 

@@ -70,7 +70,6 @@ describe("components", () => {
       "config.md",
       "dashboard.md",
       "export.md",
-      "forget.md",
       "help-now.md",
       "keep.md",
       "menu.md",
@@ -163,27 +162,20 @@ describe("rotating vault archive (ADR-0032)", () => {
     expect(end.at(-1)).toMatch(/--detach/); // and never makes the person wait on one
   });
 
-  it("/forget leaves the archives alone — a backup a routine command can destroy is not one", () => {
-    const forget = readFileSync(path.join(root, "commands/forget.md"), "utf8");
-    expect(/--purge/.test(forget), "/forget must not purge the archive set").toBe(false);
-    expect(/never touch .*claudia-backups/i.test(forget)).toBe(true);
-  });
-
-  it("/forget says what is true about the copies it does not touch", () => {
-    // The price of leaving archives alone is that the command must stop claiming a
-    // permanence it no longer delivers.
-    const forget = readFileSync(path.join(root, "commands/forget.md"), "utf8");
-    expect(/rotate out/.test(forget), "must say the older copies persist").toBe(true);
-    expect(/\/backup/.test(forget), "and where the person can clear them").toBe(true);
+  it("no code path purges the archive set except the person's own --purge (ADR-0032)", () => {
+    // The claim "deletion outranks backup" survived in five places after ADR-0032
+    // decided the opposite. An archive is a record; nothing routine rewrites one.
+    for (const f of ["src/backup.mjs", "src/config.mjs", "scripts/vault-backup.mjs", "docs/memory-layout.md"]) {
+      const txt = readFileSync(path.join(root, f), "utf8");
+      expect(/deletion outranks backup/i.test(txt), `${f} contradicts ADR-0032`).toBe(false);
+    }
   });
 
   it("never mines an archive to undo a forgetting", () => {
-    // This behavioural rule is what makes leaving the archives alone compatible with
-    // honouring the deletion. It has to exist in both places that can reach one.
-    for (const f of ["commands/forget.md", "commands/backup.md"]) {
-      const txt = readFileSync(path.join(root, f), "utf8");
-      expect(/chose to forget/i.test(txt), `${f} must carry the never-retrieve rule`).toBe(true);
-    }
+    // The behavioural half of ADR-0032, and the half that survived /forget's removal
+    // (ADR-0034): it binds the practice, so it lives where a retrieval could happen.
+    const txt = readFileSync(path.join(root, "commands/backup.md"), "utf8");
+    expect(/chose to forget/i.test(txt), "backup.md must carry the never-retrieve rule").toBe(true);
   });
 
   it("is refusable, like every other copy the plugin keeps", () => {
@@ -555,7 +547,7 @@ describe("the choice UI (ADR-0024)", () => {
   it("crisis and the irreversible commands keep their plain-text asks", () => {
     // Non-goals with reasons (ADR-0024): /help-now is "not the moment for
     // exploration", and friction is protective on a write that cannot be undone.
-    for (const cmd of ["help-now", "forget", "migrate"]) {
+    for (const cmd of ["help-now", "migrate"]) {
       const txt = readFileSync(path.join(root, `commands/${cmd}.md`), "utf8");
       expect(/AskUserQuestion/.test(txt), `/${cmd} asks in plain text on purpose (ADR-0024)`).toBe(false);
     }

@@ -14,7 +14,7 @@
  * The archives live *beside* the vault rather than inside it, which keeps them out of
  * `/export`'s copy, out of `/migrate`'s rewrite, and out of their own next snapshot.
  *
- * Deletion outranks backup. `/forget` calls `--purge` before it deletes, so the
+ * An archive is a record, not a mirror (ADR-0032): deletion never rewrites one. The
  * archive set can never quietly hold what the person asked to destroy.
  *
  * Usage:
@@ -27,7 +27,7 @@
  * Opt-out: `{ "backups": false }` in ~/.claudia/config.json (ADR-0028) — no new
  * snapshot is taken. Existing archives stay readable and purgeable; refusing to make
  * more copies is not the same as destroying the ones already made, and only the
- * person decides the second one (that is `/forget`'s job, with its confirmation).
+ * person decides the second one, explicitly, with `--purge`.
  *
  * Benign layer: under `--quiet` it FAILS SILENT and always exits 0, so a broken
  * backup can never take a session down with it. Run by hand, it is loud and its exit
@@ -503,7 +503,7 @@ async function restore({ dest, which, to }) {
 }
 
 /**
- * Destroy the whole archive set. `/forget` calls this, because a rotating backup
+ * Destroy the whole archive set — the person's explicit call, because a rotating backup
  * would otherwise turn "permanent, no undo" into a false promise.
  *
  * @param {{ dest: string, yes: boolean }} opts

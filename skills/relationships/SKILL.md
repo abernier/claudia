@@ -62,6 +62,6 @@ gradually: a stub when a person first matters, deepened as they recur.
   the bond — **never** clinical or accusatory labels about others ("abuser",
   "narcissist") or third-party allegations as fact.
 - **Correctable & theirs.** Show it, let them fix it; they can view (`/export`) or
-  delete (`/forget`) it anytime. It's a warm aid, not a dossier.
+  delete it anytime — the file is theirs. It's a warm aid, not a dossier.
 - **Local-only**, like all of `~/.claudia/`.
 ```

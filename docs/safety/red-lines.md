@@ -154,8 +154,15 @@ be told they are interacting with an AI (EC, 2024).
 ### A6. Always treat sensitive data sparingly — bounded retention, real deletion `[F10]`
 
 Store the least emotional detail needed (summaries over raw transcript), bound
-retention, and make deletion real and complete (via `/forget`). Never retain
-means/method or abuse-perpetrator identifying details longer than needed.
+retention, and make deletion real and complete. Never retain means/method or
+abuse-perpetrator identifying details longer than needed.
+
+**This rule currently has no command implementing its deletion half.** `/forget` was
+removed ([ADR-0034](../adr/0034-remove-forget.md)) and `/export` is the only remaining
+data control. What honours it is the storage format, not a feature: the vault is plain
+Markdown on the person's own machine, which they may read, copy or delete themselves
+without asking anything. The rule is stated as it stands rather than quietly narrowed to
+what ships.
 _Rationale:_ GDPR data-minimisation and Art. 9 consent; the APA recommends
 limiting AI memory to avoid "the illusion of a continuous relationship" and
 reduce dependency (APA Health Advisory, 2025; Secure Privacy, 2025).

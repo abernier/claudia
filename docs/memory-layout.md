@@ -87,7 +87,7 @@ English/universal; **content is written in the person's language**.
   economy, avoid re-exposing crisis content, limit dependency). See `recall`.
 - **Summaries are distilled, never verbatim**, and respect the safety floor (no
   means/methods). See `distill-session` and `remember`.
-- **`/forget` is real deletion**; **`/export` copies everything out**. Both
+- **Deletion is the person's own**, on files they own; **`/export` copies everything out**. Both
   operate here. See `commands/`.
 - **First-run disclosure** happens once when this directory is created (see
   `remember`) — plain, not a repeated disclaimer.
@@ -145,5 +145,5 @@ English/universal; **content is written in the person's language**.
   next snapshot's own input. Runs at `SessionEnd` (last, after `build-dashboard`,
   `--detach`ed so the close never waits on it) and on an hourly launchd job — the two
   are serialised by a lock in the archive directory, not by luck. Respects
-  `{ "backups": false }`, and `/forget` purges the whole set, because a backup that
+  `{ "backups": false }`, and `/backup --purge` clears the whole set, because a backup that
   outlives a deletion makes "permanent" a lie.

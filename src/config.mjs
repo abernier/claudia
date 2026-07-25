@@ -88,7 +88,7 @@ export const SETTINGS = {
   },
   backups: {
     default: true,
-    what: "Keep a rotating archive of your notes under ~/.claudia-backups/ (local only), so a bad write or a mistaken delete is recoverable. /forget destroys it too.",
+    what: "Keep a rotating archive of your notes under ~/.claudia-backups/ (local only), so a bad write or a mistaken delete is recoverable. Clear it with /backup --purge.",
   },
 };
 

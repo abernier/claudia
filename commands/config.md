@@ -60,7 +60,7 @@ refuse. Settings sit **above** the floor, like immersion does.
   the file sitting there isn't one.
 - **`saveTranscripts` turned off** — new conversations stop being archived; the ones
   already saved stay until they delete them. Say that plainly, and name
-  [`/forget`](forget.md) as the way to remove what's there.
+  the vault itself — plain Markdown they own — as the way to remove what's there.
 - **`emoji` turned on** — use them **sparingly**, where they genuinely fit her voice,
   never as decoration on every line.
 - **`language` changed** — run `node "${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs"`

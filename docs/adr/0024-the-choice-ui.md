@@ -82,7 +82,7 @@ the person tells me?_ If yes, it is exploration — ask openly.
   one place where a stall costs the most. Presence over ergonomics; the floor decides
   this, not convenience.
 - **`/forget` and `/migrate` keep their prose confirmations.** Both gate an
-  irreversible write ([`forget`](../../commands/forget.md) step 2 deletes for real;
+  irreversible write (`/forget` step 2 deleted for real — the command was since removed, [ADR-0034](0034-remove-forget.md);
   [`migrate`](../../commands/migrate.md) step 2 rewrites the notes). Friction is
   _protective_ there: having to say what you want deleted is a feature of deleting it.
   A one-click confirm optimises the wrong thing.

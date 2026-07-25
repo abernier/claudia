@@ -63,5 +63,5 @@ as live checkboxes:
 ## Boundaries
 
 Local-only, distilled, safety-floored — **never** a means/method on a line. Removed by
-`/forget`, carried by `/export`, like the rest of the working memory. Read on the next
+theirs to delete, carried by `/export`, like the rest of the working memory. Read on the next
 `recall` (one still-open item may surface for a gentle opening nudge).

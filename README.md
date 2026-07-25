@@ -31,7 +31,7 @@ notes. No command is typed at any point._
 - **Immersion with a floor.** Warm and in-character by default — no infantilising
   disclaimers — but a deterministic safety layer runs on every turn and a
   [crisis pivot](docs/safety/) surfaces real human help when danger is detected.
-- **Natural-language first.** Only eleven slash commands exist — seven data, safety,
+- **Natural-language first.** Only ten slash commands exist — six data, safety,
   and memory controls, three pull-only orientation aids, and one to keep a sentence
   that landed. Everything therapeutic happens in ordinary conversation. See
   [ADR-0003](docs/adr/0003-plugin-runtime-shape.md).
@@ -47,12 +47,11 @@ notes. No command is typed at any point._
 
 ## Commands
 
-Claudia deliberately ships only eleven commands — the rest is conversation:
+Claudia deliberately ships only ten commands — the rest is conversation:
 
 | Command      | What it does                                                                                                                                                             |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `/help-now`  | Immediately surface crisis resources for your region.                                                                                                                    |
-| `/forget`    | Really delete a memory, a session, or everything.                                                                                                                        |
 | `/export`    | Export your memory and deliverables.                                                                                                                                     |
 | `/backup`    | See and manage the rotating archive of your notes — what's kept, whether it still reads back, and how to recover from one.                                               |
 | `/save`      | Checkpoint your memory now — update the notes for where this conversation got to, without waiting for the session to close.                                              |
@@ -160,7 +159,7 @@ docs/
   safety/         crisis protocol, C-SSRS logic, localized resources, classifier
   bibliography.md the evidence base
 skills/           Claudia's capabilities
-commands/         the eleven commands
+commands/         the ten commands
 hooks/            the per-turn safety hook + session-save hook
 ```
 

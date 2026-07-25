@@ -14,7 +14,7 @@
  *
  * Opt-out: `{ "dashboard": false }` in ~/.claudia/config.json (ADR-0028) — then no
  * file is written and any existing dashboard.md is removed (the opt-out must be
- * real, or /forget-ing the file would be undone at the next close).
+ * real, or deleting the file by hand would be undone at the next close).
  *
  * Benign layer: FAILS SILENT — it never blocks a hook or recall.
  */

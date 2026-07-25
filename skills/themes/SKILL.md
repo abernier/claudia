@@ -117,7 +117,7 @@ graph TD
 
 ## Theirs
 
-Provisional always — "a working sketch, not a verdict." `/forget` deletes a theme note
+Provisional always — "a working sketch, not a verdict." Deleting a theme note
 and de-links it everywhere (real deletion, [ADR-0004](../../docs/adr/0004-memory-model.md));
 `/export` copies them out as-is. Index themes in `MEMORY.md`. Surface **one** thread
 when it matters — never a list, never a recital of the map.

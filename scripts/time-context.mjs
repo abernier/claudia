@@ -11,7 +11,7 @@
  * or a non-Claudia session it injects nothing and touches no state.
  *
  * State: `~/.claudia/last-seen` (one epoch-ms line), local-only, covered by
- * `/forget`. Gated on isClaudiaSession so coding sessions (the plugin may be
+ * deletion. Gated on isClaudiaSession so coding sessions (the plugin may be
  * user-scoped) never pollute the "since you last spoke with Claudia" clock.
  */
 

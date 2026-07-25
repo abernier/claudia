@@ -32,10 +32,10 @@
  *   never a pin.
  *
  *   What it does NOT mean is that deletion reaches in here. **ADR-0032: an archive is a
- *   record, and `/forget` does not rewrite records** — it deletes from `~/.claudia/` and
- *   leaves `~/.claudia-backups/` entirely alone. The purge was the rejected first draft
- *   ("a backup a routine command can destroy is no longer a backup"); the person clears
- *   the archive set explicitly, with `/backup --purge`.
+ *   record, and deletion does not rewrite records** — whatever removes something from
+ *   `~/.claudia/` leaves `~/.claudia-backups/` entirely alone. The purge was the rejected
+ *   first draft ("a backup a routine command can destroy is no longer a backup"); the
+ *   person clears the archive set explicitly, with `/backup --purge`.
  * - **No repair.** {@link checkVault} refuses to archive an empty vault, because
  *   overwriting a good ladder with nothing is the one unrecoverable case. Everything
  *   else it merely reports; guessing which of two states is "right" is not its job.
@@ -57,7 +57,7 @@ export const PIN_SUFFIX = ".keep";
 
 /**
  * Working files whose disappearance is worth saying out loud. Not a completeness
- * check — a vault legitimately lacks all of these on day one, and `/forget` may
+ * check — a vault legitimately lacks all of these on day one, and the person may
  * legitimately remove any of them. The warning fires only when one was present in
  * the previous archive and is absent now.
  *
@@ -181,7 +181,7 @@ export const SHRINK_RATIO = 0.7;
  * The only refusal is an empty vault: replacing a working ladder with nothing is the
  * one mistake no later run can undo. Everything else is a warning, because the tool
  * cannot tell a corruption from a deletion the person asked for — and treating a
- * legitimate `/forget` as corruption would be its own kind of broken.
+ * legitimate deletion as corruption would be its own kind of broken.
  *
  * @param {VaultSnapshot} current
  * @param {VaultSnapshot | null} previous - the last archive's manifest, if any
