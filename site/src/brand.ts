@@ -17,6 +17,15 @@ export const APP_NAME = "Claudia";
 export const GITHUB_URL = "https://github.com/abernier/claudia";
 
 /**
+ * The published recording of the take the hero plays locally from the repo's
+ * `demo/` kit. Same cast, hosted — so a visitor can pause, scrub, or copy text
+ * out of it, none of which the looping hero player affords.
+ *
+ * Re-published by `npm run demo:publish` after a re-shoot; update this then.
+ */
+export const ASCIINEMA_URL = "https://asciinema.org/a/TUfER9Ay8Hozzd3d";
+
+/**
  * Public contact email surfaced in the legal block. Same status as the
  * GitHub profile — a public marketing identifier, no secret.
  */

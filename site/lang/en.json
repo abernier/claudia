@@ -5,6 +5,7 @@
   "hero.badge": "opensource · local",
   "hero.title": "A listening ear, as a Claude Code plugin",
   "hero.subtitle": "A toolkit of skills, commands and hooks around a self-editing Markdown memory.",
+  "hero.demoCaption": "replay on asciinema",
   "hero.copy": "Copy install commands",
   "hero.copied": "Copied!",
   "install.title": "INSTALL",

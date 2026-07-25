@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { APP_NAME, GITHUB_URL, INSTALL_COMMANDS, LEGAL_CONTACT_EMAIL } from "./brand";
+import { APP_NAME, ASCIINEMA_URL, GITHUB_URL, INSTALL_COMMANDS, LEGAL_CONTACT_EMAIL } from "./brand";
 import { useTheme } from "./components/theme-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./components/ui/accordion";
 import { Badge } from "./components/ui/badge";
@@ -115,9 +115,16 @@ export function Page() {
             <p className="text-muted-foreground mt-6 text-lg text-pretty sm:text-xl">
               <FormattedMessage id="hero.subtitle" />
             </p>
-            <div className="mt-8 overflow-hidden rounded-lg border text-left shadow-lg">
-              <AsciinemaDemo />
-            </div>
+            <figure className="mt-8">
+              <div className="overflow-hidden rounded-lg border text-left shadow-lg">
+                <AsciinemaDemo />
+              </div>
+              <figcaption className="text-muted-foreground mt-3 text-sm">
+                <a href={ASCIINEMA_URL} className="hover:text-foreground underline underline-offset-4">
+                  <FormattedMessage id="hero.demoCaption" />
+                </a>
+              </figcaption>
+            </figure>
           </div>
         </section>
       </div>
