@@ -26,6 +26,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./
 import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
 import { Card, CardContent } from "./components/ui/card";
+import { Item, ItemActions, ItemContent } from "./components/ui/item";
 import { useLocale } from "./i18n/LocaleContext";
 import { LocaleToggle } from "./i18n/LocaleToggle";
 
@@ -116,9 +117,14 @@ export function Page() {
               <FormattedMessage id="hero.subtitle" />
             </p>
             <figure className="mt-8">
-              <div className="overflow-hidden rounded-lg border text-left shadow-lg">
+              {/* `block`, not Card's default `flex flex-col`: inside a flex
+                  container the player's height comes from its content and
+                  overrides `aspect-video` (see {@link AsciinemaDemo}).
+                  No padding — the terminal runs to the card's edge and gets
+                  clipped to its corners; the inset is inside the terminal. */}
+              <Card className="block py-0 text-left">
                 <AsciinemaDemo />
-              </div>
+              </Card>
               <figcaption className="text-muted-foreground mt-3 text-sm">
                 <a href={ASCIINEMA_URL} className="hover:text-foreground underline underline-offset-4">
                   <FormattedMessage id="hero.demoCaption" />
@@ -379,25 +385,30 @@ function InstallBlock() {
   };
   return (
     <div className="mt-8 text-left">
-      <div className="bg-card relative rounded-lg border shadow-sm">
-        <pre className="overflow-x-auto p-4 pr-14 font-mono text-sm leading-7">
-          {INSTALL_COMMANDS.map((cmd) => (
-            <code key={cmd} className="block">
-              <span className="text-muted-foreground select-none">$ </span>
-              {cmd}
-            </code>
-          ))}
-        </pre>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="absolute top-2.5 right-2.5"
-          aria-label={intl.formatMessage({ id: copied ? "hero.copied" : "hero.copy" })}
-          onClick={copy}
-        >
-          {copied ? <Check className="text-primary" /> : <Copy />}
-        </Button>
-      </div>
+      <Item variant="outline" className="bg-card flex-nowrap">
+        {/* `min-w-0`: without it the flex child refuses to shrink below the
+            widest command and `overflow-x-auto` never scrolls. */}
+        <ItemContent className="min-w-0">
+          <pre className="overflow-x-auto font-mono text-sm leading-7">
+            {INSTALL_COMMANDS.map((cmd) => (
+              <code key={cmd} className="block">
+                <span className="text-muted-foreground select-none">$ </span>
+                {cmd}
+              </code>
+            ))}
+          </pre>
+        </ItemContent>
+        <ItemActions>
+          <Button
+            size="icon"
+            variant="ghost"
+            aria-label={intl.formatMessage({ id: copied ? "hero.copied" : "hero.copy" })}
+            onClick={copy}
+          >
+            {copied ? <Check className="text-primary" /> : <Copy />}
+          </Button>
+        </ItemActions>
+      </Item>
     </div>
   );
 }
@@ -434,6 +445,7 @@ function useResolvedTheme(): "light" | "dark" {
 function AsciinemaDemo() {
   const ref = useRef<HTMLDivElement>(null);
   const resolvedTheme = useResolvedTheme();
+  const theme = resolvedTheme === "dark" ? "asciinema" : "solarized-light";
   useEffect(() => {
     let player: { dispose(): void } | undefined;
     let cancelled = false;
@@ -444,18 +456,36 @@ function AsciinemaDemo() {
         autoPlay: true,
         loop: true,
         speed: 2,
-        theme: resolvedTheme === "dark" ? "asciinema" : "solarized-light",
+        theme,
       });
     });
     return () => {
       cancelled = true;
       player?.dispose();
     };
-  }, [resolvedTheme]);
-  // The element handed to the player must be a block — inside a flex
-  // container, `.ap-wrapper` shrinks to its (initially 0-wide) content
-  // and the fit-width math latches onto 0.
-  return <div ref={ref} className="aspect-video [&_.ap-player]:rounded-none" />;
+  }, [theme]);
+  // The player has no padding option (checked against its own option parser),
+  // and padding `.ap-player` doesn't re-fit the terminal — the glyphs keep the
+  // font size computed for the unpadded width and spill out. So the inset is
+  // built from the outside: the outer box carries the terminal's own
+  // background, taken from the theme's `--term-color-background` — hence the
+  // theme class here as well as on the player — and the player is created
+  // inside its content box, small enough to fit from the start.
+  //
+  // The inner element is the one handed to the player. It must be a block —
+  // inside a flex container `.ap-wrapper` shrinks to its (initially 0-wide)
+  // content and the fit-width math latches onto 0 — and it clips: the terminal
+  // is taller than 16:9, so without `overflow-hidden` here it would run over
+  // the bottom inset instead of stopping short of it.
+  //
+  // `aspect-video` belongs on the inner box, not the outer one: the ratio
+  // applies to the border box, so on the outer box the inset would be carved
+  // out of the terminal instead of added around it.
+  return (
+    <div className={`asciinema-player-theme-${theme} bg-[var(--term-color-background)] p-3`}>
+      <div ref={ref} className="aspect-video overflow-hidden [&_.ap-player]:rounded-none" />
+    </div>
+  );
 }
 
 function Feature({ icon, titleId, descriptionId }: { icon: ReactNode; titleId: string; descriptionId: string }) {
