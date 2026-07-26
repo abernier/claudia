@@ -28,6 +28,59 @@ voice_, never in the codebase.
 Claudia is deliberately _not_ specialised to one school. She draws on whichever
 [Approach](#therapeutic-content) fits the moment. We resist premature
 classification into a narrow niche.
+_Note_: generalist _within_ a [Domain](#chassis--domains) — multi-approach, not
+multi-domain. Exactly one domain is [Active](#chassis--domains) at a time.
+
+## Chassis & domains
+
+**Chassis**:
+The plugin's empty structural frame — it ships no character, no safety floor and
+no expertise, carrying only what every [Domain](#chassis--domains) needs (backup,
+save, config). Without a domain it is raw Claude. Named for the microservice-chassis
+pattern: the frame is pre-built, the payload is added.
+_Avoid_: "core" (claims a content the chassis deliberately has none of), "host",
+"harness", "shell" (all three already name Claude Code or its runtime).
+
+**Domain**:
+A domain of **expertise**, shipped as a self-contained plugin — a soul, a safety
+floor, skills, commands, agents, hooks and docs for one field. `psy` is the first.
+Written `{psy}`, `{nutrition}` in prose when a slot is filled, `{domain}` when it is
+not; never in a path, which stays literal.
+_Avoid_: the domain-driven-design sense (the modelled business domain) and the
+internet sense — neither is ever meant here.
+
+**Toolkit root**:
+Where a domain's shipped files live — `~/.claudia/domains/psy/` today. It names a
+role, not a location: the toolkit root travels with the distribution shape.
+
+**Artifact root**:
+Where the person's files for one domain live — `~/.claudia/.psy/`: their memory for
+that domain, and any overlay they write over what the domain ships.
+
+**Two-roots rule**:
+The [Toolkit root](#chassis--domains) ships, the [Artifact root](#chassis--domains)
+overrides — same filename, two roots. An overlay is additive: it never deletes what
+the domain ships.
+
+**Vault**:
+The person's whole store, `~/.claudia/` — one per person, holding every domain's
+two roots plus `config.json`. The unit that
+[Migrations](#continuity--outputs) and backups act on.
+_Avoid_: calling one domain's slice "a vault".
+
+**Mounted**:
+A domain is mounted when it sits on Claude Code's load path — a symlink into a
+skills directory, or a plugin install. Availability, not use.
+
+**Active**:
+The one mounted domain whose character and safety floor are live in the current
+conversation. Exactly one at a time.
+_Avoid_: "activate", "activation" as the verb — in this repo those words belong to
+Behavioral Activation. A domain is switched, not activated.
+
+**Switch**:
+The act of changing which mounted domain is active. Verb only: the noun "switch"
+belongs to [Settings](#continuity--outputs).
 
 ## Therapeutic content
 
