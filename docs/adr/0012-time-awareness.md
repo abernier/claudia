@@ -65,10 +65,17 @@ always-on time awareness.
   person last spoke with **Claudia**". Local-only, covered by `/forget` real
   deletion (ADR-0004/0007). Ticked every turn, so the gap signal fires exactly
   **once**, on the re-entry message.
-- The hook is **gated on `isClaudiaSession`** (bounded head-read of the transcript)
-  so a user-scoped plugin's _coding_ sessions never inject time context or pollute
-  the last-seen clock. It **fails silent** — unlike safety, a time error or a
-  non-Claudia turn simply injects nothing.
+- The hook is **gated on the activation line** so a user-scoped plugin's _coding_
+  sessions never inject time context or pollute the last-seen clock. It **fails
+  silent** — unlike safety, a time error or a non-Claudia turn simply injects
+  nothing. The gate **streams** the transcript (`isClaudiaActivationLine` per line,
+  stopping at the first hit) and is deliberately not bounded by bytes: the first
+  implementation read a 256 KB head, and a single image pasted early — one ~500 KB
+  JSONL line — pushed the activation outside the window, so the gate answered "not
+  Claudia" for the rest of the conversation and the time layer switched itself off.
+  That reopened this very bug (found 2026-07-26, on a conversation left open
+  overnight and resumed at 07:34). A gate that guards the fix cannot be sized in
+  bytes when one line can be half a megabyte.
 - Known limitation: in a _fresh_ (non-continued) session the persona signature is
   not in the transcript on turn 1, so time context begins on turn 2. A _continued_
   session (the resume-next-morning case that motivated this) is anchored from the

@@ -15,20 +15,17 @@
  * user-scoped) never pollute the "since you last spoke with Claudia" clock.
  */
 
-import { promises as fs } from "node:fs";
+import { promises as fs, createReadStream } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { resolveTranscriptPath, isClaudiaSession } from "../src/session.mjs";
+import readline from "node:readline";
+import { resolveTranscriptPath, isClaudiaActivationLine } from "../src/session.mjs";
 import { buildTimeContext, renderTimeContext } from "../src/time.mjs";
 
 // This hook only ever reads the transcript-locator fields of the UserPromptSubmit
 // payload, so it is consumed as its TranscriptHookPayload subset (not the fuller
 // prompt-bearing shape safety-check.mjs needs).
 /** @typedef {import("../src/session.mjs").TranscriptHookPayload} TranscriptHookPayload */
-
-// The persona signature reliably appears near the top of the transcript (system
-// context / first skill load), so a bounded head-read gates the turn cheaply.
-const SIGNATURE_SCAN_BYTES = 256 * 1024;
 
 /** @returns {Promise<string>} Everything from stdin, or whatever arrived within 2s — a hook must never hang. */
 function readStdin() {
@@ -42,21 +39,30 @@ function readStdin() {
 }
 
 /**
- * Read at most `bytes` bytes from the head of `file` (utf8).
- * @param {string} file
- * @param {number} bytes
- * @returns {Promise<string>}
+ * Does this transcript contain a genuine Claudia activation? Streamed line by line,
+ * stopping at the first hit.
+ *
+ * This used to be a bounded head-read (the first 256 KB), which looked cheap and was
+ * wrong: an image pasted early in the conversation is a single ~500 KB line, so
+ * everything after it — the activation included — fell outside the window, the gate
+ * read "not a Claudia session", and the time layer silently switched off for the whole
+ * conversation. That is precisely the bug ADR-0012 exists to close, so the gate may not
+ * be the thing that reintroduces it. A stream costs one substring test per line and
+ * exits on the first match (turn one, in a real Claudia session); only a session that
+ * never activates Claudia is walked to the end.
+ *
+ * @param {string} file  path to the JSONL transcript
+ * @returns {Promise<boolean>}
  */
-async function readHead(file, bytes) {
-  /** @type {import("node:fs/promises").FileHandle | undefined} */
-  let fh;
+async function hasClaudiaActivation(file) {
+  const stream = createReadStream(file, { encoding: "utf8" });
+  const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
   try {
-    fh = await fs.open(file, "r");
-    const buf = Buffer.alloc(bytes);
-    const { bytesRead } = await fh.read(buf, 0, bytes, 0);
-    return buf.toString("utf8", 0, bytesRead);
+    for await (const line of rl) if (isClaudiaActivationLine(line)) return true;
+    return false;
   } finally {
-    await fh?.close().catch(() => {});
+    rl.close();
+    stream.destroy();
   }
 }
 
@@ -87,13 +93,13 @@ async function main() {
     // GATE: only Claudia conversations get time context and a last-seen tick.
     const transcriptPath = resolveTranscriptPath(payload, os.homedir());
     if (!transcriptPath) return process.exit(0);
-    let head;
+    let activated;
     try {
-      head = await readHead(transcriptPath, SIGNATURE_SCAN_BYTES);
+      activated = await hasClaudiaActivation(transcriptPath);
     } catch {
       return process.exit(0); // no transcript yet (e.g. first turn) → stay silent
     }
-    if (!isClaudiaSession(head)) return process.exit(0);
+    if (!activated) return process.exit(0);
 
     const now = new Date();
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";

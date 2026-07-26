@@ -158,26 +158,40 @@ export const CLAUDIA_ACTIVATION = /Base directory for this skill:[^\n]*\/skills\
  */
 
 /**
+ * True when ONE raw JSONL line is a genuine Claudia activation.
+ *
+ * Line-at-a-time on purpose, so a caller can *stream* the transcript instead of
+ * budgeting a slice of it. The substring prefilter is not a micro-optimisation: one
+ * pasted image is a ~500 KB line, and a per-turn gate must step over it for the price
+ * of a substring search, never a JSON.parse. It matches the literal the regex demands
+ * anyway, and carries no `/` — a transcript writer that escaped `\/` would still be
+ * read.
+ *
+ * @param {string} line  one raw JSONL line
+ * @returns {boolean}
+ */
+export function isClaudiaActivationLine(line) {
+  if (!line || !line.includes("Base directory for this skill")) return false;
+  let e;
+  try {
+    e = /** @type {TranscriptEntry} */ (JSON.parse(line));
+  } catch {
+    return false;
+  }
+  const msg = e.message || e;
+  if ((msg.role || e.type) !== "user") return false;
+  return CLAUDIA_ACTIVATION.test(textFromContent(msg.content));
+}
+
+/**
  * True when the transcript contains a genuine Claudia activation (see the gate above).
  * @param {string} jsonl  raw JSONL transcript contents
  * @returns {boolean}
  */
 export function isClaudiaSession(jsonl) {
-  const lines = String(jsonl || "")
+  return String(jsonl || "")
     .split("\n")
-    .filter(Boolean);
-  for (const line of lines) {
-    let e;
-    try {
-      e = /** @type {TranscriptEntry} */ (JSON.parse(line));
-    } catch {
-      continue;
-    }
-    const msg = e.message || e;
-    if ((msg.role || e.type) !== "user") continue;
-    if (CLAUDIA_ACTIVATION.test(textFromContent(msg.content))) return true;
-  }
-  return false;
+    .some(isClaudiaActivationLine);
 }
 
 /**

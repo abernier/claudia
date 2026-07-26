@@ -5,6 +5,7 @@ import {
   textFromContent,
   partsFromContent,
   isClaudiaSession,
+  isClaudiaActivationLine,
   sessionIdFrom,
   renderMarkdown,
   resolveTranscriptPath,
@@ -114,6 +115,30 @@ describe("isClaudiaSession()", () => {
   it("false for an unrelated coding transcript", () => {
     expect(isClaudiaSession(userMsg("please fix the webpack config"))).toBe(false);
     expect(isClaudiaSession("not even jsonl")).toBe(false);
+  });
+  it("finds the activation behind a pasted image, however big that line is (ADR-0012 regression)", () => {
+    // The line the time hook's old 256 KB head-read could not see past.
+    const pastedImage = userMsg([imageBlock("A".repeat(600 * 1024), "image/webp"), { type: "text", text: "regarde" }]);
+    const jsonl = [pastedImage, userMsg("Base directory for this skill: /plug/skills/claudia\n# You are Claudia")].join(
+      "\n",
+    );
+    expect(isClaudiaSession(jsonl)).toBe(true);
+  });
+});
+
+describe("isClaudiaActivationLine()", () => {
+  it("reads one line, so the caller can stream instead of budgeting bytes", () => {
+    expect(
+      isClaudiaActivationLine(userMsg("Base directory for this skill: /plug/skills/claudia\n# You are Claudia")),
+    ).toBe(true);
+  });
+  it("costs a substring test on the lines that cannot match (a 600 KB pasted image)", () => {
+    expect(isClaudiaActivationLine(userMsg([imageBlock("A".repeat(600 * 1024), "image/webp")]))).toBe(false);
+  });
+  it("holds the same gate as the whole-transcript form", () => {
+    expect(isClaudiaActivationLine(userMsg("Base directory for this skill: /plug/skills/grilling"))).toBe(false);
+    expect(isClaudiaActivationLine("")).toBe(false);
+    expect(isClaudiaActivationLine("Base directory for this skill: /plug/skills/claudia — but not JSON")).toBe(false);
   });
 });
 
