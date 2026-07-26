@@ -50,8 +50,10 @@ _Avoid_: the domain-driven-design sense (the modelled business domain) and the
 internet sense — neither is ever meant here.
 
 **Toolkit root**:
-Where a domain's shipped files live — `~/.claudia/domains/psy/` today. It names a
-role, not a location: the toolkit root travels with the distribution shape.
+Where a domain's shipped files live — never inside the [Vault](#chassis--domains).
+It names a role, not a location: the toolkit root is wherever the mount put the
+files, and Claude Code is what names it (`installPath`, `${CLAUDE_PLUGIN_ROOT}`).
+The chassis reads that name; it never computes the path.
 
 **Artifact root**:
 Where the person's files for one domain live — `~/.claudia/.psy/`: their memory for
@@ -64,13 +66,17 @@ the domain ships.
 
 **Vault**:
 The person's whole store, `~/.claudia/` — one per person, holding every domain's
-two roots plus `config.json`. The unit that
+[Artifact root](#chassis--domains) plus `config.json`. It holds **no shipped file**:
+a toolkit root is never inside it. The unit that
 [Migrations](#continuity--outputs) and backups act on.
 _Avoid_: calling one domain's slice "a vault".
 
 **Mounted**:
-A domain is mounted when it sits on Claude Code's load path — a symlink into a
-skills directory, or a plugin install. Availability, not use.
+A domain is mounted when it sits on Claude Code's load path. Two ways in, deliberately
+unequal: a **plugin install** from a marketplace — the supported one, which carries a
+version and an update path — or a **link** into a skills directory, which carries
+neither and serves development and hand-rolled domains. Same artefact either way.
+Availability, not use.
 
 **Active**:
 The one mounted domain whose character and safety floor are live in the current
