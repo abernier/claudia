@@ -4,6 +4,27 @@ Written for the person using Claudia: what changed, and what it means for you. T
 reasoning behind each decision lives in the ADRs under `docs/adr/`, referenced here
 by number.
 
+## 0.12.1
+
+**Digest.** A week that went better is credited to you, in your own words — and the
+clock no longer stops at a pasted image, so a conversation resumed in the morning is
+answered in the morning.
+
+### Patch Changes
+
+- 3dce911: **She gives you the win.** When something has gone better, the sentence she uses decides who did it — and now it's you. _"You called your brother, after six months"_, not _"I'm glad talking helped"_, followed by what let you do it, in your words, so it still works when she isn't there.
+
+  The reverse never happens: a bad week is circumstantial and temporary, never a verdict on you. And if you tell her it helped to talk, she takes it rather than arguing — deflecting would be a small dishonesty. It's describing, not praising: no _"I'm proud of you"_, which would make her the judge and you the one earning marks.
+
+- 0325ac5: **The hour survives a pasted image.** Claudia re-reads the clock on every message — that
+  is what keeps a conversation left open last night from answering you this morning as if
+  it were still last night (ADR-0012). An image pasted early in the conversation switched
+  that layer off, silently: the check deciding "is this a Claudia conversation" only looked
+  at the first 256 KB of the transcript, and one screenshot is a single line twice that
+  size, so everything behind it — including the moment Claudia was called — was invisible.
+  The check now reads the transcript line by line and stops at its first answer, so no
+  attachment can hide the conversation from it.
+
 ## 0.12.0
 
 **Digest.** Your notes now keep a rotating archive beside them, a handful of settings
