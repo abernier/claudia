@@ -338,12 +338,72 @@ Two clauses to write, found while specifying and not in any ticket:
 - **`/backup` must say that its integrity check is unavailable** with no domain, rather than
   passing silently — that is the moment right after an uninstall, when the check matters most.
 
-### The picture
+### The picture — two of them, and they are not interchangeable
 
-`docs/ARCHITECTURE.md` gains this diagram in place of its current one, at the migration. It
-satisfies both assertions of `structure.test.ts`: every hook event and every script of **both**
-`hooks.json` files is drawn, and nothing that no longer exists is named. The only new name is
-`resolve-domain.mjs` (not `activate-domain` — `activation` belongs to Behavioral Activation).
+**The shape any domain follows.** This is the contract as a picture: what the chassis supplies,
+what a domain must supply back, and the one rule every domain hook obeys. No filename here is
+psy's — a `{nutrition}` domain fills the same slots with its own.
+
+```mermaid
+flowchart TB
+  subgraph CH["the chassis — identical for every domain"]
+    direction TB
+    RD["<b>SessionStart</b><br/>derive the mounted set → keep those with a <i>domain.json</i><br/>→ keep those whose <i>contract</i> matches → resolve the seed<br/>→ write <b>.active/&lt;session-id&gt;</b>"]
+    CF["<b>settings</b><br/>shipped default ← vault root ← artifact root"]
+    SV["<b>SessionEnd — archive</b><br/>one file per session, dated stem, pending flag"]
+    BK["<b>SessionEnd — backup</b><br/>the whole vault, one rotating ladder"]
+    MG["<b>migrations</b><br/>the runner, the registry, backup-first, one ledger per root"]
+  end
+
+  subgraph DOM["{domain} — what any domain must supply"]
+    direction TB
+    DJ["<b>domain.json</b><br/><i>contract</i> · <i>sessionMarker</i> · <i>settings</i> · <i>coreFiles</i>"]
+    HK["<b>every hook it ships</b><br/>reads <b>.active</b> at its first line —<br/>not mine? exit 0, silently"]
+    SK["<b>its skills</b><br/>refuse to take the stage while inactive,<br/>cheaply and instructively"]
+    SL["<b>its soul and its floor</b><br/>the chassis ships neither, and knows nothing of them"]
+  end
+
+  AR[("<b>~/.claudia/.{domain}/</b><br/>the artifact root — derived, never configured")]
+  VR["<b>~/.claudia/</b> — config.json · .migrations · .active/ · the overlay slot"]
+
+  DJ -->|"<i>contract</i>"| RD
+  DJ -->|"<i>sessionMarker</i>"| SV
+  DJ -->|"<i>settings</i>"| CF
+  DJ -->|"<i>coreFiles</i>"| BK
+  RD -->|"names the active domain"| HK
+  HK --> SK
+  SK --> SL
+  SV --> AR
+  MG --> AR
+  CF --> AR
+  RD --> VR
+  BK --> VR
+  SK -.->|"the domain calls the chassis,<br/>never the reverse"| MG
+
+  classDef chassis fill:#eef2ff,stroke:#6366f1,color:#1e1b4b
+  classDef domain fill:#fdf2f8,stroke:#db2777,color:#500724
+  classDef vault fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#052e16
+  class RD,CF,SV,BK,MG chassis
+  class DJ,HK,SK,SL domain
+  class AR,VR vault
+```
+
+**The wiring as psy fills it.** This is the one `docs/ARCHITECTURE.md` gains in place of its
+current diagram, at the migration — and **it has to stay concrete.** Its job is not to explain
+the architecture; it is to be checkable against the code, and `structure.test.ts` reads it that
+way: it extracts every `*.mjs` and every `skills/<name>` from the first mermaid block and asserts
+each one exists, then asserts that every hook event and script wired in `hooks.json` is pictured.
+A diagram drawn in `{domain}` slots names nothing, so the test's own guard —
+_the diagram should name some of what it draws_ — fails, and the sync guarantee goes with it.
+
+That guarantee was bought with a real failure: the ASCII picture this replaced still advertised a
+`Stop` hook writing the summary long after `hooks.json` had moved to `SessionEnd`. **A generic
+diagram cannot rot, because it says nothing that can become false — which is exactly why it
+cannot replace this one.** Two pictures, two jobs: the one above says what a domain owes, the one
+below says what this repo actually wires.
+
+The only new name in it is `resolve-domain.mjs` — not `activate-domain`, since `activation`
+belongs to Behavioral Activation.
 
 ```mermaid
 flowchart TB
