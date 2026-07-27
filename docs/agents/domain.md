@@ -23,7 +23,7 @@ Single-context repo — the layout in use here:
 │   └── adr/
 │       ├── 0001-safety-floor.md
 │       ├── …
-│       └── 0033-handover-note.md
+│       └── 0034-no-self-authored-skills.md
 └── src/
 ```
 

@@ -32,9 +32,10 @@ first person — "here is what I'd like to bring you" — because a first-person
 self-report **cannot syntactically be a diagnosis**. Safety-floor rule 6 holds by
 grammar, not by an instruction the model must remember on every draft. This is the
 same reasoning that chose a one-tool allowlist in
-[ADR-0030](0030-consultation-secrecy.md) ("the denylist is not the mechanism") and
-quarantine-plus-unanimity in [ADR-0006](0006-self-authoring.md): prefer the property
-that holds by construction.
+[ADR-0030](0030-consultation-secrecy.md) ("the denylist is not the mechanism"):
+prefer the property that holds by construction, over the one the model has to
+honour. [ADR-0034](0034-no-self-authored-skills.md) reads the same rule the other
+way — it withdraws the one mechanism that failed it.
 
 **The provenance header cannot be removed.** Every other line is the person's to cut.
 One is not:

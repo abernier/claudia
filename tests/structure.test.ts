@@ -136,10 +136,10 @@ describe("the architecture diagram stays in sync with the wiring", () => {
 
   it("pictures nothing that no longer exists", () => {
     // The other direction: a rename in scripts/ or skills/ leaves the picture
-    // naming a file that is gone. `(?<!-)` keeps "proposed-skills/" out of it.
+    // naming a file that is gone.
     const named = new Set([
       ...[...diagram.matchAll(/\b([\w-]+\.mjs)\b/g)].map((m) => path.join("scripts", m[1]!)),
-      ...[...diagram.matchAll(/(?<!-)\bskills\/([\w-]+)/g)].map((m) => path.join("skills", m[1]!)),
+      ...[...diagram.matchAll(/\bskills\/([\w-]+)/g)].map((m) => path.join("skills", m[1]!)),
     ]);
     expect(named.size, "the diagram should name some of what it draws").toBeGreaterThan(0);
     for (const rel of named) expect(existsSync(path.join(root, rel)), `${rel} is pictured but gone`).toBe(true);
@@ -211,30 +211,24 @@ describe("rotating vault archive (ADR-0032)", () => {
   });
 });
 
-describe("self-authoring (ADR-0006)", () => {
-  it("ships the adversarial auditor as a READ-ONLY agent", () => {
-    const p = path.join(root, "agents/skill-auditor.md");
-    expect(existsSync(p)).toBe(true);
-    const txt = readFileSync(p, "utf8");
-    expect(/disallowedTools:.*Write/i.test(txt), "auditor must not be able to write skills").toBe(true);
+describe("no self-authored skills (ADR-0034)", () => {
+  // The toolkit changes under an ADR, by hand — never at runtime. These pin the
+  // withdrawal so the mechanism cannot creep back in one file at a time.
+  it("ships neither the meta-skill, the auditor, nor the quarantine", () => {
+    for (const rel of ["skills/author-skill", "agents/skill-auditor.md", "proposed-skills"])
+      expect(existsSync(path.join(root, rel)), `${rel} was withdrawn by ADR-0034`).toBe(false);
   });
 
-  it("ships the author-skill meta-skill", () => {
-    expect(existsSync(path.join(root, "skills/author-skill/SKILL.md"))).toBe(true);
-  });
-
-  it("the persona knows it can author skills (self-concept, not just capability)", () => {
+  it("leaves the persona and the soul no route back to authoring", () => {
     const soul = readFileSync(path.join(root, "SOUL.md"), "utf8");
     const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/grow|build myself|extend yourself/i.test(soul), "SOUL should express self-extension").toBe(true);
-    expect(/author-skill/.test(persona), "persona should point to author-skill").toBe(true);
+    expect(/author-skill|proposed-skills/.test(soul + persona), "self-extension is not a capability").toBe(false);
   });
 
-  it("quarantine is separate from the load path", () => {
-    // proposed-skills/ holds drafts and is NOT under skills/ (the only load path),
-    // so a draft is inert until promoted.
-    expect(existsSync(path.join(root, "proposed-skills"))).toBe(true);
-    expect(existsSync(path.join(root, "skills/proposed-skills"))).toBe(false);
+  it("keeps ADR-0006 as a superseded record — skills/quiz came out of it", () => {
+    const adr = readFileSync(path.join(root, "docs/adr/0006-self-authoring.md"), "utf8");
+    expect(/^status: superseded by ADR-0034$/m.test(adr), "the reversal must stay traceable").toBe(true);
+    expect(existsSync(path.join(root, "skills/quiz/SKILL.md")), "quiz is an ordinary skill now").toBe(true);
   });
 });
 

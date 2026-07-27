@@ -34,7 +34,6 @@ flowchart TB
     CA["<b>choose-approach</b> — relationship-first by default,<br/>a modality from docs/approaches/*.md when indicated"]
     CR["<b>crisis</b> → docs/safety/* — routes to real human help"]
     WR["<b>remember · understand · themes · relationships · timeline · todo</b><br/><b>teach · exercise · handover · quiz · keep</b>"]
-    AU["<b>author-skill</b> → proposed-skills/ quarantine<br/>3 adversarial auditors in parallel · unanimity to promote"]
   end
 
   subgraph CLOSE["④ close — hooks again, no model"]
@@ -54,7 +53,6 @@ flowchart TB
   H -->|"danger"| CR
   CA --> WR
   CR --> WR
-  WR --> AU
   WR --> SV
   SV --> BB
   R -.->|"a flag is pending"| D

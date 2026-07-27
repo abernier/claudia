@@ -38,8 +38,6 @@
   "design.distilled.description": "recall lit sessions/*.summary.md — la couche distillée. Le transcript verbatim est votre archive : gardé pour vous, exportable, jamais relu en routine.",
   "design.retrieval.title": "Pas d'index, pas de vecteurs",
   "design.retrieval.description": "recall ouvre des fichiers nommés — safety.md d'abord, puis person.md, understanding.md, les derniers summary.md. Aucun embedding, aucune base vectorielle, rien à réindexer : la récupération se fait par chemin. Tout ce qu'elle charge est un fichier que vous pouvez ouvrir, lire et corriger.",
-  "design.authoring.title": "Des skills qu'elle s'écrit",
-  "design.authoring.description": "Quand une technique lui manque vraiment, author-skill en rédige une — en quarantaine dans proposed-skills/. Trois auditeurs adversariaux la relisent en parallèle, un seul refus la tue. Additif seulement : jamais le safety floor, jamais le persona, jamais la crise.",
   "commands.title": "COMMANDS",
   "commands.subtitle": "Dix. Le reste est conversation.",
   "commands.thread": "Le fil de la conversation en cours — un reflet léger, à rassembler.",

@@ -13,7 +13,6 @@ import {
   Moon,
   NotebookPen,
   Settings2,
-  ShieldCheck,
   Stethoscope,
   Sun,
   Waypoints,
@@ -259,11 +258,6 @@ export function Page() {
                 icon={<FolderTree />}
                 titleId="design.retrieval.title"
                 descriptionId="design.retrieval.description"
-              />
-              <DesignPoint
-                icon={<ShieldCheck />}
-                titleId="design.authoring.title"
-                descriptionId="design.authoring.description"
               />
             </div>
           </div>

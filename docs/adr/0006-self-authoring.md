@@ -1,8 +1,14 @@
 ---
-status: accepted
+status: superseded by ADR-0034
 ---
 
 # Autonomous skill self-authoring, gated by an adversarial auditor
+
+> **Superseded by [ADR-0034](0034-no-self-authored-skills.md).** The mechanism
+> described below — `skills/author-skill/`, `agents/skill-auditor.md`, the
+> `proposed-skills/` quarantine — no longer ships. The record stands because it
+> is the origin of `skills/quiz/`, the one skill this flow produced before it was
+> withdrawn. Everything from here on is what _was_ decided, not what holds.
 
 Claudia may **author new skills for herself** when she identifies a recurring,
 important therapeutic capability she lacks — but only _additive technique_ skills,

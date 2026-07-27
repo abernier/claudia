@@ -38,8 +38,6 @@
   "design.distilled.description": "recall reads sessions/*.summary.md — the distilled layer. The verbatim transcript is your archive: kept for you, exportable, and never read back in routine.",
   "design.retrieval.title": "No index, no vectors",
   "design.retrieval.description": "recall opens named files — safety.md first, then person.md, understanding.md, the latest summary.md. No embeddings, no vector store, nothing to reindex: retrieval goes by path. Everything she loads is a file you can open, read and correct.",
-  "design.authoring.title": "Skills she writes herself",
-  "design.authoring.description": "When a technique is genuinely missing, author-skill drafts one — quarantined in proposed-skills/. Three adversarial auditors read it in parallel, and a single rejection kills it. Additive only: never the safety floor, never the persona, never crisis.",
   "commands.title": "COMMANDS",
   "commands.subtitle": "Ten. The rest is conversation.",
   "commands.thread": "The thread of the conversation so far — a light reflection to gather back.",

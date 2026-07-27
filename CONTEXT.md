@@ -250,21 +250,3 @@ perform a feeling she doesn't have — not out of house style. Defined in ADR-00
 _Avoid_: "preferences panel", "options screen", "customise Claudia" (it is a few
 switches, not a personalisation surface); and never treat a setting as a symptom to
 explore.
-
-## Self-authoring
-
-**Authored skill**:
-A new _additive technique_ skill Claudia writes for herself when she identifies a
-recurring capability gap. Never touches the core (floor, soul, crisis, hooks).
-Defined in ADR-0006.
-
-**Skill auditor**:
-The independent, read-only, adversarial subagent that must clear an
-[Authored skill](#self-authoring) before it can be promoted — it assumes the
-draft is unsafe and rejects on any doubt.
-
-**Quarantine**:
-The `proposed-skills/` directory where drafts wait. Deliberately _not_ on the
-plugin's skill-load path, so a draft is inert until an auditor clears it and it is
-promoted into `skills/`.
-_Avoid_: "staging" alone (too neutral — the point is that it cannot act).

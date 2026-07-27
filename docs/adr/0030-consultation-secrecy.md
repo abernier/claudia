@@ -63,8 +63,7 @@ secrecy is structural, not promised.**
   grant `WebSearch` alone, and the prompt must state the
   neither-confirm-nor-deny stance.
 - No other doc changes: agents are not enumerated in `README.md` or
-  `CONTEXT.md` (the auditor never was either); each lives in its ADR and its
-  test.
+  `CONTEXT.md`; each lives in its ADR and its test.
 - Any session with the plugin can now ask for her read —
   `Agent(subagent_type: "claudia:consult")` — and the worst a hostile prompt
   can extract is a well-sourced opinion.

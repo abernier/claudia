@@ -111,7 +111,5 @@ for the route-to-human path.
   `themes/` join the vault; `/export` copies them out verbatim; **`/forget` deletes
   a theme note and de-links it everywhere** (real deletion, ADR-0004).
 - **Purely additive** — it touches neither the safety floor, the soul, the crisis
-  pivot, nor the hooks. `author-skill`'s self-authoring quarantine does not apply
-  (that flow is for Claudia's _autonomous_ authoring, not developer changes under an
-  ADR); an adversarial safety review against [ADR-0001](0001-safety-floor.md) /
-  `red-lines.md` gates the change instead.
+  pivot, nor the hooks. An adversarial safety review against
+  [ADR-0001](0001-safety-floor.md) / `red-lines.md` gates the change.
