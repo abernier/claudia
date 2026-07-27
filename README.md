@@ -59,7 +59,7 @@ natural-language _quality_ is out of scope here; that belongs in a separate,
 non-deterministic eval.
 
 ```
-npm install
+npm install       # deps, git hooks, and the live link below
 npm test          # vitest run
 npm run test:watch
 ```
@@ -81,14 +81,29 @@ instead: Claude Code then loads it live from your working tree as
 `claudia@skills-dir`, and your edits are picked up with no reinstall.
 
 ```
-./scripts/dev-link.sh        # symlink plugin/ into ~/.claude/skills (hot, in place)
-./scripts/dev-unlink.sh      # revert to the packaged install
+npm run link         # symlink plugin/ into ~/.claude/skills (hot, in place)
+npm run unlink       # revert to the packaged install
 ```
+
+(`npm run link` — `npm link` without `run` is npm's own global-symlink command
+and does something else entirely. The scripts behind them are
+`scripts/dev-link.sh` and `scripts/dev-unlink.sh`, runnable directly.)
+
+`npm install` runs the link for you — it is the repo's `prepare` script — so
+a fresh clone is already live, and there is no state where you have the
+dependencies but not the link. Run it by hand to repoint the link after
+`dev-unlink.sh`, or to take it back from another working tree: it points at the
+tree it runs in, so the last `npm install` wins if you develop in git worktrees.
 
 The link points at `plugin/`, not at the repo — so what you develop against is
 shaped exactly like what an install copies.
 
-`dev-link.sh` also removes any cached CLI install first, to avoid duplicate hooks.
+`dev-link.sh` also clears what would compete with the link — a packaged install
+of a plugin named `claudia`, from any marketplace and any scope, shadows it and
+duplicates its hooks. It uninstalls those, then checks the result rather than
+assuming it: it fails if the link doesn't resolve to a plugin manifest, and warns
+if a packaged copy survived its own uninstall or if a project-scope
+`.claude/skills/claudia` defines a second one. Under `CI` it is a no-op.
 How "hot" each edit is:
 
 | You changed                                | To apply                                                        |
