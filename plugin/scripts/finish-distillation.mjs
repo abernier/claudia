@@ -42,7 +42,7 @@
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { isEntrypoint } from "../src/entry.mjs";
 import { parseFrontmatter, stampIdentity } from "../src/frontmatter.mjs";
 
 /** Leading `YYYY-MM-DD` of a stem (ADR-0017) or of a deliverable's filename. */
@@ -169,4 +169,6 @@ async function main() {
 }
 
 // Run only when invoked directly, not on import (tests import finishDistillation).
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+// Symlink-safe: the skills reach this file through ${CLAUDE_PLUGIN_ROOT}, which a dev
+// install makes a link — comparing unresolved paths silently skipped main() (src/entry.mjs).
+if (isEntrypoint(import.meta.url)) main();

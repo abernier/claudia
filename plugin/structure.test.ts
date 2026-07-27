@@ -102,6 +102,34 @@ describe("the payload boundary (#49)", () => {
   });
 });
 
+describe("scripts are reachable through a symlink", () => {
+  // Three scripts decided "run or imported?" by comparing `path.resolve(argv[1])` to
+  // `fileURLToPath(import.meta.url)`. Node resolves symlinks for the second and not the
+  // first, so on a dev install — where ${CLAUDE_PLUGIN_ROOT} IS a link — main() never
+  // ran and the script exited 0. finish-distillation stopped clearing its marker and
+  // every recall re-flagged an already-distilled session, with nothing to see anywhere.
+  const scripts = walk(path.join(root, "scripts"), (p) => p.endsWith(".mjs") && !p.endsWith(".test.mjs"));
+
+  it("none tells run from imported by comparing unresolved paths", () => {
+    const fragile = scripts
+      .filter((p) => /path\.resolve\(process\.argv\[1\]\)/.test(readFileSync(p, "utf8")))
+      .map((p) => path.relative(root, p));
+    expect(fragile, `must use isEntrypoint() from src/entry.mjs:\n${fragile.join("\n")}`).toEqual([]);
+  });
+
+  it("the ones that are both executable and importable guard through the one shared test", () => {
+    const guards = scripts.flatMap((p) =>
+      [...readFileSync(p, "utf8").matchAll(/^if \((.+)\) main\(\);$/gm)].map((m) => ({
+        rel: path.relative(root, p),
+        condition: m[1]!,
+      })),
+    );
+    expect(guards.length, "some scripts are executable and importable both").toBeGreaterThan(0);
+    for (const g of guards)
+      expect(g.condition, `${g.rel} should guard with isEntrypoint()`).toBe("isEntrypoint(import.meta.url)");
+  });
+});
+
 describe("components", () => {
   it("every skill has name + description frontmatter", () => {
     const skills = walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md"));

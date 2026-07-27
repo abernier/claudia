@@ -24,7 +24,7 @@
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { isEntrypoint } from "../src/entry.mjs";
 import { migrations } from "../src/migrations/index.mjs";
 import { rebuildDashboard } from "./build-dashboard.mjs";
 
@@ -228,4 +228,5 @@ async function main() {
 }
 
 // Run only when invoked directly, not on import (tests import runMigrations).
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+// Symlink-safe — see src/entry.mjs for what comparing unresolved paths cost.
+if (isEntrypoint(import.meta.url)) main();

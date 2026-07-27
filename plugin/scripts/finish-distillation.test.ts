@@ -3,9 +3,11 @@
  * only once that succeeded.
  */
 import { describe, it, expect, afterEach } from "vitest";
+import { spawnSync } from "node:child_process";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { finishDistillation } from "./finish-distillation.mjs";
 
 const roots: string[] = [];
@@ -161,5 +163,52 @@ describe("finishDistillation()", () => {
     const root = await makeVault({ [`sessions/${STEM}.summary.md`]: "body\n" });
     expect(await finishDistillation({ root, stem: "" })).toBe("no-stem");
     expect(await read(root, `sessions/${STEM}.summary.md`)).toBe("body\n");
+  });
+});
+
+describe("run as a script, the way distill-session runs it", () => {
+  // Everything above imports the function. The bug was in the four lines that decide
+  // whether the function runs at all, so this one goes through the CLI — and through a
+  // symlink, because `${CLAUDE_PLUGIN_ROOT}` is one on a dev install
+  // (`~/.claude/skills/claudia -> …/claudia/plugin`). Unresolved, the guard read the
+  // invocation as an import: exit 0, marker kept, session re-flagged at every recall.
+  const pluginRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const links: string[] = [];
+  afterEach(async () => {
+    // unlink, never rm -r: the link's target is the payload itself.
+    for (const l of links.splice(0)) await fs.unlink(l).catch(() => {});
+  });
+
+  async function linkToPlugin(): Promise<string> {
+    const link = path.join(await fs.mkdtemp(path.join(os.tmpdir(), "claudia-link-")), "claudia");
+    await fs.symlink(pluginRoot, link);
+    links.push(link);
+    return link;
+  }
+
+  /** Close a distillation the way the skill does: `node <plugin-root>/scripts/…`. */
+  const close = (link: string, root: string) =>
+    spawnSync(process.execPath, [path.join(link, "scripts/finish-distillation.mjs"), STEM], {
+      env: { ...process.env, CLAUDIA_ROOT: root },
+      encoding: "utf8",
+    });
+
+  it("stamps and clears when reached through a symlinked plugin root", async () => {
+    const root = await makeVault({
+      [`sessions/${STEM}.summary.md`]: "---\npeople: [Liliana]\n---\n\n# Séance\n",
+      [`sessions/${STEM}.pending-summary`]: MARKER,
+    });
+    const run = close(await linkToPlugin(), root);
+    expect(run.status).toBe(0);
+    expect(await exists(root, `sessions/${STEM}.pending-summary`), "the marker must be gone").toBe(false);
+    expect(await read(root, `sessions/${STEM}.summary.md`)).toContain(`session: ${STEM}`);
+  });
+
+  it("keeps the marker and says so when there is no summary — silence is what hid the bug", async () => {
+    const root = await makeVault({ [`sessions/${STEM}.pending-summary`]: MARKER });
+    const run = close(await linkToPlugin(), root);
+    expect(run.status).toBe(0); // benign layer: never break the host
+    expect(run.stderr).toContain("marker kept");
+    expect(await exists(root, `sessions/${STEM}.pending-summary`)).toBe(true);
   });
 });

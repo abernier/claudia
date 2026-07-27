@@ -22,7 +22,7 @@
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { isEntrypoint } from "../src/entry.mjs";
 import { buildDashboard, personName, sessionsForMirror } from "../src/dashboard.mjs";
 import { parseConfig } from "../src/config.mjs";
 
@@ -108,4 +108,5 @@ async function main() {
 }
 
 // Run only when invoked directly (`node scripts/build-dashboard.mjs`), not on import.
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+// Symlink-safe — see src/entry.mjs for what comparing unresolved paths cost.
+if (isEntrypoint(import.meta.url)) main();
