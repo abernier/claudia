@@ -35,7 +35,9 @@ Run `gh issue view <number> --comments`.
 
 ## Wayfinding operations
 
-Used by `/wayfinder`. The **map** is a single issue with **child** issues as tickets. Both GitHub sub-issues and native issue dependencies are enabled on this repo, so no fallback representation is needed. The current map is [#6 — Claudia as a multi-domain chassis](https://github.com/abernier/claudia/issues/6).
+Used by `/wayfinder`. The **map** is a single issue with **child** issues as tickets. Both GitHub sub-issues and native issue dependencies are enabled on this repo, so no fallback representation is needed. The current map is [#26 — Claudia on the web, for people without Claude Code](https://github.com/abernier/claudia/issues/26).
+The previous one, [#6 — Claudia as a multi-domain chassis](https://github.com/abernier/claudia/issues/6),
+is closed.
 
 - **Map**: a single issue labelled `wayfinder:map`, holding the Notes / Decisions-so-far / Fog body. `gh issue create --label wayfinder:map`.
 - **Child ticket**: an issue linked to the map as a GitHub sub-issue (`gh api` on the sub-issues endpoint). Labels: `wayfinder:<type>` (`research`/`prototype`/`grilling`/`task`). Once claimed, the ticket is assigned to the driving dev.
