@@ -105,7 +105,7 @@ themes: [the inner critic]            ---
   visibly broken one.
 
 - **The prose half is guarded like every other prose contract here** — a
-  `describe("frontmatter contract (ADR-0025)")` block in `tests/structure.test.ts`,
+  `describe("frontmatter contract (ADR-0025)")` block in `structure.test.ts`,
   which is how this repo has always kept its docs from rotting.
 
 ## Consequences

@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const script = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../scripts/save-session.mjs");
+const script = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "./save-session.mjs");
 
 // Mirrors the script's own local-date stamp.
 const stamp = (() => {

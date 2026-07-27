@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { heuristic, decide, escalationContext, type ClassifierResult } from "../src/safety.mjs";
+import { heuristic, decide, escalationContext, type ClassifierResult } from "./safety.mjs";
 
 describe("heuristic risk bands", () => {
   it("flags explicit suicidal ideation as clear", () => {

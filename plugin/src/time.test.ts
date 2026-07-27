@@ -8,7 +8,7 @@ import {
   classifyGap,
   buildTimeContext,
   renderTimeContext,
-} from "../src/time.mjs";
+} from "./time.mjs";
 
 describe("zonedParts()", () => {
   it("reads local wall-clock + DST offset for a zone (summer, +02:00)", () => {

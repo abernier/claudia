@@ -33,7 +33,7 @@ import {
   type ArchiveRef,
   type ManifestEntry,
   type VaultSnapshot,
-} from "../src/backup.mjs";
+} from "./backup.mjs";
 
 const script = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "scripts", "vault-backup.mjs");
 

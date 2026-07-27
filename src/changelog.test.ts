@@ -6,7 +6,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { extractSection } from "../src/changelog.mjs";
+import { extractSection } from "./changelog.mjs";
 
 const root: string = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 

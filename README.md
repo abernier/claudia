@@ -16,6 +16,7 @@ The root is the **project**; it owns none of the three directories under it.
 
 ```
 plugin/           the payload — exactly what an install copies
+  structure.test.ts  the payload's own integrity check
   .claude-plugin/ plugin.json (the marketplace entry stays at the root)
   SOUL.md         who Claudia is (loaded by the persona skill)
   CONTEXT.md      the project glossary
@@ -23,17 +24,15 @@ plugin/           the payload — exactly what an install copies
   commands/       the command surface
   agents/         the ephemeral specialists
   hooks/          the per-turn safety hook + session hooks
-  src/            pure logic, unit-testable
-  scripts/        the thin wrappers a hook, skill or command calls
+  src/            pure logic, and its tests beside it
+  scripts/        the thin wrappers a hook, skill or command calls, + tests
   docs/           adr/ approaches/ safety/ qualities/ competencies/
                   bibliography.md memory-layout.md person-fiche-template.md
-  tests/          Vitest, beside the modules they cover
 site/             the landing (its own Vite project and lockfile)
 demo/             the recording rig and its fixture vault
 docs/             maintainer material: ARCHITECTURE.md, agents/
-src/              pure logic for the repo tooling (release notes)
+src/              pure logic for the repo tooling (release notes), + its test
 scripts/          repo tooling: dev-link, dev-unlink, sync-version, changelog-extract
-tests/            the one test that covers the root's own src/
 ```
 
 **What goes down and what stays up:** what addresses Claudia or the person goes
@@ -44,7 +43,7 @@ it covers, which outranks the rule and costs 196 KB in the payload.
 `plugin/` is not merely a folder — it is the published tarball, and there is no
 exclude mechanism anywhere in the install path (no `.claudeignore`, no
 `ignorePatterns`, no `files` field), so the directory is the only boundary
-available. `plugin/tests/structure.test.ts` asserts the consequences that matter:
+available. `plugin/structure.test.ts` asserts the consequences that matter:
 no `package.json` under `plugin/`, nothing above the installer's 50:1 compression
 ratio, and every `${CLAUDE_PLUGIN_ROOT}` path it cites resolving.
 
@@ -65,9 +64,10 @@ npm run test:watch
 
 Pure logic lives in `plugin/src/` (imported by the thin hook wrappers in
 `plugin/scripts/`), so it is unit-testable without spawning a process or calling
-a model. **A test lives beside the module it covers**, so each side of the
-boundary carries its own: `plugin/tests/` for the payload, `tests/` for the
-root's own `src/changelog.mjs`. The payload's tests are therefore published with
+a model. **A test sits beside the file it covers** — `plugin/src/safety.mjs`
+and `plugin/src/safety.test.ts`, and so on — which is the same collocation rule
+ADR-0022 already applies to shared types. There is no `tests/` directory on
+either side of the boundary. The payload's tests are therefore published with
 it — a deliberate trade for keeping each directory self-contained, and cheap:
 196 KB, nothing in them anywhere near the installer's compression cap.
 
@@ -113,7 +113,7 @@ marketplace entry at the repo root:
    ADR already carries it, in full, and duplicating it is what turned v0.11.0 into
    ~1,960 words of unbroken prose. One to three sentences per point, a short bold
    lead, and a `**Digest.**` line at the top of the version section summarising the
-   release in one sentence. `tests/changelog.test.ts` caps a changeset at 150 words.
+   release in one sentence. `src/changelog.test.ts` caps a changeset at 150 words.
 
 2. `npm run release:version` — bumps `package.json` + writes `CHANGELOG.md`, then
    syncs the version into both manifests (`scripts/sync-version.mjs`).

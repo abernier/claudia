@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { sessionIndex, pendingSessions } from "../src/pending.mjs";
-import type { SessionArtifacts } from "../src/pending.mjs";
+import { sessionIndex, pendingSessions } from "./pending.mjs";
+import type { SessionArtifacts } from "./pending.mjs";
 
 describe("sessionIndex()", () => {
   it("folds filenames into per-stem artefact records", () => {

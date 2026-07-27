@@ -10,8 +10,8 @@ import {
   renderMarkdown,
   resolveTranscriptPath,
   sessionDays,
-} from "../src/session.mjs";
-import type { ContentBlock } from "../src/session.mjs";
+} from "./session.mjs";
+import type { ContentBlock } from "./session.mjs";
 
 // A tiny 1×1 PNG, base64 — enough to assert extraction round-trips the bytes.
 const PNG_1PX = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";

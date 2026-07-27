@@ -3,8 +3,8 @@
  * Fixtures are the shapes really found in a vault, drift included.
  */
 import { describe, it, expect } from "vitest";
-import { parseFrontmatter, stampIdentity } from "../src/frontmatter.mjs";
-import type { Frontmatter } from "../src/frontmatter.mjs";
+import { parseFrontmatter, stampIdentity } from "./frontmatter.mjs";
+import type { Frontmatter } from "./frontmatter.mjs";
 
 const SUMMARY = `---
 type: session

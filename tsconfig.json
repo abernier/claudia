@@ -12,5 +12,5 @@
     "types": ["node"],
     "skipLibCheck": true
   },
-  "include": ["plugin/src", "plugin/scripts", "plugin/tests", "src", "scripts", "tests", "demo"]
+  "include": ["plugin", "src", "scripts", "demo"]
 }

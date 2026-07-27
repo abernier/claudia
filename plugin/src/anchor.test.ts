@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ANCHOR_SOURCES, shouldAnchor, renderAnchorContext } from "../src/anchor.mjs";
+import { ANCHOR_SOURCES, shouldAnchor, renderAnchorContext } from "./anchor.mjs";
 
 describe("shouldAnchor()", () => {
   it("anchors a Claudia session that was resumed or compacted", () => {

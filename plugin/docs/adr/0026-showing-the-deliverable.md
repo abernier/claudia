@@ -112,7 +112,7 @@ plugin.
   what it does well, and fenced where it would change the relationship. Both ADRs are
   ultimately about the same thing — Claudia may use the interface to _serve_ a moment
   the person is already in, never to manufacture one.
-- `tests/structure.test.ts` guards the fences, not the feature: `proactive` appears
+- `structure.test.ts` guards the fences, not the feature: `proactive` appears
   nowhere, `crisis` never sends, `Artifact` appears nowhere. Non-goals are what a
   future change erodes first.
 - The glossary's **Deliverable** entry gains the distinction between _saving_ and

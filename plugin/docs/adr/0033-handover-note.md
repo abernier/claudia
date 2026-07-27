@@ -172,7 +172,7 @@ the person's business.
   [`memory-layout.md`](../memory-layout.md). `/export` and `/forget` need no change —
   `vault-export.mjs` walks the tree recursively.
 - [ADR-0026](0026-showing-the-deliverable.md) gains a row: `handover` → `attach`.
-- `tests/structure.test.ts` pins the fences that a later change would erode first: the
+- `structure.test.ts` pins the fences that a later change would erode first: the
   provenance header is required, `session:` is forbidden, nothing is pre-ticked, and the
   existing global bans on `proactive` and `Artifact` already cover the new surface.
 - The persona carries a pointer, because [ADR-0018](0018-todo-surface.md) established that

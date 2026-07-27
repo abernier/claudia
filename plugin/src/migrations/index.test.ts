@@ -4,10 +4,10 @@ import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { migrations } from "../src/migrations/index.mjs";
-import { migrate, id } from "../src/migrations/0001-wikilinks-to-relative.mjs";
-import { migrate as migrate0002, id as id0002 } from "../src/migrations/0002-vault-frontmatter.mjs";
-import { runMigrations } from "../scripts/migrate-vault.mjs";
+import { migrations } from "./index.mjs";
+import { migrate, id } from "./0001-wikilinks-to-relative.mjs";
+import { migrate as migrate0002, id as id0002 } from "./0002-vault-frontmatter.mjs";
+import { runMigrations } from "../../scripts/migrate-vault.mjs";
 
 // A compact fixture vault exercising every resolution branch.
 const fixture = (): Record<string, string> => ({
@@ -317,7 +317,7 @@ describe("migrate-vault CLI — failure after the backup", () => {
     // That reproduces a failure AFTER the backup exists, mid-way through the apply path.
     await fs.mkdir(path.join(root, ".migrations"));
 
-    const script = fileURLToPath(new URL("../scripts/migrate-vault.mjs", import.meta.url));
+    const script = fileURLToPath(new URL("../../scripts/migrate-vault.mjs", import.meta.url));
     const r = spawnSync(process.execPath, [script, root], { encoding: "utf8" });
     expect(r.status).toBe(1);
     expect(r.stderr).toContain("Migration failed");

@@ -15,7 +15,7 @@ import {
   SETTING_KEYS,
   serializeConfig,
   withSetting,
-} from "../src/config.mjs";
+} from "./config.mjs";
 
 describe("the declared settings", () => {
   it("ships emoji OFF by default — the whole point of ADR-0028", () => {

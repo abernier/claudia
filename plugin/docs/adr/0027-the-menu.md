@@ -74,7 +74,7 @@ and [`/dashboard`](0019-dashboard.md).
 
 - The public command surface grows from eight to **nine**. README's table and its
   prose count, and the structure guard's command list, track that.
-- `tests/structure.test.ts` guards both directions, as with ADR-0024: `/menu`
+- `structure.test.ts` guards both directions, as with ADR-0024: `/menu`
   declares `AskUserQuestion`, and the exploratory skills still must not.
 - The glossary gains **Menu** under _Safety & register_, next to **Choice UI** — it is
   the same question of register, resolved by who initiates.

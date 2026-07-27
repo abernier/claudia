@@ -7,12 +7,12 @@ import { gzipSync } from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // `root` is the *plugin* root — `plugin/`, what `${CLAUDE_PLUGIN_ROOT}` resolves to
 // and what an install copies. It used to coincide with the repo root; since the
 // payload moved out of it, only repo-level things (the marketplace entry, the
 // architecture diagram, the whole-repo link sweep) still reach for `repo`.
-const root = path.join(repo, "plugin");
+const root = path.dirname(fileURLToPath(import.meta.url));
 
 function walk(dir: string, filter?: (p: string) => boolean): string[] {
   const out: string[] = [];

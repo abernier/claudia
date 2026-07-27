@@ -8,8 +8,8 @@
  * belongs in a separate, non-deterministic eval).
  */
 import { describe, it, expect } from "vitest";
-import { decide } from "../src/safety.mjs";
-import { renderMarkdown, isClaudiaSession, type ContentBlock, type TranscriptEntry } from "../src/session.mjs";
+import { decide } from "./safety.mjs";
+import { renderMarkdown, isClaudiaSession, type ContentBlock, type TranscriptEntry } from "./session.mjs";
 
 /** One scripted turn: what the person says, and whether safety must pivot on it. */
 type ScriptedTurn = { user: string; escalate: boolean };

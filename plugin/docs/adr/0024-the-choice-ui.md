@@ -120,7 +120,7 @@ the wrong moment — the same reasoning already applied to `Task` in the persona
   always-loaded file — the ADR-0018 lesson (a capability documented everywhere except
   the persona is invisible in practice) applies to a _constraint_ just as much as to a
   capability.
-- `tests/structure.test.ts` guards **both** directions: declared wherever used, and
+- `structure.test.ts` guards **both** directions: declared wherever used, and
   **absent** from the exploratory skills. The second assertion is the one that
   protects the therapeutic side, and the one most likely to be eroded by a
   well-meaning future change.

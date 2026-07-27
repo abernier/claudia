@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const script = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../scripts/time-context.mjs");
+const script = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "./time-context.mjs");
 
 const line = (o: object): string => JSON.stringify(o) + "\n";
 const activation = line({

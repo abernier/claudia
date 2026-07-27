@@ -6,7 +6,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { finishDistillation } from "../scripts/finish-distillation.mjs";
+import { finishDistillation } from "./finish-distillation.mjs";
 
 const roots: string[] = [];
 afterEach(async () => {

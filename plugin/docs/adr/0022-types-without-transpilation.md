@@ -23,8 +23,8 @@ runtime contract changes.
   requirement on the person's machine. The `package.json` promise — "the plugin
   itself needs no runtime deps" — holds bit-for-bit.
 - **Typing lives in JSDoc**, verified by `tsc --noEmit` with `checkJs` +
-  `strict: true` + `noUncheckedIndexedAccess` (`tsconfig.json` covers `src/`,
-  `scripts/`, `tests/`). The extra flag is deliberate: this codebase lives in
+  `strict: true` + `noUncheckedIndexedAccess` (`tsconfig.json` covers `src/`
+  and `scripts/`, tests included). The extra flag is deliberate: this codebase lives in
   `Record<string, string>` maps of vault files, exactly the class of indexed
   access where a created-not-rewritten file yields a silent `undefined`.
 - **No escape hatches.** No `@ts-nocheck`, no `@ts-ignore`;
@@ -36,7 +36,7 @@ runtime contract changes.
   `src/migrations/index.mjs`.
   Consumers write `import('./x.mjs').TypeName`. No central `types.d.ts`:
   provenance stays readable in the import.
-- **Tests are real TypeScript** (`tests/*.test.ts`). They never run on the
+- **Tests are real TypeScript** (`*.test.ts`, beside the file each covers). They never run on the
   person's machine; Vitest executes them natively. Real TS syntax where it is
   free, JSDoc only on the boundary that must remain executable JS.
 - **Enforcement is local**: `npm run typecheck`, and `npm test` runs the
