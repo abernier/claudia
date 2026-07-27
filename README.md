@@ -30,7 +30,6 @@ plugin/           the payload — exactly what an install copies
   tests/          Vitest, beside the modules they cover
 site/             the landing (its own Vite project and lockfile)
 demo/             the recording rig and its fixture vault
-evals/            the end-to-end runner
 docs/             maintainer material: ARCHITECTURE.md, agents/
 src/              pure logic for the repo tooling (release notes)
 scripts/          repo tooling: dev-link, dev-unlink, sync-version, changelog-extract

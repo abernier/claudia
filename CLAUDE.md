@@ -8,8 +8,8 @@ Repo conventions for coding agents. The domain vocabulary lives in
 ## Layout
 
 The repo root is the **project**. The plugin payload — everything an install
-copies — lives under [`plugin/`](plugin/); `site/`, `demo/` and `evals/` are its
-siblings and ship nowhere. What addresses Claudia or the person goes into
+copies — lives under [`plugin/`](plugin/); `site/` and `demo/` are its siblings
+and ship nowhere. What addresses Claudia or the person goes into
 `plugin/`; what addresses the maintainer or the agent that codes stays at the
 root. Tests are the exception: they live beside the modules they cover, so the
 payload's own suite is under `plugin/tests/`. See [`README.md`](README.md).
