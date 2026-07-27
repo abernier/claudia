@@ -9,7 +9,7 @@ demo recordings, the test suite — and a `package.json` the installer then ran
 It also tripped a compression heuristic on the demo recording, so the install warned
 you about a security risk that was never there.
 
-The payload now lives in its own directory and is 786 KB: the persona, the skills, the
+The payload now lives in its own directory and is 785 KB: the persona, the skills, the
 commands, the hooks, the safety material and their tests, and nothing else. Your notes
 are untouched, nothing changes in a conversation, and `claude plugin update
 claudia@claudia` picks this up like any other release.

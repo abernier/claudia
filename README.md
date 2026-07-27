@@ -69,7 +69,7 @@ and `plugin/src/safety.test.ts`, and so on — which is the same collocation rul
 ADR-0022 already applies to shared types. There is no `tests/` directory on
 either side of the boundary. The payload's tests are therefore published with
 it — a deliberate trade for keeping each directory self-contained, and cheap:
-196 KB, nothing in them anywhere near the installer's compression cap.
+163 KB, nothing in them anywhere near the installer's compression cap.
 
 ### Live / hot-reload development (edit without reinstalling)
 
