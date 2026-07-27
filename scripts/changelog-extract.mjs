@@ -4,12 +4,12 @@
  *
  *   node scripts/changelog-extract.mjs 0.2.1
  *
- * Thin CLI over `src/changelog.mjs` (the pure, tested logic lives there). The
+ * Thin CLI over `changelog.mjs` (the pure, tested logic lives beside it). The
  * release workflow runs this to turn the tag into a Release body; you can run it
  * locally to preview or to backfill a Release page for a tag already pushed.
  */
 import { readFileSync } from "node:fs";
-import { extractSection } from "../src/changelog.mjs";
+import { extractSection } from "./changelog.mjs";
 
 const version = process.argv[2];
 if (!version) {

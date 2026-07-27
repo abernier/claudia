@@ -31,8 +31,8 @@ plugin/           the payload — exactly what an install copies
 site/             the landing (its own Vite project and lockfile)
 demo/             the recording rig and its fixture vault
 docs/             maintainer material: ARCHITECTURE.md, agents/
-src/              pure logic for the repo tooling (release notes), + its test
-scripts/          repo tooling: dev-link, dev-unlink, sync-version, changelog-extract
+scripts/          repo tooling: dev-link, dev-unlink, sync-version, and the
+                  release-notes extractor over its own pure changelog.mjs
 ```
 
 **What goes down and what stays up:** what addresses Claudia or the person goes
@@ -113,7 +113,7 @@ marketplace entry at the repo root:
    ADR already carries it, in full, and duplicating it is what turned v0.11.0 into
    ~1,960 words of unbroken prose. One to three sentences per point, a short bold
    lead, and a `**Digest.**` line at the top of the version section summarising the
-   release in one sentence. `src/changelog.test.ts` caps a changeset at 150 words.
+   release in one sentence. `scripts/changelog.test.ts` caps a changeset at 150 words.
 
 2. `npm run release:version` — bumps `package.json` + writes `CHANGELOG.md`, then
    syncs the version into both manifests (`scripts/sync-version.mjs`).
