@@ -1,8 +1,43 @@
 # claudia
 
 Written for the person using Claudia: what changed, and what it means for you. The
-reasoning behind each decision lives in the ADRs under `docs/adr/`, referenced here
-by number.
+reasoning behind each decision lives in the ADRs under `plugin/docs/adr/`, referenced
+here by number.
+
+## 0.13.0
+
+**Digest.** Claudia stops writing her own skills, and installing her stops dragging the
+workshop along — no more security warning, and no more 100 MB of developer tooling landing
+on your machine.
+
+### Minor Changes
+
+- 9ae7dd2: **Claudia no longer writes her own skills.** Since 0.1.0 she could notice a technique she
+  kept needing and build it herself, quarantined until three adversarial auditors cleared it.
+  That is withdrawn: her toolkit changes only when someone writes the capability by hand and
+  ships it in a release you can read.
+
+  Nothing changes in a conversation, and nothing in your notes. `/quiz` — the one skill that
+  flow ever produced — stays, reviewed and shipped like any other. An `authored-skills.md`
+  under `~/.claudia/` stays too: it is your file, and `/forget` is the only thing that deletes
+  it.
+
+  The safeguards were instructions she had to follow rather than properties of the runtime;
+  ADR-0034 records the reversal, ADR-0006 stays as what it superseded.
+
+### Patch Changes
+
+- de10be9: **Installing Claudia no longer copies the workshop along with it.** The plugin was
+  published from the repository root, so an install brought down the landing site, the
+  demo recordings, the test suite — and a `package.json` the installer then ran
+  `npm install` against, landing about 100 MB of development tooling on your machine.
+  It also tripped a compression heuristic on the demo recording, so the install warned
+  you about a security risk that was never there.
+
+  The payload now lives in its own directory and is 785 KB: the persona, the skills, the
+  commands, the hooks, the safety material and their tests, and nothing else. Your notes
+  are untouched, nothing changes in a conversation, and `claude plugin update
+  claudia@claudia` picks this up like any other release.
 
 ## 0.12.1
 
