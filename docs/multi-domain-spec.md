@@ -766,9 +766,37 @@ applies-to: [psy] # chassis | psy | project — several allowed
 | 0040 | The floor is the domain's and self-gates                                                               | chassis, psy |
 | 0041 | Self-authoring retired — **supersedes ADR-0006**                                                       | psy          |
 
-Three existing ADRs are cut in half by the seam and **stay whole** with
-`applies-to: [chassis, psy]`: **0004** (memory model), **0025** (frontmatter contract), **0028**
-(settings). An ADR whose subject is the boundary cannot be filed on one side of it.
+### The 33, assigned
+
+Someone has to write `applies-to` into 33 files. The judgements are made here so the migration
+does not have to make them, and because the count is itself an argument.
+
+| `applies-to`     | n      | ADRs                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ---------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[psy]`          | **19** | 0001 safety floor · 0002 knowledge architecture · 0006 self-authoring · 0008 working understanding · 0009 curiosity & intake · 0010 relationship map · 0011 person fiches · 0013 persona continuity · 0014 life timeline · 0015 the thread · 0018 to-do surface · 0019 dashboard · 0023 keepsakes · 0026 showing the deliverable · 0027 the menu · 0029 mirror language · 0030 consultation secrecy · 0031 verbose · 0033 handover note |
+| `[chassis, psy]` | **8**  | 0003 runtime shape · 0004 memory model · 0007 stay local · 0012 time awareness · 0016 deferred distillation · 0024 the choice UI · 0025 frontmatter contract · 0028 settings                                                                                                                                                                                                                                                            |
+| `[chassis]`      | **4**  | 0017 session identity · 0020 vault migrations · 0021 transcript images · 0032 vault backups                                                                                                                                                                                                                                                                                                                                             |
+| `[project, psy]` | **1**  | 0005 language policy                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `[project]`      | **1**  | 0022 types without transpilation                                                                                                                                                                                                                                                                                                                                                                                                        |
+
+**Nine of thirty-three straddle the seam** — the eight above plus 0005. That is more than a
+quarter of the series, and it is this ticket's strongest argument, which
+[#21](https://github.com/abernier/claudia/issues/21) understated: it named only the three its
+own body had listed (0004, 0025, 0028). ADR-0016 is the clearest of the nine, because its text
+describes the seam before the seam had a name — _a verbatim archive written deterministically by
+a hook, and a distilled working memory written by skills._ An ADR whose subject is the boundary
+cannot be filed on one side of it.
+
+The ratio is the second argument, and it is about honesty rather than counting. **Nineteen of
+thirty-three are pure psy because for eight months the project _was_ psy.** ADR-0009 was not a
+decision about the psy domain; it was a decision about Claudia, taken when no such distinction
+existed. Filing it under `domains/psy/docs/adr/` would assert a categorisation its author never
+made. `applies-to` records the sort as **an annotation added afterwards**, which is true, rather
+than as a location, which would pretend it was always so.
+
+One partial supersession the count surfaces: **ADR-0003 carries a clause that is now false** —
+_single-plugin marketplace_ — overturned by [#18](https://github.com/abernier/claudia/issues/18).
+ADR-0035 carries the supersession; the rest of 0003 stands.
 
 **ADR-0001 is neither superseded nor edited.** Its content is unchanged and still holds wherever
 psy is active; 0040 changed where the floor lives and when it speaks. It gains a forward pointer,
