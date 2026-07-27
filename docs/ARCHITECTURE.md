@@ -73,8 +73,87 @@ Two edges are deliberately **not** drawn, because a cycle would flip the stages 
 of reading order: `③ → ②` (the next turn re-enters the safety hook) and
 `④ → ①` (the `.pending-summary` flag left at close is picked up at the _next_
 session's open — [ADR-0016](../plugin/docs/adr/0016-deferred-distillation.md)). Both live in the
-node labels instead. The memory loop they form is the subject of
-[ADR-0004](../plugin/docs/adr/0004-memory-model.md).
+node labels instead — the event view below draws them. The memory loop they form
+is the subject of [ADR-0004](../plugin/docs/adr/0004-memory-model.md).
+
+## The same session, as events
+
+The picture above is the map: who calls what. This is the tape: what fires, in
+what order, on whose lane. Same session, same four stages — but a lifeline can
+loop and come back, so the two edges the map had to leave in the labels are drawn
+here.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor P as the person
+  participant CC as Claude Code<br/>the harness
+  participant HK as hooks/*.mjs<br/>no model
+  participant C as Claudia<br/>persona + skills
+  participant V as ~/.claudia/<br/>local Markdown
+
+  rect rgba(99,102,241,0.06)
+  Note over P,V: ① open — the reliable edge of the lifecycle
+  P->>CC: opens a session
+  CC-)HK: SessionStart {source}
+  alt source = resume | compact
+    HK--)CC: additionalContext — re-assert the persona (ADR-0013)
+  else startup | clear
+    Note over HK: injects nothing — fails silent
+  end
+  P->>C: names her, or just opens up
+  activate C
+  C->>C: skills/claudia — SOUL.md + the relational spine
+  C->>HK: recall-open.mjs
+  HK->>V: pending → migrate → dashboard → settings
+  V--)HK: one compact report
+  opt a .pending-summary flag is waiting
+    C->>V: distill-session reads that transcript — the one sanctioned read
+    C->>V: writes the summary, clears the flag
+  end
+  V--)C: working memory only — person, goals, safety, themes, last summaries
+  C--)P: the greeting — she already knows who they are
+  deactivate C
+  end
+
+  rect rgba(234,88,12,0.06)
+  Note over P,V: ② + ③ — the loop the flowchart cannot draw
+  loop every turn, until close
+    P->>CC: a message
+    CC-)HK: UserPromptSubmit {prompt}
+    HK->>HK: safety-check.mjs — heuristic, then fast-model classifier<br/>fail-safe: doubt or error escalates
+    HK->>HK: time-context.mjs — gap_kind, since_last
+    HK--)C: additionalContext — never blocks the turn
+    activate C
+    alt danger flagged
+      C--)P: crisis — routes to real human help
+    else safe
+      C->>C: choose-approach — relationship-first,<br/>a modality when indicated
+      C--)P: the reply
+    end
+    opt something worth keeping
+      C->>V: remember · understand · themes · relationships · timeline · todo<br/>teach · exercise · handover · quiz · keep
+    end
+    deactivate C
+  end
+  end
+
+  rect rgba(22,163,74,0.06)
+  Note over P,V: ④ close — hooks again, no model
+  P->>CC: closes, or resumes elsewhere
+  CC-)HK: SessionEnd
+  HK->>V: save-session.mjs — verbatim transcript + a .pending-summary flag
+  HK->>V: build-dashboard.mjs
+  HK-)V: vault-backup.mjs — detached
+  Note over C,V: the flag waits there — picked up at the next ① (ADR-0016)
+  end
+```
+
+Three things the lanes make plain that the map does not. `Claude Code` carries
+lifecycle events only — the conversation never routes through a hook. `hooks/*.mjs`
+runs at both edges and once per turn, always without the model, and its per-turn
+output is context, never a veto. And every arrow that ends anywhere ends in
+`~/.claudia/` — including the last one, which the _next_ open reads back.
 
 ## The five load-bearing decisions
 
