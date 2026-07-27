@@ -117,8 +117,10 @@ marketplace entry at the repo root:
 
 2. `npm run release:version` — bumps `package.json` + writes `CHANGELOG.md`, then
    syncs the version into both manifests (`scripts/sync-version.mjs`).
-3. Review, commit, push. Tag the release: `claude plugin tag` (creates
-   `claudia--vX.Y.Z`), then `git push --tags`.
+3. Review, commit, push. Tag the release: **`claude plugin tag plugin --push`**
+   (creates `claudia--vX.Y.Z` and pushes it). The path argument is required —
+   the manifest lives under `plugin/` now, and a bare `claude plugin tag` looks
+   for `.claude-plugin/plugin.json` at the repo root and fails.
 
 Pushing the tag triggers `.github/workflows/release.yml`, which publishes the
 GitHub Release automatically — titled `vX.Y.Z`, with the notes taken
