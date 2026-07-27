@@ -707,26 +707,35 @@ on any of it.
    and reported `+ 1 dependency: chas`. A dependency on a plugin that does not exist installs
    silently; the error surfaces only afterwards, as an `errors[]` entry in `plugin list --json`.
    `claude plugin uninstall` of a depended-on plugin succeeds with a warning.
-2. **An unknown field in `plugin.json` is tolerated at runtime and fails `claude plugin validate
+2. **Auto-install works inside a marketplace, never across one.** A bare name is resolved as
+   `<name>@<the declaring plugin's own marketplace>`: a domain in marketplace `B` declaring
+   `["claudia-chassis"]` looks for `claudia-chassis@B` and reports it missing. The qualified forms
+   `name@marketplace` and `name@marketplace@range` **address the right target and still do not
+   install it**, even with that marketplace added. So `psy@claudia` is unaffected — both entries
+   share the `claudia` marketplace, and the one-command install holds — but a **third-party domain
+   published from its own marketplace cannot bring the chassis with it.** Its `dependencies` entry
+   becomes documentation plus an `errors[]` line, and its install instructions are four commands,
+   not one. This is the first place third-party distribution costs more than the in-repo case.
+3. **An unknown field in `plugin.json` is tolerated at runtime and fails `claude plugin validate
 --strict`** — documented for CI use. `keywords`, `displayName`, `homepage`, `repository`,
    `license` are recognized; `category` belongs in the marketplace entry.
-3. **`userConfig` cannot express a closed value set.** Entries are
+4. **`userConfig` cannot express a closed value set.** Entries are
    `{type: "string"|"number"|"boolean"|"directory"|"file", title, description, default?, required?}`;
    `enum` is rejected. It is also stored per install, outside the vault — not backed up, not
    migrated, not exported.
-4. **`plugin list --json` does not carry the description.** Read
+5. **`plugin list --json` does not carry the description.** Read
    `<installPath>/.claude-plugin/plugin.json`. Cost measured at 0.39–0.41 s, once per session.
    `list --available --json` _does_ carry the marketplace entry's description.
-5. **A mid-session mount takes effect on `/reload-plugins`; an enablement never does.** The flag is
+6. **A mid-session mount takes effect on `/reload-plugins`; an enablement never does.** The flag is
    resolved at session start and cached, both ways. All four component types move together — no
    partial load.
-6. **`SessionStart` never fires for a mid-session mount**, and **`/reload-plugins` does not exist
+7. **`SessionStart` never fires for a mid-session mount**, and **`/reload-plugins` does not exist
    outside the TUI** — so there is no programmatic reload, and for any non-interactive path
    mounting stays restart-level.
-7. **No manifest field can point outside the plugin root.** `..` is rejected as traversal, absolute
+8. **No manifest field can point outside the plugin root.** `..` is rejected as traversal, absolute
    paths and `~` as invalid, and `${CLAUDE_PLUGIN_ROOT}` is taken literally — it is an _output_,
    never an input to the component scan.
-8. **`claude plugin eval` targets a plugin** and reads `evals/**/case.yaml` relative to it, with
+9. **`claude plugin eval` targets a plugin** and reads `evals/**/case.yaml` relative to it, with
    `--ablation with-without` running a no-plugin baseline arm by default.
 
 ---
