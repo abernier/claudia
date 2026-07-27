@@ -11,6 +11,8 @@ adapts to the person in front of her.
 > substitute for professional care or emergency services. She rests on a
 > non-negotiable [safety floor](docs/adr/0001-safety-floor.md).
 
+[![Install from the Claude plugin directory](https://img.shields.io/badge/install-Claude%20plugin%20directory-D97757?logo=claude&logoColor=white)](https://claude.ai/directory/plugins/claudia%40claudia)
+
 <!-- demo-badge: paste the asciinema badge printed by `npm run demo:publish` here
      (a ~2-min session with a fictional person — how continuity, /dashboard and
      the local vault actually feel). Keep this comment for the next re-shoot. -->

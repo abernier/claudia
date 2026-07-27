@@ -8,6 +8,8 @@ and emotional support, distributed as an installable Claude Code plugin.
   shows on her card.
 - **The landing** — <https://claudia-site-theta.vercel.app>
 
+[![Install from the Claude plugin directory](https://img.shields.io/badge/install-Claude%20plugin%20directory-D97757?logo=claude&logoColor=white)](https://claude.ai/directory/plugins/claudia%40claudia)
+
 This file is for whoever works on the repo.
 
 ## Layout
