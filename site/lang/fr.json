@@ -4,7 +4,7 @@
   "nav.github": "GitHub",
   "hero.badge": "opensource · local",
   "hero.title": "Une écoute, en plugin Claude Code",
-  "hero.subtitle": "Un toolkit de skills, de commands et de hooks autour d'une mémoire Markdown qu'elle écrit elle-même.",
+  "hero.subtitle": "Un toolkit de skills, de commands et de hooks autour d'une mémoire Markdown qu'elle distille et réécrit elle-même.",
   "hero.demoCaption": "revoir sur asciinema",
   "hero.copy": "Copier les commandes d'installation",
   "hero.copied": "Copié !",

@@ -37,9 +37,10 @@ notes. No command is typed at any point._
   and memory controls, three pull-only orientation aids, and one to keep a sentence
   that landed. Everything therapeutic happens in ordinary conversation. See
   [ADR-0003](docs/adr/0003-plugin-runtime-shape.md).
-- **A self-editing Markdown memory.** A toolkit of skills, commands and hooks
-  around a vault Claudia writes herself, conversation after conversation — not an
-  ingested corpus. `recall` reads it back by path: no embeddings, no vector store,
+- **A Markdown memory she distills herself.** A toolkit of skills, commands and
+  hooks around a vault Claudia writes, conversation after conversation — not an
+  ingested corpus. What `recall` reads back is the distilled layer, never the
+  verbatim transcript, and it reads by path: no embeddings, no vector store,
   nothing to reindex, and every file she loads is one you can open and correct.
   See [ADR-0004](docs/adr/0004-memory-model.md).
 - **Your data, your machine.** Memory lives under `~/.claudia/` on your own
