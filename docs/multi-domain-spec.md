@@ -877,4 +877,49 @@ Not decisions — things this spec leaves for whoever executes:
   resolves downward: psy is active everywhere, and the archive swallows the dev half. With a
   `{dev}` domain it would resolve upward, at the price of a deliberate `/clear`. Neither is
   specified.
+
+### Found by building `{running}` on paper
+
+The spec was read back as a second domain's author would read it — folder, manifest, contract,
+soul, hooks, skills, artifact root, migrations, first session. Eight places do not answer.
+**Seven are missing recipes for decisions already made; one is a missing decision.**
+
+Blocking — a domain cannot be written without an answer:
+
+1. **How a hook learns its own domain name.** Every domain hook reads `.active/<session-id>` on
+   every turn and compares it to its own name, and nothing says where that name comes from: a
+   hardcoded string, a read of `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`, or the cache
+   path's basename (fragile — it is `…/<name>/<version>/`). This is the most-executed line in the
+   whole contract, so it is also a cost decision.
+2. **How a skill refuses while inactive.** §III calls it contract rather than mechanism, but a
+   skill is Markdown and cannot read a file. The options are prose instructing the model to
+   check, or the domain's own `SessionStart` hook injecting _you are inactive_ into context — the
+   only reliable one, and it is not mentioned. Without a recipe the clause is decorative.
+3. **The migration registry across two plugins.** _(the missing decision)_ The chassis owns the
+   runner and the registry; the domain owns the modules; `src/migrations/index.mjs` imports them
+   by relative path. After the split they sit in another plugin's cache. A dynamic `import()` of
+   an absolute path would work — the chassis has `installPath` — but nobody decided it, and it
+   quietly reverses the direction of _code_ access relative to the packaging arrow.
+
+Real, not blocking:
+
+4. **The overlay rule has no mechanism.** _A filename the toolkit root also ships is an overlay,
+   every other filename is a note_ requires comparing the artifact root's filenames against the
+   toolkit root's. If the chassis does that comparison it must enumerate the domain's shipped
+   files, which is close to reading the note.
+5. **The current `contract` value is never stated as a rule** — `1` appears only in an example.
+   A domain author needs _the chassis at version X ships contract N_ and somewhere to look it up.
+   And the first bump makes every existing domain ineligible at once, silently: the contract has
+   no migration story of its own.
+6. **`sessionMarker` for a domain with no persona.** Optional or not? Absent probably means
+   nothing is ever archived, which is likely right and is not written down.
+7. **Who creates the artifact root, and when** — the chassis at first activation, or the domain
+   at first write.
+8. **`coreFiles: []`** must be legal for a new domain and must not trip the integrity alarm.
+
+Two things were expected to break and hold: **settings keys collide safely** (each domain
+declares and validates its own closed set, and one vault-root line feeds both), and **installing
+a second domain does not disturb an existing seed**. And one accepted bet comes due: §IX refused
+to split the demo rig because it had one client — a second domain is the second client.
+
 - **`dependencies` semver on other platforms.** Measured on macOS only, one CLI version.
