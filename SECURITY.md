@@ -15,7 +15,7 @@ your local emergency number or a crisis line (see the README).
 ## Reporting a vulnerability or a safety concern
 
 - **Sensitive issues** (a security vulnerability, or a way to make Claudia give
-  unsafe guidance, bypass the [safety floor](docs/adr/0001-safety-floor.md), or
+  unsafe guidance, bypass the [safety floor](plugin/docs/adr/0001-safety-floor.md), or
   mishandle a crisis): please use **GitHub's private vulnerability reporting**
   ("Security" tab → "Report a vulnerability") so it isn't disclosed publicly
   before it can be addressed.
@@ -34,4 +34,4 @@ harmful content.
   be a human or a licensed professional.
 - Exposure, leakage, or unintended upload of a person's local `~/.claudia/` data.
 
-These map directly to the non-negotiable [safety floor](docs/adr/0001-safety-floor.md).
+These map directly to the non-negotiable [safety floor](plugin/docs/adr/0001-safety-floor.md).

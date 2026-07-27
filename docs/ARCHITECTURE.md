@@ -1,8 +1,8 @@
 # Architecture
 
 How Claudia is put together, and why. This is the durable overview; the binding
-decisions live as ADRs in [`docs/adr/`](adr/), the vocabulary in
-[`CONTEXT.md`](../CONTEXT.md).
+decisions live as ADRs in [`docs/adr/`](../plugin/docs/adr/), the vocabulary in
+[`CONTEXT.md`](../plugin/CONTEXT.md).
 
 ## The shape in one picture
 
@@ -72,29 +72,29 @@ flowchart TB
 Two edges are deliberately **not** drawn, because a cycle would flip the stages out
 of reading order: `③ → ②` (the next turn re-enters the safety hook) and
 `④ → ①` (the `.pending-summary` flag left at close is picked up at the _next_
-session's open — [ADR-0016](adr/0016-deferred-distillation.md)). Both live in the
+session's open — [ADR-0016](../plugin/docs/adr/0016-deferred-distillation.md)). Both live in the
 node labels instead. The memory loop they form is the subject of
-[ADR-0004](adr/0004-memory-model.md).
+[ADR-0004](../plugin/docs/adr/0004-memory-model.md).
 
 ## The five load-bearing decisions
 
-1. **Safety floor beneath immersion** — [ADR-0001](adr/0001-safety-floor.md).
+1. **Safety floor beneath immersion** — [ADR-0001](../plugin/docs/adr/0001-safety-floor.md).
    Immersion-first, but a small set of never/always rules is non-negotiable and
    enforced by substance + the crisis pivot, not by repeated disclaimers.
 2. **Relationship-first core, modalities on demand** —
-   [ADR-0002](adr/0002-knowledge-architecture.md). The relational spine is always
+   [ADR-0002](../plugin/docs/adr/0002-knowledge-architecture.md). The relational spine is always
    loaded; the 12+ approaches are a just-in-time library; an approach may lead
    when a specific technique is indicated (e.g. exposure for anxiety/OCD/PTSD).
 3. **Claude Code plugin runtime shape** —
-   [ADR-0003](adr/0003-plugin-runtime-shape.md). Persona is a skill (a plugin's
+   [ADR-0003](../plugin/docs/adr/0003-plugin-runtime-shape.md). Persona is a skill (a plugin's
    `CLAUDE.md` is not auto-loaded); natural-language-first with only four
    commands; per-turn safety is a deterministic hook; single-plugin marketplace.
 4. **Two-layer memory under `~/.claudia/`** —
-   [ADR-0004](adr/0004-memory-model.md). Working memory (distilled summaries, read
+   [ADR-0004](../plugin/docs/adr/0004-memory-model.md). Working memory (distilled summaries, read
    for continuity) vs the person's archive (verbatim dated transcripts, saved by
    default, local-only). Recall reads only the working layer.
 5. **English structure, person's-language experience** —
-   [ADR-0005](adr/0005-language-policy.md).
+   [ADR-0005](../plugin/docs/adr/0005-language-policy.md).
 
 ## Runtime pieces
 
@@ -102,10 +102,10 @@ node labels instead. The memory loop they form is the subject of
   spine, then conducts the conversation. Model-invoked (and available as a door).
 - **`hooks/hooks.json`** — `UserPromptSubmit` runs the safety check and the date
   context on every turn; `SessionStart` re-anchors the persona after a resume or a
-  compaction ([ADR-0013](adr/0013-persona-continuity.md)); `SessionEnd` writes the
+  compaction ([ADR-0013](../plugin/docs/adr/0013-persona-continuity.md)); `SessionEnd` writes the
   verbatim transcript plus a `.pending-summary` flag, refreshes the dashboard, and
   backs the vault up. No hook writes a summary — a hook cannot run a skill, so
-  distillation happens at the next open ([ADR-0016](adr/0016-deferred-distillation.md)).
+  distillation happens at the next open ([ADR-0016](../plugin/docs/adr/0016-deferred-distillation.md)).
 - **`skills/choose-approach/`** — selects the modality for the moment
   (relationship-first default; approach leads when indicated).
 - **`skills/crisis/`** — the structured crisis pivot, invoked when the safety
@@ -119,7 +119,7 @@ node labels instead. The memory loop they form is the subject of
 - **`src/config.mjs`** — the person's settings (`~/.claudia/config.json`): declared
   keys with closed value sets and shipped defaults — booleans plus the `language`
   enum — read by `/config`, `recall`, and the two hook scripts that carry an
-  opt-out ([ADR-0028](adr/0028-settings.md), [ADR-0029](adr/0029-mirror-language.md)).
+  opt-out ([ADR-0028](../plugin/docs/adr/0028-settings.md), [ADR-0029](../plugin/docs/adr/0029-mirror-language.md)).
 
 ## The person's data (`~/.claudia/`, never in this repo)
 
@@ -136,4 +136,4 @@ node labels instead. The memory loop they form is the subject of
     └── teachings/
 ```
 
-See [`docs/memory-layout.md`](memory-layout.md) for the full contract.
+See [`docs/memory-layout.md`](../plugin/docs/memory-layout.md) for the full contract.

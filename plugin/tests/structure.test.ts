@@ -3,10 +3,16 @@
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { gzipSync } from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+// `root` is the *plugin* root — `plugin/`, what `${CLAUDE_PLUGIN_ROOT}` resolves to
+// and what an install copies. It used to coincide with the repo root; since the
+// payload moved out of it, only repo-level things (the marketplace entry, the
+// architecture diagram, the whole-repo link sweep) still reach for `repo`.
+const root = path.join(repo, "plugin");
 
 function walk(dir: string, filter?: (p: string) => boolean): string[] {
   const out: string[] = [];
@@ -36,16 +42,63 @@ describe("manifests", () => {
     expect(m.hooks).toBeUndefined();
   });
 
-  it("marketplace.json is valid with a single-plugin './' source", () => {
-    const m: MarketplaceManifest = JSON.parse(readFileSync(path.join(root, ".claude-plugin/marketplace.json"), "utf8"));
+  it("marketplace.json is valid and sources the plugin from plugin/", () => {
+    const m: MarketplaceManifest = JSON.parse(readFileSync(path.join(repo, ".claude-plugin/marketplace.json"), "utf8"));
     expect(m.name).toBe("claudia");
     expect(m.plugins.length).toBeGreaterThan(0);
-    expect(m.plugins[0]!.source).toBe("./");
+    // `./` shipped the whole repo — the site, the demo, the tests, and a
+    // package.json the installer then ran `npm install` against (#49).
+    expect(m.plugins[0]!.source).toBe("./plugin");
   });
 
   it("hooks.json wires UserPromptSubmit + SessionEnd", () => {
     const h: HooksManifest = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
     expect(Object.keys(h.hooks)).toEqual(expect.arrayContaining(["UserPromptSubmit", "SessionEnd"]));
+  });
+});
+
+describe("the payload boundary (#49)", () => {
+  // `plugin/` is not just a folder — it is the tarball. There is no exclude
+  // mechanism anywhere in the install path (no .claudeignore, no ignorePatterns,
+  // no `files` field), so the directory is the only boundary there is. These
+  // assert its consequences, because the sorting rule itself — what addresses
+  // Claudia or the person goes down, what addresses the maintainer stays up —
+  // is not mechanically testable.
+
+  it("carries no package.json — that is what pulled 100MB of devDependencies", () => {
+    // The installer runs `npm install` at the plugin root. With package.json in
+    // the payload, every install landed vitest, typescript, prettier, husky and
+    // changesets on the person's machine. It also rules out making plugin/ an
+    // npm workspace member.
+    const found = walk(root, (p) => path.basename(p) === "package.json");
+    expect(found.map((p) => path.relative(repo, p))).toEqual([]);
+  });
+
+  it("holds no file above the installer's 50:1 compression ratio", () => {
+    // The desktop validates every zip entry against MAX_COMPRESSION_RATIO: 50 and
+    // warns on the first one over. One file in this repo trips it — the asciinema
+    // cast at 81:1 — and it lives in demo/, which stays up here. Same threshold,
+    // so this fails before a person sees an orange warning on a mental-health
+    // plugin rather than after.
+    const over = walk(root)
+      .map((p) => {
+        const raw = readFileSync(p);
+        return { rel: path.relative(repo, p), ratio: raw.length / gzipSync(raw, { level: 9 }).length };
+      })
+      .filter((f) => f.ratio > 50)
+      .map((f) => `${f.rel} (${f.ratio.toFixed(1)}:1)`);
+    expect(over).toEqual([]);
+  });
+
+  it("resolves every ${CLAUDE_PLUGIN_ROOT} path it cites — an incomplete move shows up here", () => {
+    // Twelve of thirteen scripts moved and a hook breaks at install time with
+    // nothing in the suite noticing. This is the assertion that notices.
+    const cited = new Set<string>();
+    for (const f of walk(root, (p) => p.endsWith(".md") || p.endsWith(".json")))
+      for (const m of readFileSync(f, "utf8").matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([\w./-]+)/g)) cited.add(m[1]!);
+    expect(cited.size, "the payload should cite some of its own files").toBeGreaterThan(0);
+    const missing = [...cited].filter((rel) => !existsSync(path.join(root, rel)));
+    expect(missing, `cited but absent from plugin/:\n${missing.join("\n")}`).toEqual([]);
   });
 });
 
@@ -117,7 +170,7 @@ describe("the architecture diagram stays in sync with the wiring", () => {
   // hooks.json had moved to SessionEnd and ADR-0016 had moved distillation to the
   // next open. A diagram is prose too, so tie it back to the thing it draws.
   const diagram =
-    readFileSync(path.join(root, "docs/ARCHITECTURE.md"), "utf8").match(/```mermaid\n([\s\S]*?)```/)?.[1] ?? "";
+    readFileSync(path.join(repo, "docs/ARCHITECTURE.md"), "utf8").match(/```mermaid\n([\s\S]*?)```/)?.[1] ?? "";
 
   it("pictures every hook event and every script hooks.json wires", () => {
     expect(diagram, "docs/ARCHITECTURE.md must carry a mermaid block").not.toBe("");
@@ -848,7 +901,9 @@ describe("the person's settings (ADR-0028)", () => {
 
 describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
-    const mdFiles = walk(root, (p) => p.endsWith(".md"));
+    // The whole repo, not just the payload: the move put a boundary between the
+    // ADRs and what links to them, and a link that crosses it breaks here first.
+    const mdFiles = walk(repo, (p) => p.endsWith(".md"));
     const linkRe = /\]\(([^)]+?\.md)(#[^)]*)?\)/g;
     const broken: string[] = [];
     for (const f of mdFiles) {
@@ -870,7 +925,7 @@ describe("documentation links resolve", () => {
         // template names, so fixture links are genuinely checked, not skipped.
         const onDisk = target.replace(/\{\{(TODAY-\d+)\}\}/g, "$1");
         if (!existsSync(path.resolve(path.dirname(f), onDisk))) {
-          broken.push(`${path.relative(root, f)} -> ${target}`);
+          broken.push(`${path.relative(repo, f)} -> ${target}`);
         }
       }
     }

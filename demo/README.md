@@ -68,7 +68,7 @@ That state includes **the previous take's conversation**, which
 `seed-claude-config.mjs` deletes (`.claude/projects/`, `history.jsonl`, and
 friends). Re-seeding the vault alone is not enough: transcripts live under
 `.claude/`, not `.claudia/`, and `recall`'s deferred distillation
-([ADR-0016](../docs/adr/0016-deferred-distillation.md)) would find yesterday's
+([ADR-0016](../plugin/docs/adr/0016-deferred-distillation.md)) would find yesterday's
 take on the next run and fold a summary of it into the freshly seeded vault —
 the greeting then opens on an argument the fixture never mentions.
 

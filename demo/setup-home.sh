@@ -19,7 +19,7 @@ mkdir -p "$DEMO_HOME/desk" "$DEMO_HOME/.claude/skills"
 
 # Dev-link the plugin into the fake home (same shape as scripts/dev-link.sh; no
 # marketplace install in there, so no shadowing).
-ln -sfn "$REPO" "$DEMO_HOME/.claude/skills/claudia"
+ln -sfn "$REPO/plugin" "$DEMO_HOME/.claude/skills/claudia"
 
 # The macOS login keychain is resolved via $HOME too — without this link the demo
 # claude can't reach its own credentials and asks for /login. Same user, same

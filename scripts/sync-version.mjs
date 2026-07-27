@@ -3,14 +3,16 @@
  * Keep the plugin + marketplace manifests in lockstep with package.json version.
  *
  * Changesets bumps `package.json`; a Claude Code plugin's version lives in
- * `.claude-plugin/plugin.json` (and the marketplace entry). Run this right after
- * `changeset version` — the `release:version` npm script chains them.
+ * `plugin/.claude-plugin/plugin.json` (the payload) and in the marketplace entry
+ * (which stays at the repo root, since the marketplace is the project's, not the
+ * plugin's). Run this right after `changeset version` — the `release:version`
+ * npm script chains them.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 
 /**
  * The slice of a manifest we rewrite in place — covers both
- * `.claude-plugin/plugin.json` (top-level `version`) and
+ * `plugin/.claude-plugin/plugin.json` (top-level `version`) and
  * `.claude-plugin/marketplace.json` (`plugins[0].version`).
  *
  * @typedef {object} Manifest
@@ -33,7 +35,7 @@ function patch(path, mutate) {
   console.log(`synced ${path} -> ${version}`);
 }
 
-patch(".claude-plugin/plugin.json", (j) => {
+patch("plugin/.claude-plugin/plugin.json", (j) => {
   j.version = version;
 });
 patch(".claude-plugin/marketplace.json", (j) => {

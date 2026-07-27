@@ -16,8 +16,8 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 claude plugin uninstall claudia@claudia >/dev/null 2>&1 || true
 
 mkdir -p "$HOME/.claude/skills"
-ln -sfn "$REPO" "$HOME/.claude/skills/claudia"
+ln -sfn "$REPO/plugin" "$HOME/.claude/skills/claudia"
 
-echo "✔ Linked claudia@skills-dir -> $REPO"
+echo "✔ Linked claudia@skills-dir -> $REPO/plugin"
 echo "  Edits are now live. Apply them with /reload-plugins (context) or a restart (hooks)."
 echo "  Revert with: ./scripts/dev-unlink.sh"
