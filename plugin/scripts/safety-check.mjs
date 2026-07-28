@@ -20,15 +20,18 @@ import { decide, escalationContext } from "../src/safety.mjs";
  */
 
 /**
- * @returns {Promise<string>} Hook stdin, or whatever arrived within 2s.
+ * @returns {Promise<string>} Hook stdin, or whatever arrived within the window
+ *   (2s, overridable via CLAUDIA_STDIN_TIMEOUT_MS so the race is testable
+ *   without waiting on the production clock).
  */
 function readStdin() {
+  const windowMs = Number(process.env.CLAUDIA_STDIN_TIMEOUT_MS) || 2000;
   return new Promise((resolve) => {
     let data = "";
     process.stdin.setEncoding("utf8");
     process.stdin.on("data", (c) => (data += c));
     process.stdin.on("end", () => resolve(data));
-    setTimeout(() => resolve(data), 2000);
+    setTimeout(() => resolve(data), windowMs);
   });
 }
 
