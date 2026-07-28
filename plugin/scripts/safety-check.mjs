@@ -25,7 +25,10 @@ import { decide, escalationContext } from "../src/safety.mjs";
  *   without waiting on the production clock).
  */
 function readStdin() {
-  const windowMs = Number(process.env.CLAUDIA_STDIN_TIMEOUT_MS) || 2000;
+  // Floor of 25ms: a stray tiny (or unparsable) override must not truncate the
+  // read — a screen decided on cut-off input is the one gap fail-safe can't see.
+  const override = Number(process.env.CLAUDIA_STDIN_TIMEOUT_MS);
+  const windowMs = override >= 25 ? override : 2000;
   return new Promise((resolve) => {
     let data = "";
     process.stdin.setEncoding("utf8");

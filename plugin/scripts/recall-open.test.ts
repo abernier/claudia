@@ -88,7 +88,7 @@ describe("recall-open — the one-call opening", () => {
     await expect(fs.access(path.join(root, "dashboard.md"))).resolves.toBeUndefined();
   });
 
-  it("survives a child that crashes — the failure stays the child's, not the open's", async () => {
+  it("survives a crashed detector without fabricating its verdict — 'none' is a live child's word", async () => {
     const dir = await deployedCopy();
     const root = await caughtUpVault();
     await fs.writeFile(path.join(dir, "scripts", "pending-sessions.mjs"), "process.exit(1);\n");
@@ -96,7 +96,8 @@ describe("recall-open — the one-call opening", () => {
     const r = open(dir, root);
 
     expect(r.status).toBe(0);
-    expect(r.stdout).toContain("pending: none"); // a crashed detector reads as nothing pending
-    expect(r.stdout).toContain("migration: ✓ Vault up to date");
+    expect(r.stdout).toContain("pending: unavailable"); // visible degradation, never a fake all-clear
+    expect(r.stdout).not.toContain("pending: none");
+    expect(r.stdout).toContain("migration: ✓ Vault up to date"); // the open itself still completes
   });
 });
