@@ -22,12 +22,12 @@ import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
-/** @param {string} script @returns {string} the child's stdout, "" on any failure */
+/** @param {string} script @returns {string | null} the child's stdout; null when the child is missing or crashed */
 function run(script) {
   try {
     return execFileSync("node", [path.join(here, script)], { encoding: "utf8" }).trim();
   } catch {
-    return "";
+    return null;
   }
 }
 
@@ -45,7 +45,9 @@ const settings = run("config.mjs"); // the switches that shape the voice (ADR-00
 // The first line lands exactly where narration tends to slip out — a
 // context-local reminder beats distant prose (the person never sees tool output).
 console.log("(silent open — no narration between here and your greeting)");
-console.log("pending: none");
+// A crashed detector must not read as an all-clear: "none" is a verdict only a
+// live child may render — a broken one degrades visibly instead (ADR-0016).
+console.log(pending === null ? "pending: unavailable (skipped) — a distillation may still be owed" : "pending: none");
 console.log(`migration: ${migration || "unavailable (skipped)"}`);
 console.log("settings:");
 console.log(settings || "  unavailable — shipped defaults apply");
