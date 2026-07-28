@@ -13,8 +13,6 @@ import {
   renderSettings,
   SETTINGS,
   SETTING_KEYS,
-  serializeConfig,
-  withSetting,
 } from "./config.mjs";
 
 describe("the declared settings", () => {
@@ -132,22 +130,8 @@ describe("readObject()", () => {
   });
 });
 
-describe("writing a setting", () => {
-  it("preserves every other key, including ones this version doesn't know", () => {
-    const obj = readObject('{"dashboard": false, "futureKey": "x"}');
-    expect(withSetting(obj, "emoji", true)).toEqual({ dashboard: false, futureKey: "x", emoji: true });
-  });
-
-  it("starts from nothing when there is no file", () => {
-    expect(withSetting(null, "emoji", true)).toEqual({ emoji: true });
-  });
-
-  it("serializes as a file a person can open and edit", () => {
-    const text = serializeConfig({ emoji: true });
-    expect(text).toBe('{\n  "emoji": true\n}\n');
-    expect(parseConfig(text).emoji).toBe(true); // round-trips
-  });
-});
+// The write path (withSetting + serializeConfig, preservation of unknown keys,
+// starting from no file) is pinned on disk at the seam: ../scripts/config.test.ts.
 
 describe("coerceBoolean()", () => {
   it("reads a switch the way a person types one", () => {
