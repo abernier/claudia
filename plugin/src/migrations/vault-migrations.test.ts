@@ -11,16 +11,16 @@ import { runMigrations } from "../../scripts/migrate-vault.mjs";
 
 // A compact fixture vault exercising every resolution branch.
 const fixture = (): Record<string, string> => ({
-  "MEMORY.md": "← [[MEMORY]]\n- [[Liliana]] · [[themes]] · [[etre-rabaisse]]\n",
+  "MEMORY.md": "← [[MEMORY]]\n- [[Sixtine]] · [[themes]] · [[etre-rabaisse]]\n",
   "themes.md":
     "← [[MEMORY]]\n## Candidats (vus sur [[2026-07-21-abc]])\n- **[[etre-rabaisse]]** — the wound\n- see [[the inner critic]]\n",
-  "people/Liliana.md":
+  "people/Sixtine.md":
     '---\ntype: person\nthemes: ["[[etre-rabaisse]]", "[[trust]]"]\n---\n← [[MEMORY]]\nsee [[2026-07-21-abc]] and [[Marie]]\n',
   "people/Marie.md": "# Marie\n",
-  "sessions/2026-07-21-abc.summary.md": '---\npeople: ["[[Liliana]]"]\n---\nwith [[Liliana]]\n',
-  "sessions/2026-07-21-abc.transcript.md": "verbatim [[Liliana]] stays untouched\n",
+  "sessions/2026-07-21-abc.summary.md": '---\npeople: ["[[Sixtine]]"]\n---\nwith [[Sixtine]]\n',
+  "sessions/2026-07-21-abc.transcript.md": "verbatim [[Sixtine]] stays untouched\n",
   "todo.md": "the tag `[[<date>-id>]]` at the end\n- task · [[2026-07-21-abc]]\n",
-  "themes/the inner critic.md": "sibling [[what steadies me]] · [[Liliana]] · [[2026-07-21-abc]]\n",
+  "themes/the inner critic.md": "sibling [[what steadies me]] · [[Sixtine]] · [[2026-07-21-abc]]\n",
 });
 
 describe("migration registry", () => {
@@ -45,22 +45,22 @@ describe("0001 — wikilinks → relative links", () => {
   it("resolves root files, people, and themes-index fallback", () => {
     const out = migrate(fixture());
     expect(out["MEMORY.md"]).toBe(
-      "← [MEMORY](MEMORY.md)\n- [Liliana](people/Liliana.md) · [themes](themes.md) · [etre-rabaisse](themes.md)\n",
+      "← [MEMORY](MEMORY.md)\n- [Sixtine](people/Sixtine.md) · [themes](themes.md) · [etre-rabaisse](themes.md)\n",
     );
   });
 
   it("computes paths from each file's own directory", () => {
     const out = migrate(fixture());
-    expect(out["people/Liliana.md"]).toContain("← [MEMORY](../MEMORY.md)");
-    expect(out["people/Liliana.md"]).toContain("[2026-07-21-abc](../sessions/2026-07-21-abc.summary.md)");
-    expect(out["people/Liliana.md"]).toContain("[Marie](Marie.md)");
-    expect(out["sessions/2026-07-21-abc.summary.md"]).toContain("with [Liliana](../people/Liliana.md)");
+    expect(out["people/Sixtine.md"]).toContain("← [MEMORY](../MEMORY.md)");
+    expect(out["people/Sixtine.md"]).toContain("[2026-07-21-abc](../sessions/2026-07-21-abc.summary.md)");
+    expect(out["people/Sixtine.md"]).toContain("[Marie](Marie.md)");
+    expect(out["sessions/2026-07-21-abc.summary.md"]).toContain("with [Sixtine](../people/Sixtine.md)");
   });
 
   it("flattens frontmatter list wikilinks to plain names", () => {
     const out = migrate(fixture());
-    expect(out["people/Liliana.md"]).toContain("themes: [etre-rabaisse, trust]");
-    expect(out["sessions/2026-07-21-abc.summary.md"]).toContain("people: [Liliana]");
+    expect(out["people/Sixtine.md"]).toContain("themes: [etre-rabaisse, trust]");
+    expect(out["sessions/2026-07-21-abc.summary.md"]).toContain("people: [Sixtine]");
   });
 
   it("keeps a theme slug as plain text at its define-site in themes.md", () => {
@@ -102,7 +102,7 @@ describe("0001 — wikilinks → relative links", () => {
 // pointing at sessions that never existed.
 const drifted = (): Record<string, string> => ({
   "sessions/2026-07-21-9113d5d7.summary.md":
-    "---\ntype: session\nsession: 9113d5d7\ndates: [2026-07-21, 2026-07-22]\npeople: [Liliana]\n---\n\n# Séance\n\nLe fil.\n",
+    "---\ntype: session\nsession: 9113d5d7\ndates: [2026-07-21, 2026-07-22]\npeople: [Sixtine]\n---\n\n# Séance\n\nLe fil.\n",
   "sessions/2026-07-23-042d64f7.summary.md": "# Séance — 2026-07-23 (042d64f7)\n\nSéance courte.\n",
   "sessions/2026-07-21-9113d5d7.transcript.md": "verbatim, never rewritten\n",
   "sessions/exercises/2026-07-22-un-sentiment.md":
@@ -132,7 +132,7 @@ describe("0002 — identity frontmatter", () => {
   it("leaves the judgment half and the body byte-identical", () => {
     const out = migrate0002(drifted());
     const next = out["sessions/2026-07-21-9113d5d7.summary.md"]!;
-    expect(next).toContain("people: [Liliana]");
+    expect(next).toContain("people: [Sixtine]");
     expect(next.endsWith("---\n\n# Séance\n\nLe fil.\n")).toBe(true);
   });
 
@@ -206,10 +206,10 @@ describe("runMigrations() — the fs runner", () => {
   }
 
   const withLinks = (): Record<string, string> => ({
-    "MEMORY.md": "- [[Liliana]] · [[2026-07-21-abc]]\n",
-    "people/Liliana.md": "see [[2026-07-21-abc]]\n",
-    "sessions/2026-07-21-abc.summary.md": "with [[Liliana]]\n",
-    "sessions/2026-07-21-abc.transcript.md": "verbatim [[Liliana]] stays\n",
+    "MEMORY.md": "- [[Sixtine]] · [[2026-07-21-abc]]\n",
+    "people/Sixtine.md": "see [[2026-07-21-abc]]\n",
+    "sessions/2026-07-21-abc.summary.md": "with [[Sixtine]]\n",
+    "sessions/2026-07-21-abc.transcript.md": "verbatim [[Sixtine]] stays\n",
   });
 
   const read = (root: string, rel: string): Promise<string> => fs.readFile(path.join(root, rel), "utf8");
@@ -225,7 +225,7 @@ describe("runMigrations() — the fs runner", () => {
     expect(r.status).toBe("dry");
     expect(r.changed).toContain("MEMORY.md");
     expect(r.changed).not.toContain("sessions/2026-07-21-abc.transcript.md");
-    expect(await read(root, "MEMORY.md")).toContain("[[Liliana]]"); // untouched on disk
+    expect(await read(root, "MEMORY.md")).toContain("[[Sixtine]]"); // untouched on disk
     expect(await has(root, ".migrations")).toBe(false);
   });
 
@@ -235,15 +235,15 @@ describe("runMigrations() — the fs runner", () => {
     expect(r.status).toBe("applied");
     // rewritten
     expect(await read(root, "MEMORY.md")).toBe(
-      "- [Liliana](people/Liliana.md) · [2026-07-21-abc](sessions/2026-07-21-abc.summary.md)\n",
+      "- [Sixtine](people/Sixtine.md) · [2026-07-21-abc](sessions/2026-07-21-abc.summary.md)\n",
     );
-    expect(/\[\[/.test(await read(root, "people/Liliana.md"))).toBe(false);
+    expect(/\[\[/.test(await read(root, "people/Sixtine.md"))).toBe(false);
     // transcript untouched
-    expect(await read(root, "sessions/2026-07-21-abc.transcript.md")).toBe("verbatim [[Liliana]] stays\n");
+    expect(await read(root, "sessions/2026-07-21-abc.transcript.md")).toBe("verbatim [[Sixtine]] stays\n");
     // ledger + backup — every migration it ran is recorded, in registry order
     expect((await read(root, ".migrations")).trim().split("\n")).toEqual(migrations.map((m) => m.id));
     expect(r.backup).toBeTruthy();
-    expect(await read(r.backup!, "MEMORY.md")).toContain("[[Liliana]]"); // backup keeps the original (`!` safe: toBeTruthy above)
+    expect(await read(r.backup!, "MEMORY.md")).toContain("[[Sixtine]]"); // backup keeps the original (`!` safe: toBeTruthy above)
   });
 
   it("is a no-op on the second run (ledger + idempotency)", async () => {
@@ -255,7 +255,7 @@ describe("runMigrations() — the fs runner", () => {
   });
 
   it("records pending-but-unchanged migrations without a backup (hand-migrated vault)", async () => {
-    const { root, parent } = await makeVault({ "MEMORY.md": "- [Liliana](people/Liliana.md)\n" });
+    const { root, parent } = await makeVault({ "MEMORY.md": "- [Sixtine](people/Sixtine.md)\n" });
     const r = await runMigrations({ root });
     expect(r.status).toBe("nochange");
     expect(r.backup).toBeNull();
@@ -311,7 +311,7 @@ describe("migrate-vault CLI — failure after the backup", () => {
     parents.push(parent);
     const root = path.join(parent, ".claudia");
     await fs.mkdir(root, { recursive: true });
-    await fs.writeFile(path.join(root, "MEMORY.md"), "- [[Liliana]]\n");
+    await fs.writeFile(path.join(root, "MEMORY.md"), "- [[Sixtine]]\n");
     // `.migrations` as a *directory*: readLedger tolerates it (EISDIR → empty ledger), so
     // the run proceeds — backup, rewrite — then the post-apply ledger write throws EISDIR.
     // That reproduces a failure AFTER the backup exists, mid-way through the apply path.
