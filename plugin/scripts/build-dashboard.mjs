@@ -9,8 +9,8 @@
  * summarises (the summarising already happened in the source files).
  * `safety.md` is never mirrored.
  *
- * `rebuildDashboard(root)` is exported so the migration runner can refresh the mirror
- * after applying a migration, without duplicating the read/assemble logic.
+ * `rebuildDashboard({ root })` is exported so the migration runner can refresh the
+ * mirror after applying a migration, without duplicating the read/assemble logic.
  *
  * Opt-out: `{ "dashboard": false }` in ~/.claudia/config.json (ADR-0028) — then no
  * file is written and any existing dashboard.md is removed (the opt-out must be
@@ -20,9 +20,9 @@
  */
 
 import { promises as fs } from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { isEntrypoint } from "../src/entry.mjs";
+import { resolveVaultRoot } from "../src/vault.mjs";
 import { buildDashboard, personName, sessionsForMirror } from "../src/dashboard.mjs";
 import { parseConfig } from "../src/config.mjs";
 
@@ -46,10 +46,10 @@ const read = (p) => fs.readFile(p, "utf8").catch(() => null);
  * Rebuild `<root>/dashboard.md` from the working files. Honours the opt-out and fails
  * silent (never throws). Returns true if the mirror was written, false if skipped.
  *
- * @param {string} root — the vault root (normally `~/.claudia`)
+ * @param {{ root: string }} opts — `root` is the vault root (normally `~/.claudia`)
  * @returns {Promise<boolean>}
  */
-export async function rebuildDashboard(root) {
+export async function rebuildDashboard({ root }) {
   try {
     // Nothing to mirror until the person actually has a memory here.
     try {
@@ -103,7 +103,7 @@ export async function rebuildDashboard(root) {
 }
 
 async function main() {
-  await rebuildDashboard(path.join(os.homedir(), ".claudia"));
+  await rebuildDashboard({ root: resolveVaultRoot() });
   process.exit(0);
 }
 
