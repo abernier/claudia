@@ -15,26 +15,37 @@
  */
 
 import { promises as fs } from "node:fs";
-import os from "node:os";
 import path from "node:path";
+import { isEntrypoint } from "../src/entry.mjs";
 import { pendingSessions } from "../src/pending.mjs";
+import { resolveVaultRoot } from "../src/vault.mjs";
+
+/**
+ * Stems under `<root>/sessions` still owed a distillation, oldest first.
+ * Any error — including a vault that does not exist yet — reads as "nothing
+ * pending", never as a throw.
+ *
+ * @param {{ root: string }} opts
+ * @returns {Promise<string[]>}
+ */
+export async function listPending({ root }) {
+  try {
+    return pendingSessions(await fs.readdir(path.join(root, "sessions")));
+  } catch {
+    return [];
+  }
+}
 
 /** @returns {Promise<void>} always exits 0 itself; never rejects */
 async function main() {
   try {
-    const dir = path.join(os.homedir(), ".claudia", "sessions");
-    /** @type {string[]} */
-    let names;
-    try {
-      names = await fs.readdir(dir);
-    } catch {
-      return process.exit(0); // no sessions dir yet → nothing pending
-    }
-    for (const stem of pendingSessions(names)) process.stdout.write(stem + "\n");
+    for (const stem of await listPending({ root: resolveVaultRoot() })) process.stdout.write(stem + "\n");
   } catch {
     /* fail silent */
   }
   process.exit(0);
 }
 
-main();
+// Run only when invoked directly, not on import (tests import listPending).
+// Symlink-safe — see src/entry.mjs for what comparing unresolved paths cost.
+if (isEntrypoint(import.meta.url)) main();
