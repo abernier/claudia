@@ -10,7 +10,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { spawnSync } from "node:child_process";
 import { promises as fs } from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -34,30 +33,13 @@ import {
   type ManifestEntry,
   type VaultSnapshot,
 } from "./backup.mjs";
+import { cleanupVaults, makeVault, throwawayHome } from "./vault.fixture.ts";
 
 const script = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "scripts", "vault-backup.mjs");
 
 const run = (args: string[]) => spawnSync(process.execPath, [script, ...args], { encoding: "utf8" });
 
-const tmpDirs: string[] = [];
-const tmp = async (): Promise<string> => {
-  const d = await fs.mkdtemp(path.join(os.tmpdir(), "claudia-backup-"));
-  tmpDirs.push(d);
-  return d;
-};
-
-/** A minimal but realistic vault: an index, a working file, a session, a person. */
-async function makeVault(parent: string): Promise<string> {
-  const root = path.join(parent, ".claudia");
-  await fs.mkdir(path.join(root, "sessions"), { recursive: true });
-  await fs.mkdir(path.join(root, "people"), { recursive: true });
-  await fs.writeFile(path.join(root, "MEMORY.md"), "# index\n");
-  await fs.writeFile(path.join(root, "person.md"), "notes\n");
-  await fs.writeFile(path.join(root, "safety.md"), "flags\n");
-  await fs.writeFile(path.join(root, "sessions", "2026-07-24.summary.md"), "a session\n");
-  await fs.writeFile(path.join(root, "people", "Sixtine.md"), "a fiche\n");
-  return root;
-}
+const tmp = throwawayHome;
 
 const entry = (rel: string, size = 10): ManifestEntry => ({ rel, size, sha256: "a".repeat(64) });
 const snap = (over: Partial<VaultSnapshot> = {}): VaultSnapshot => ({
@@ -74,9 +56,7 @@ const at = (now: Date, hoursAgo: number, pinned = false): ArchiveRef => {
   return { name: archiveName(date), date, pinned };
 };
 
-afterEach(async () => {
-  await Promise.all(tmpDirs.splice(0).map((d) => fs.rm(d, { recursive: true, force: true })));
-});
+afterEach(cleanupVaults);
 
 describe("what counts as the person's data", () => {
   it("ignores Finder and VCS noise, keeps everything else", () => {
