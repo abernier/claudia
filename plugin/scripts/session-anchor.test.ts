@@ -1,15 +1,15 @@
 /**
- * The persona re-anchor at its process seam (ADR-0013): a SessionStart payload
- * goes in on stdin, an identity note (or silence) comes out, and the exit code
- * is 0 no matter what — a benign layer never blocks a session from starting.
- * Spawn-based on purpose: stdin parsing and the fail-silent contract ARE
- * process semantics here. What the note says is pinned in ../src/anchor.test.ts.
+ * The persona re-anchor, one module tested at both its natures (ADR-0013):
+ * `sessionAnchor` for the decision — payload in, note or null out, direct
+ * import — and a spawn pass for the hook contract (stdin parsing, SessionStart
+ * injection, exit 0 no matter what), the hybrid rule's reserved case.
  */
 import { describe, it, expect, afterEach } from "vitest";
 import { spawnSync } from "node:child_process";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { sessionAnchor } from "./session-anchor.mjs";
 import { cleanupVaults, throwawayHome } from "../src/vault.fixture.ts";
 
 const script = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "./session-anchor.mjs");
@@ -23,65 +23,72 @@ const claudiaJsonl = line({
   message: { role: "user", content: "Base directory for this skill: /plug/skills/claudia\n# You are Claudia" },
 });
 
-const anchor = (input: string) =>
-  spawnSync(process.execPath, [script], { encoding: "utf8", input, env: { ...process.env } });
-
-/** Assert stdout carries a SessionStart injection; return its note. */
-function injected(stdout: string): string {
-  expect(stdout).not.toBe("");
-  const out = JSON.parse(stdout);
-  expect(out.hookSpecificOutput.hookEventName).toBe("SessionStart");
-  return out.hookSpecificOutput.additionalContext;
+/** Write a transcript into a throwaway home; return its path. */
+async function transcriptOf(jsonl: string): Promise<string> {
+  const p = path.join(await throwawayHome(), "session.jsonl");
+  await fs.writeFile(p, jsonl);
+  return p;
 }
 
-describe("session-anchor (SessionStart hook) — the wiring, end to end", () => {
-  it("re-anchors a resumed Claudia session", async () => {
-    const transcript = path.join(await throwawayHome(), "session.jsonl");
-    await fs.writeFile(transcript, claudiaJsonl);
-
-    const r = anchor(JSON.stringify({ source: "resume", transcript_path: transcript }));
-
-    expect(r.status).toBe(0);
-    expect(injected(r.stdout)).toContain("You are Claudia");
+describe("sessionAnchor — the decision at its interface", () => {
+  it("re-anchors a resumed Claudia session: identity, continuity, no fresh greeting", async () => {
+    const note = await sessionAnchor({
+      payload: { source: "resume", transcript_path: await transcriptOf(claudiaJsonl) },
+    });
+    expect(note).toContain("You are Claudia");
+    expect(note).toContain("has been resumed");
+    expect(note).toContain("CONTINUING");
+    expect(note).toContain("do NOT restart");
+    expect(note).toContain("not the person");
   });
 
-  it("re-anchors after compaction, naming what happened", async () => {
-    const transcript = path.join(await throwawayHome(), "session.jsonl");
-    await fs.writeFile(transcript, claudiaJsonl);
-
-    const r = anchor(JSON.stringify({ source: "compact", transcript_path: transcript }));
-
-    expect(r.status).toBe(0);
-    expect(injected(r.stdout)).toContain("compacted");
+  it("names a compaction distinctly from a resume", async () => {
+    const note = await sessionAnchor({
+      payload: { source: "compact", transcript_path: await transcriptOf(claudiaJsonl) },
+    });
+    expect(note).toContain("compacted");
+    expect(note).not.toContain("has been resumed");
   });
 
-  it("leaves a fresh startup alone, even in a Claudia session", async () => {
-    const transcript = path.join(await throwawayHome(), "session.jsonl");
-    await fs.writeFile(transcript, claudiaJsonl);
-
-    const r = anchor(JSON.stringify({ source: "startup", transcript_path: transcript }));
-
-    expect(r.status).toBe(0);
-    expect(r.stdout).toBe("");
+  it("leaves a fresh startup and a deliberate clear alone, even in a Claudia session", async () => {
+    const transcript = await transcriptOf(claudiaJsonl);
+    expect(await sessionAnchor({ payload: { source: "startup", transcript_path: transcript } })).toBeNull();
+    expect(await sessionAnchor({ payload: { source: "clear", transcript_path: transcript } })).toBeNull();
   });
 
   it("never anchors a non-Claudia (e.g. coding) session", async () => {
-    const transcript = path.join(await throwawayHome(), "session.jsonl");
-    await fs.writeFile(transcript, line({ type: "user", message: { role: "user", content: "fix the login bug" } }));
-
-    const r = anchor(JSON.stringify({ source: "resume", transcript_path: transcript }));
-
-    expect(r.status).toBe(0);
-    expect(r.stdout).toBe("");
+    const transcript = await transcriptOf(line({ type: "user", message: { role: "user", content: "fix the bug" } }));
+    expect(await sessionAnchor({ payload: { source: "resume", transcript_path: transcript } })).toBeNull();
   });
 
-  it("stays silent on a missing transcript or garbage stdin — fail-silent, exit 0", () => {
-    const gone = anchor(JSON.stringify({ source: "resume", transcript_path: "/no/such/transcript.jsonl" }));
-    expect(gone.status).toBe(0);
-    expect(gone.stdout).toBe("");
+  it("reads a missing transcript, an absent source, or an empty payload as a silent no", async () => {
+    expect(await sessionAnchor({ payload: { source: "resume", transcript_path: "/no/such/one.jsonl" } })).toBeNull();
+    expect(await sessionAnchor({ payload: {} })).toBeNull();
+  });
+});
 
-    const garbage = anchor("not json at all");
-    expect(garbage.status).toBe(0);
-    expect(garbage.stdout).toBe("");
+describe("session-anchor (SessionStart hook) — the wire", () => {
+  it("emits the SessionStart injection for a resumed Claudia session, exit 0", async () => {
+    const transcript = await transcriptOf(claudiaJsonl);
+    const r = spawnSync(process.execPath, [script], {
+      encoding: "utf8",
+      input: JSON.stringify({ source: "resume", transcript_path: transcript }),
+      env: { ...process.env },
+    });
+
+    expect(r.status).toBe(0);
+    const out = JSON.parse(r.stdout);
+    expect(out.hookSpecificOutput.hookEventName).toBe("SessionStart");
+    expect(out.hookSpecificOutput.additionalContext).toContain("You are Claudia");
+  });
+
+  it("stays silent on garbage stdin — fail-silent, exit 0", () => {
+    const r = spawnSync(process.execPath, [script], {
+      encoding: "utf8",
+      input: "not json at all",
+      env: { ...process.env },
+    });
+    expect(r.status).toBe(0);
+    expect(r.stdout).toBe("");
   });
 });
