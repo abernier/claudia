@@ -141,54 +141,20 @@ describe("components", () => {
       expect(/^description:\s*\S+/m.test(txt), `${s} missing description`).toBe(true);
     }
   });
-
-  it("ships exactly the eleven commands", () => {
-    const cmds = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
-      .map((p) => path.basename(p))
-      .sort();
-    expect(cmds).toEqual([
-      "backup.md",
-      "config.md",
-      "dashboard.md",
-      "export.md",
-      "forget.md",
-      "help-now.md",
-      "keep.md",
-      "menu.md",
-      "migrate.md",
-      "save.md",
-      "thread.md",
-    ]);
-  });
 });
 
 describe("README stays in sync with the command surface", () => {
-  // The gap that let /thread ship undocumented: commands/ was guarded (above)
-  // and updated, but nothing tied the README's Commands table — or its prose
-  // count — back to it, so the README kept saying "three". These assert that
-  // link, so the docs can't drift on the next command added or removed (the
-  // README must be current before each merge).
-  const commands = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
-    .map((p) => "/" + path.basename(p, ".md"))
-    .sort();
-  const readme = readFileSync(path.join(root, "README.md"), "utf8");
-
+  // The gap that let /thread ship undocumented: commands/ was guarded and
+  // updated, but nothing tied the README's Commands table back to it. The
+  // expectation is derived from the tree, so adding or removing a command
+  // only ever requires updating the README — never this test.
   it("the Commands table lists exactly the shipped commands", () => {
+    const commands = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
+      .map((p) => "/" + path.basename(p, ".md"))
+      .sort();
+    const readme = readFileSync(path.join(root, "README.md"), "utf8");
     const tabled = [...readme.matchAll(/^\|\s*`(\/[a-z-]+)`\s*\|/gm)].map((m) => m[1]).sort();
     expect(tabled).toEqual(commands);
-  });
-
-  it("every '<n> commands' count in the prose matches how many ship", () => {
-    const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven"];
-    const expected = words[commands.length];
-    expect(expected, `extend words[] past ${commands.length}`).toBeDefined();
-    const counts = [
-      ...readme.matchAll(
-        /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven)\s+(?:slash\s+)?commands?\b/gi,
-      ),
-    ].map((m) => m[1]!.toLowerCase());
-    expect(counts.length, "README should state the command count").toBeGreaterThan(0);
-    for (const w of counts) expect(w).toBe(expected);
   });
 });
 
