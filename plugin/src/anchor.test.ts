@@ -1,20 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { ANCHOR_SOURCES, shouldAnchor, renderAnchorContext } from "./anchor.mjs";
 
+// The gating (resume/compact anchor, startup and non-Claudia sessions do not)
+// is pinned at the process seam: ../scripts/session-anchor.test.ts. Only the
+// edges the seam does not exercise stay here.
 describe("shouldAnchor()", () => {
-  it("anchors a Claudia session that was resumed or compacted", () => {
-    expect(shouldAnchor("resume", true)).toBe(true);
-    expect(shouldAnchor("compact", true)).toBe(true);
-  });
-  it("leaves a fresh startup or a deliberate clear alone", () => {
-    expect(shouldAnchor("startup", true)).toBe(false);
+  it("leaves a deliberate clear and an unknown/absent source alone", () => {
     expect(shouldAnchor("clear", true)).toBe(false);
-  });
-  it("never anchors a non-Claudia (e.g. coding) session", () => {
-    expect(shouldAnchor("resume", false)).toBe(false);
-    expect(shouldAnchor("compact", false)).toBe(false);
-  });
-  it("ignores an unknown/absent source", () => {
     expect(shouldAnchor(undefined, true)).toBe(false);
     expect(ANCHOR_SOURCES.has("startup")).toBe(false);
   });
