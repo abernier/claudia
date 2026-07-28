@@ -16,6 +16,7 @@ import { gzipSync } from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defaults, SETTING_KEYS } from "./src/config.mjs";
+import { localDay } from "./src/time.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // `root` is the *plugin* root — `plugin/`, what `${CLAUDE_PLUGIN_ROOT}` resolves to
@@ -37,6 +38,27 @@ function walk(dir: string, filter?: (p: string) => boolean): string[] {
 }
 
 const read = (rel: string) => readFileSync(path.join(root, rel), "utf8");
+
+// Every skill and command, split into (frontmatter, body) so the allowed-tools
+// declaration itself never counts as a "use" of the tool.
+const surfaces = [
+  ...walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md")),
+  ...walk(path.join(root, "commands"), (p) => p.endsWith(".md")),
+].map((file) => {
+  const txt = readFileSync(file, "utf8");
+  const end = txt.indexOf("\n---", 3);
+  return {
+    rel: path.relative(root, file),
+    frontmatter: end === -1 ? "" : txt.slice(0, end),
+    body: end === -1 ? txt : txt.slice(end),
+  };
+});
+
+/** Surfaces that reach for `tool` in their body without declaring it in allowed-tools. */
+function undeclaredUsers(tool: string): string[] {
+  const declared = new RegExp(`^allowed-tools:.*\\b${tool}\\b`, "m");
+  return surfaces.filter((s) => s.body.includes(tool) && !declared.test(s.frontmatter)).map((s) => s.rel);
+}
 
 // Manifest shapes — only the fields these tests assert on.
 type PluginManifest = { name?: string; hooks?: unknown };
@@ -83,7 +105,7 @@ describe("install contracts", () => {
     expect(over).toEqual([]);
   });
 
-  it("resolves every ${CLAUDE_PLUGIN_ROOT} path it cites — an incomplete move shows up here", () => {
+  it("resolves every ${CLAUDE_PLUGIN_ROOT} path it cites (the thirteen-scripts move)", () => {
     // Twelve of thirteen scripts moved and a hook breaks at install time with
     // nothing in the suite noticing. This is the assertion that notices.
     const cited = new Set<string>();
@@ -115,7 +137,7 @@ describe("install contracts", () => {
       expect(g.condition, `${g.rel} should guard with isEntrypoint()`).toBe("isEntrypoint(import.meta.url)");
   });
 
-  it("every skill declares name + description frontmatter", () => {
+  it("every skill declares name + description frontmatter (the loader contract)", () => {
     const skills = walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md"));
     expect(skills.length).toBeGreaterThan(0);
     for (const s of skills) {
@@ -139,7 +161,7 @@ describe("docs stay in sync with the tree", () => {
     expect(tabled).toEqual(commands);
   });
 
-  it("the architecture diagram pictures the wiring — nothing more, nothing less", () => {
+  it("the architecture diagram pictures the wiring — nothing more, nothing less (the ADR-0016 rot)", () => {
     // The ASCII picture this replaced still advertised a `Stop` hook long after
     // hooks.json had moved to SessionEnd (ADR-0016). A diagram is prose too, so
     // both directions are derived: everything wired is pictured, everything
@@ -166,7 +188,7 @@ describe("docs stay in sync with the tree", () => {
     for (const rel of named) expect(existsSync(path.join(root, rel)), `${rel} is pictured but gone`).toBe(true);
   });
 
-  it("every relative .md link points to an existing file", () => {
+  it("every relative .md link points to an existing file (the payload move put a boundary in the middle)", () => {
     // The whole repo, not just the payload: the move put a boundary between the
     // ADRs and what links to them, and a link that crosses it breaks here first.
     const mdFiles = walk(repo, (p) => p.endsWith(".md"));
@@ -338,6 +360,10 @@ describe("decision guards", () => {
     expect(/cfg\.dashboard === false/.test(script), "refusable via config.json").toBe(true);
     // Through the declared reader, not an inline JSON.parse (ADR-0028).
     expect(/parseConfig/.test(script), "the opt-out reads the shared settings module").toBe(true);
+    expect(
+      /_Avoid_.*(dossier|profile|clinical)/i.test(read("CONTEXT.md")),
+      "the glossary de-clinicalises the mirror",
+    ).toBe(true);
   });
 
   it("ADR-0020 — migrations stay pure, backed-up-first, and quiet upkeep at recall", () => {
@@ -351,30 +377,6 @@ describe("decision guards", () => {
     const m = read("src/migrations/0001-wikilinks-to-relative.mjs");
     expect(/export function migrate/.test(m) && /idempotent/i.test(m)).toBe(true);
   });
-});
-
-// Every skill and command, split into (frontmatter, body) so the allowed-tools
-// declaration itself never counts as a "use" of the tool.
-const surfaces = [
-  ...walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md")),
-  ...walk(path.join(root, "commands"), (p) => p.endsWith(".md")),
-].map((file) => {
-  const txt = readFileSync(file, "utf8");
-  const end = txt.indexOf("\n---", 3);
-  return {
-    rel: path.relative(root, file),
-    frontmatter: end === -1 ? "" : txt.slice(0, end),
-    body: end === -1 ? txt : txt.slice(end),
-  };
-});
-
-/** Surfaces that reach for `tool` in their body without declaring it in allowed-tools. */
-function undeclaredUsers(tool: string): string[] {
-  const declared = new RegExp(`^allowed-tools:.*\\b${tool}\\b`, "m");
-  return surfaces.filter((s) => s.body.includes(tool) && !declared.test(s.frontmatter)).map((s) => s.rel);
-}
-
-describe("tool-use sweeps (derived over every surface)", () => {
   it("ADR-0024 / ADR-0026 — every tool a surface uses is declared in its allowed-tools", () => {
     // The gap at v0.9.0: `quiz` was built end-to-end on AskUserQuestion while its
     // allowed-tools said `Read Write Bash`, so the choice UI raised a permission
@@ -404,12 +406,12 @@ describe("tool-use sweeps (derived over every surface)", () => {
     expect(publishing, `nothing leaves the machine (ADR-0007):\n${publishing.join("\n")}`).toEqual([]);
     expect(/Artifact/.test(read("docs/adr/0026-showing-the-deliverable.md")), "the ADR records why").toBe(true);
   });
-});
 
-describe("decision guards (continued)", () => {
   it("ADR-0024 — buttons for decisions, open questions for exploration", () => {
     // The half that protects the therapeutic side: a menu pre-writes the answers,
-    // so the exploratory surfaces ask openly, permanently.
+    // so the exploratory surfaces ask openly, permanently. These name lists are
+    // the ADR's own enumeration — the decision itself, not a mirror of the tree —
+    // so renaming one of these skills is a change to what ADR-0024 decided.
     const exploratory = ["intake", "themes", "timeline", "relationships", "understand", "crisis"];
     for (const name of exploratory)
       expect(
@@ -528,6 +530,13 @@ describe("decision guards (continued)", () => {
       /export function serializeFrontmatter/.test(mod),
       "a general serializer would defeat the line-surgery guarantee",
     ).toBe(false);
+    // Dates stay day-grained: the day helper is the exported API, and the
+    // layout doc carries the rule sentence.
+    expect(typeof localDay, "src/time.mjs must keep exporting the day helper").toBe("function");
+    expect(
+      /never timestamps/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8")),
+      "the day-grain rule must stay written down",
+    ).toBe(true);
   });
 
   it("ADR-0028 — settings go through one module, and nothing configurable lowers the floor", () => {
