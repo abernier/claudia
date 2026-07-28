@@ -165,7 +165,7 @@ export async function runMigrations({ root, dry = false, migrations: list = migr
     await fs.writeFile(abs, /** @type {string} */ (files[rel]));
   }
   await appendLedger(root, ran);
-  await rebuildDashboard(root); // derived mirror: regenerate, never migrate in place
+  await rebuildDashboard({ root }); // derived mirror: regenerate, never migrate in place
 
   return { status: "applied", ran, changed, backup };
 }
