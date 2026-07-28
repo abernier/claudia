@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Claudia — read and change the person's settings (`~/.claudia/config.json`).
+ * Claudia — read and change the person's settings (`<root>/config.json`).
  *
  * Thin wrapper around ../src/config.mjs, driven by `/config` (ADR-0028). The write
  * path is deterministic on purpose: a model editing JSON by hand is how an unknown
@@ -15,8 +15,8 @@
  */
 
 import { promises as fs } from "node:fs";
-import os from "node:os";
 import path from "node:path";
+import { isEntrypoint } from "../src/entry.mjs";
 import {
   coerceSetting,
   isSettingKey,
@@ -29,70 +29,86 @@ import {
   showValue,
   withSetting,
 } from "../src/config.mjs";
-
-const root = path.join(os.homedir(), ".claudia");
-const file = path.join(root, "config.json");
+import { resolveVaultRoot } from "../src/vault.mjs";
 
 /** @type {(p: string) => Promise<string | null>} */
 const read = (p) => fs.readFile(p, "utf8").catch(() => null);
-
-/** @param {string} line */
-const say = (line) => process.stdout.write(line + "\n");
 
 /**
  * Change one setting, preserving every other key in the file. A file that exists but
  * cannot be parsed is copied to `config.json.bak` first — the person hand-edits this,
  * and their broken attempt may hold the intent behind it.
  *
- * @param {string} assignment - `key=value`
- * @returns {Promise<number>} process exit code
+ * @param {{ root: string, assignment: string }} opts - `assignment` is `key=value`
+ * @returns {Promise<{ code: number, lines: string[] }>}
  */
-async function set(assignment) {
+async function set({ root, assignment }) {
+  const file = path.join(root, "config.json");
+  /** @type {string[]} */
+  const lines = [];
+
   const eq = assignment.indexOf("=");
   const key = (eq === -1 ? assignment : assignment.slice(0, eq)).trim();
 
   if (!isSettingKey(key)) {
-    say(`unknown setting: ${key || "(none)"} — known settings: ${SETTING_KEYS.join(", ")}`);
-    return 1;
+    lines.push(`unknown setting: ${key || "(none)"} — known settings: ${SETTING_KEYS.join(", ")}`);
+    return { code: 1, lines };
   }
   const value = coerceSetting(key, eq === -1 ? "" : assignment.slice(eq + 1));
   if (value === null) {
     const takes = SETTINGS[key].values ? SETTINGS[key].values.join(" or ") : "on or off (true/false)";
-    say(`${key} takes ${takes} — got: ${assignment.slice(eq + 1).trim() || "(nothing)"}`);
-    return 1;
+    lines.push(`${key} takes ${takes} — got: ${assignment.slice(eq + 1).trim() || "(nothing)"}`);
+    return { code: 1, lines };
   }
 
   const raw = await read(file);
   const obj = readObject(raw);
   if (raw !== null && obj === null && raw.trim()) {
     await fs.writeFile(file + ".bak", raw).catch(() => {});
-    say(`(the existing config.json could not be read — kept a copy at ${file}.bak)`);
+    lines.push(`(the existing config.json could not be read — kept a copy at ${file}.bak)`);
   }
 
   const before = parseConfig(raw)[key];
   await fs.mkdir(root, { recursive: true });
   await fs.writeFile(file, serializeConfig(withSetting(obj, key, value)));
 
-  say(before === value ? `${key}: already ${showValue(value)}` : `${key}: ${showValue(before)} → ${showValue(value)}`);
-  say(file);
-  return 0;
+  lines.push(
+    before === value ? `${key}: already ${showValue(value)}` : `${key}: ${showValue(before)} → ${showValue(value)}`,
+  );
+  lines.push(file);
+  return { code: 0, lines };
 }
 
-/** @returns {Promise<number>} process exit code */
-async function main() {
-  const args = process.argv.slice(2);
+/**
+ * The `/config` surface at the vault seam (ADR-0035): list every setting, or change
+ * one via `--set key=value`. Returns the lines to print and the exit code; the CLI
+ * adapter below does the printing.
+ *
+ * @param {{ root: string, args?: string[] }} opts
+ * @returns {Promise<{ code: number, lines: string[] }>}
+ */
+export async function runConfig({ root, args = [] }) {
   const setIndex = args.indexOf("--set");
-  if (setIndex !== -1) return set(args[setIndex + 1] || "");
+  if (setIndex !== -1) return set({ root, assignment: args[setIndex + 1] || "" });
 
-  say(renderSettings(parseConfig(await read(file))));
-  say(file);
-  return 0;
+  const file = path.join(root, "config.json");
+  return { code: 0, lines: [renderSettings(parseConfig(await read(file))), file] };
 }
 
-main().then(
-  (code) => process.exit(code),
-  (err) => {
-    say(`could not read or write ${file}: ${err instanceof Error ? err.message : String(err)}`);
+/** @returns {Promise<void>} */
+async function main() {
+  const root = resolveVaultRoot();
+  try {
+    const { code, lines } = await runConfig({ root, args: process.argv.slice(2) });
+    for (const line of lines) process.stdout.write(line + "\n");
+    process.exit(code);
+  } catch (err) {
+    const file = path.join(root, "config.json");
+    process.stdout.write(`could not read or write ${file}: ${err instanceof Error ? err.message : String(err)}\n`);
     process.exit(1);
-  },
-);
+  }
+}
+
+// Run only when invoked directly, not on import (tests import runConfig).
+// Symlink-safe — see src/entry.mjs for what comparing unresolved paths cost.
+if (isEntrypoint(import.meta.url)) main();
