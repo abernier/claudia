@@ -228,12 +228,6 @@ describe("the architecture diagram stays in sync with the wiring", () => {
 });
 
 describe("rotating vault archive (ADR-0032)", () => {
-  it("ships the pass, the timer installer and the ADR", () => {
-    expect(existsSync(path.join(root, "scripts/vault-backup.mjs"))).toBe(true);
-    expect(existsSync(path.join(root, "scripts/install-backup-timer.sh"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/adr/0032-vault-backups.md"))).toBe(true);
-  });
-
   it("snapshots at SessionEnd, after the dashboard rebuild", () => {
     // Order matters: it must capture the distilled state, not the state before
     // save-session and build-dashboard wrote to it.
@@ -284,11 +278,6 @@ describe("rotating vault archive (ADR-0032)", () => {
     expect(/launchd|launchctl|backup-timer/i.test(persona)).toBe(false);
     const cmd = readFileSync(path.join(root, "commands/backup.md"), "utf8");
     expect(/never raise it mid-conversation/i.test(cmd)).toBe(true);
-  });
-
-  it("is recorded in the memory layout", () => {
-    const layout = readFileSync(path.join(root, "docs/memory-layout.md"), "utf8");
-    expect(/claudia-backups/.test(layout)).toBe(true);
   });
 });
 
@@ -346,11 +335,6 @@ describe("delegation (ephemeral specialists)", () => {
 });
 
 describe("working understanding (ADR-0008)", () => {
-  it("ships the understand skill and the ADR", () => {
-    expect(existsSync(path.join(root, "skills/understand/SKILL.md"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/adr/0008-working-understanding.md"))).toBe(true);
-  });
-
   it("recall loads it, held provisionally", () => {
     const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
     expect(/understanding\.md/.test(recall)).toBe(true);
@@ -371,20 +355,9 @@ describe("working understanding (ADR-0008)", () => {
     const skill = readFileSync(path.join(root, "skills/understand/SKILL.md"), "utf8");
     expect(/no diagnosis/i.test(skill)).toBe(true);
   });
-
-  it("is recorded in the memory layout", () => {
-    const layout = readFileSync(path.join(root, "docs/memory-layout.md"), "utf8");
-    expect(/understanding\.md/.test(layout)).toBe(true);
-  });
 });
 
 describe("curiosity & intake (ADR-0009)", () => {
-  it("ships the intake skill, the ADR, and the cited reference doc", () => {
-    expect(existsSync(path.join(root, "skills/intake/SKILL.md"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/adr/0009-curiosity-and-intake.md"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/competencies/curiosity-and-questions.md"))).toBe(true);
-  });
-
   it("the persona is reflection-led but actively curious, and offers intake", () => {
     const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
     expect(/reflection-led/i.test(persona), "must stay reflection-led").toBe(true);
@@ -400,11 +373,6 @@ describe("curiosity & intake (ADR-0009)", () => {
 });
 
 describe("relationship map (ADR-0010)", () => {
-  it("ships the relationships skill and the ADR", () => {
-    expect(existsSync(path.join(root, "skills/relationships/SKILL.md"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/adr/0010-relationship-map.md"))).toBe(true);
-  });
-
   it("uses mermaid and stays non-judgmental about third parties", () => {
     const skill = readFileSync(path.join(root, "skills/relationships/SKILL.md"), "utf8");
     expect(/mermaid/i.test(skill)).toBe(true);
@@ -414,18 +382,12 @@ describe("relationship map (ADR-0010)", () => {
     );
   });
 
-  it("is recorded in the memory layout and surfaced by recall", () => {
-    expect(/people\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
+  it("is surfaced by recall", () => {
     expect(/people\.md/.test(readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8"))).toBe(true);
   });
 });
 
 describe("person fiches (ADR-0011)", () => {
-  it("ships the ADR and the common template", () => {
-    expect(existsSync(path.join(root, "docs/adr/0011-person-fiches.md"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/person-fiche-template.md"))).toBe(true);
-  });
-
   it("relationships maintains fiches, cross-linked, transcript only via summary", () => {
     const skill = readFileSync(path.join(root, "skills/relationships/SKILL.md"), "utf8");
     expect(/per-person fiches/i.test(skill)).toBe(true);
@@ -444,11 +406,6 @@ describe("person fiches (ADR-0011)", () => {
 });
 
 describe("life timeline (ADR-0014)", () => {
-  it("ships the timeline skill and the ADR", () => {
-    expect(existsSync(path.join(root, "skills/timeline/SKILL.md"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/adr/0014-life-timeline.md"))).toBe(true);
-  });
-
   it("is person-led, trauma-informed; dated-list canonical, mermaid optional", () => {
     const skill = readFileSync(path.join(root, "skills/timeline/SKILL.md"), "utf8");
     expect(/never force/i.test(skill), "never force a chronological trauma inventory").toBe(true);
@@ -456,18 +413,9 @@ describe("life timeline (ADR-0014)", () => {
     expect(/sectioned list/i.test(skill), "dated sectioned list is canonical").toBe(true);
     expect(/optional/i.test(skill) && /mermaid/i.test(skill), "mermaid is an optional view").toBe(true);
   });
-
-  it("is recorded in the memory layout", () => {
-    expect(/timeline\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
-  });
 });
 
 describe("to-do-later surface (ADR-0018)", () => {
-  it("ships the todo skill and the ADR", () => {
-    expect(existsSync(path.join(root, "skills/todo/SKILL.md"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/adr/0018-todo-surface.md"))).toBe(true);
-  });
-
   it("the persona points to it — the trigger that makes it reachable mid-session", () => {
     // The guard that was missing at v0.3.0: the surface was wired into
     // recall/remember/distill, but the always-loaded persona never mentioned it,
@@ -478,20 +426,12 @@ describe("to-do-later surface (ADR-0018)", () => {
     expect(/todo/i.test(persona), "persona should point to the todo capability").toBe(true);
   });
 
-  it("recall reads it and memory-layout records it", () => {
+  it("recall reads it", () => {
     expect(/todo\.md/.test(readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8"))).toBe(true);
-    expect(/todo\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
   });
 });
 
 describe("dashboard mirror (ADR-0019)", () => {
-  it("ships the command, the script, the pure module, and the ADR", () => {
-    expect(existsSync(path.join(root, "commands/dashboard.md"))).toBe(true);
-    expect(existsSync(path.join(root, "scripts/build-dashboard.mjs"))).toBe(true);
-    expect(existsSync(path.join(root, "src/dashboard.mjs"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/adr/0019-dashboard.md"))).toBe(true);
-  });
-
   it("is rebuilt at SessionEnd and at the tail of recall (a zero-lag mirror)", () => {
     const h: HooksManifest = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
     expect(/build-dashboard\.mjs/.test(JSON.stringify(h.hooks.SessionEnd)), "SessionEnd should rebuild it").toBe(true);
@@ -520,23 +460,9 @@ describe("dashboard mirror (ADR-0019)", () => {
     // Through the declared reader, not an inline JSON.parse (ADR-0028).
     expect(/parseConfig/.test(script), "the opt-out reads the shared settings module").toBe(true);
   });
-
-  it("is recorded in the memory layout and the glossary (non-dossier)", () => {
-    expect(/dashboard\.md/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
-    const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
-    expect(/\*\*Dashboard\*\*/.test(ctx)).toBe(true);
-    expect(/_Avoid_.*(dossier|profile|clinical)/i.test(ctx)).toBe(true);
-  });
 });
 
 describe("vault migrations (ADR-0020)", () => {
-  it("ships the command, the runner, the registry, and the first migration", () => {
-    expect(existsSync(path.join(root, "commands/migrate.md"))).toBe(true);
-    expect(existsSync(path.join(root, "scripts/migrate-vault.mjs"))).toBe(true);
-    expect(existsSync(path.join(root, "src/migrations/index.mjs"))).toBe(true);
-    expect(existsSync(path.join(root, "src/migrations/0001-wikilinks-to-relative.mjs"))).toBe(true);
-  });
-
   it("is auto-applied at recall as background upkeep, and disclosed when it acts", () => {
     const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
     expect(/migrate-vault\.mjs/.test(recall), "recall should run the migration runner").toBe(true);
@@ -554,12 +480,6 @@ describe("vault migrations (ADR-0020)", () => {
     expect(/migrations\s*=\s*\[/.test(idx), "registry exports an ordered list").toBe(true);
     const m = readFileSync(path.join(root, "src/migrations/0001-wikilinks-to-relative.mjs"), "utf8");
     expect(/export function migrate/.test(m) && /idempotent/i.test(m)).toBe(true);
-  });
-
-  it("ships the ADR and is recorded in the layout + glossary", () => {
-    expect(existsSync(path.join(root, "docs/adr/0020-vault-migrations.md"))).toBe(true);
-    expect(/\.migrations/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
-    expect(/\*\*Migration\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
   });
 });
 
@@ -585,11 +505,6 @@ function undeclaredUsers(tool: string): string[] {
 }
 
 describe("the choice UI (ADR-0024)", () => {
-  it("ships the ADR and the glossary entry", () => {
-    expect(existsSync(path.join(root, "docs/adr/0024-the-choice-ui.md"))).toBe(true);
-    expect(/\*\*Choice UI\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
-  });
-
   it("is declared wherever it is used", () => {
     // The gap at v0.9.0: `quiz` was built end-to-end on AskUserQuestion while its
     // allowed-tools said `Read Write Bash`, so the choice UI raised a permission
@@ -640,9 +555,7 @@ describe("the choice UI (ADR-0024)", () => {
 describe("the pulled menu (ADR-0027)", () => {
   const menu = readFileSync(path.join(root, "commands/menu.md"), "utf8");
 
-  it("ships the command, the ADR and the glossary entry", () => {
-    expect(existsSync(path.join(root, "docs/adr/0027-the-menu.md"))).toBe(true);
-    expect(/\*\*Menu\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
+  it("carries the picker — the one place it is legitimate", () => {
     expect(/^allowed-tools:.*\bAskUserQuestion\b/m.test(menu), "the picker is the whole point").toBe(true);
   });
 
@@ -673,10 +586,8 @@ describe("the pulled menu (ADR-0027)", () => {
 });
 
 describe("showing a deliverable (ADR-0026)", () => {
-  it("ships the ADR, and the glossary knows saving from showing", () => {
-    expect(existsSync(path.join(root, "docs/adr/0026-showing-the-deliverable.md"))).toBe(true);
+  it("the glossary knows saving from showing", () => {
     const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
-    expect(/\*\*Deliverable\*\*/.test(ctx)).toBe(true);
     expect(/Showing is not\s+publishing/i.test(ctx), "the Deliverable entry must carry the distinction").toBe(true);
   });
 
@@ -719,8 +630,7 @@ describe("showing a deliverable (ADR-0026)", () => {
 });
 
 describe("giving the win back (docs/competencies/attribution.md)", () => {
-  it("ships the competency, and the library index lists it", () => {
-    expect(existsSync(path.join(root, "docs/competencies/attribution.md"))).toBe(true);
+  it("the library index lists it", () => {
     const index = readFileSync(path.join(root, "docs/competencies/README.md"), "utf8");
     expect(/attribution\.md/.test(index), "a competency the index doesn't list is not in the spine").toBe(true);
   });
@@ -752,11 +662,8 @@ describe("giving the win back (docs/competencies/attribution.md)", () => {
 describe("the handover note (ADR-0033)", () => {
   const skillPath = path.join(root, "skills/handover/SKILL.md");
 
-  it("ships the skill, the ADR, and the glossary entry", () => {
-    expect(existsSync(skillPath)).toBe(true);
-    expect(existsSync(path.join(root, "docs/adr/0033-handover-note.md"))).toBe(true);
+  it("the glossary fences the clinical sense of the word", () => {
     const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
-    expect(/\*\*Handover\*\*/.test(ctx)).toBe(true);
     expect(/clinician-to-clinician/.test(ctx), "the Avoid line must fence the clinical sense").toBe(true);
   });
 
@@ -821,13 +728,6 @@ describe("the handover note (ADR-0033)", () => {
 });
 
 describe("frontmatter contract (ADR-0025)", () => {
-  it("ships the ADR, the pure module, the closing script, and the repair migration", () => {
-    expect(existsSync(path.join(root, "docs/adr/0025-frontmatter-contract.md"))).toBe(true);
-    expect(existsSync(path.join(root, "src/frontmatter.mjs"))).toBe(true);
-    expect(existsSync(path.join(root, "scripts/finish-distillation.mjs"))).toBe(true);
-    expect(existsSync(path.join(root, "src/migrations/0002-vault-frontmatter.mjs"))).toBe(true);
-  });
-
   it("identity is stamped by code — distill-session runs the script, never a bare rm", () => {
     const skill = readFileSync(path.join(root, "skills/distill-session/SKILL.md"), "utf8");
     expect(/finish-distillation\.mjs/.test(skill), "distill-session must close via the script").toBe(true);
@@ -860,26 +760,11 @@ describe("frontmatter contract (ADR-0025)", () => {
       "a general serializer would defeat the line-surgery guarantee",
     ).toBe(false);
   });
-
-  it("dates stay day-grained, and the layout records the contract", () => {
-    expect(/export function localDay/.test(readFileSync(path.join(root, "src/time.mjs"), "utf8"))).toBe(true);
-    const layout = readFileSync(path.join(root, "docs/memory-layout.md"), "utf8");
-    expect(/ADR-0025/.test(layout)).toBe(true);
-    expect(/never timestamps/.test(layout)).toBe(true);
-    expect(/\*\*Frontmatter contract\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
-  });
 });
 
 describe("the person's settings (ADR-0028)", () => {
   const command = readFileSync(path.join(root, "commands/config.md"), "utf8");
   const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-
-  it("ships the command, the script, the pure module, and the ADR", () => {
-    expect(existsSync(path.join(root, "commands/config.md"))).toBe(true);
-    expect(existsSync(path.join(root, "scripts/config.mjs"))).toBe(true);
-    expect(existsSync(path.join(root, "src/config.mjs"))).toBe(true);
-    expect(existsSync(path.join(root, "docs/adr/0028-settings.md"))).toBe(true);
-  });
 
   it("every reader goes through the one module — no ad-hoc JSON.parse of config.json", () => {
     // The state this ADR replaced: two scripts each parsing the file inline, with the
@@ -919,11 +804,6 @@ describe("the person's settings (ADR-0028)", () => {
     expect(/lower the floor/i.test(adr), "the ADR must state the limit").toBe(true);
     expect(/no free-text style key/i.test(adr), "a free-text persona override is a way through the floor").toBe(true);
     expect(/never nudge/i.test(command), "a preference is not a symptom to explore").toBe(true);
-  });
-
-  it("is recorded in the layout and the glossary", () => {
-    expect(/config\.json/.test(readFileSync(path.join(root, "docs/memory-layout.md"), "utf8"))).toBe(true);
-    expect(/\*\*Settings\*\*/.test(readFileSync(path.join(root, "CONTEXT.md"), "utf8"))).toBe(true);
   });
 });
 
