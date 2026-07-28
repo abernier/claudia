@@ -6,6 +6,7 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { defaults, SETTING_KEYS } from "./src/config.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // `root` is the *plugin* root — `plugin/`, what `${CLAUDE_PLUGIN_ROOT}` resolves to
@@ -228,8 +229,7 @@ describe("rotating vault archive (ADR-0032)", () => {
   });
 
   it("is refusable, like every other copy the plugin keeps", () => {
-    const cfg = readFileSync(path.join(root, "src/config.mjs"), "utf8");
-    expect(/^\s+backups: \{/m.test(cfg)).toBe(true);
+    expect([...SETTING_KEYS], "backups must be a declared setting (ADR-0028)").toContain("backups");
   });
 
   it("is disclosed inside the existing first-run breath, not as its own prompt", () => {
@@ -752,9 +752,7 @@ describe("the person's settings (ADR-0028)", () => {
     // Config is read at recall; the persona is loaded always. Putting the rule there
     // means a session that never reads the file still writes plainly — the fail-safe
     // direction, since the setting only ever *loosens* it.
-    expect(/emoji:\s*\{\s*\n\s*default:\s*false/.test(readFileSync(path.join(root, "src/config.mjs"), "utf8"))).toBe(
-      true,
-    );
+    expect(defaults().emoji, "emoji defaults off — the setting only ever loosens the register").toBe(false);
     expect(/without emoji/i.test(persona), "the persona must carry the register rule").toBe(true);
     expect(/emoji/i.test(readFileSync(path.join(root, "SOUL.md"), "utf8")), "and the soul, as congruence").toBe(true);
   });
