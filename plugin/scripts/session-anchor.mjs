@@ -75,16 +75,16 @@ function renderAnchorContext(source) {
 export async function sessionAnchor({ payload, home = os.homedir() }) {
   try {
     // Cheap short-circuit before any I/O: only resume/compact can strand a
-    // persona. Cast: Set#has demands `string`, but an absent source is a
-    // legitimate input — it is simply never in the set.
-    if (!ANCHOR_SOURCES.has(/** @type {string} */ (payload.source))) return null;
+    // persona. The typeof narrows once — an absent source is a legitimate
+    // input that simply never matches.
+    const source = payload.source;
+    if (typeof source !== "string" || !ANCHOR_SOURCES.has(source)) return null;
 
     const transcriptPath = resolveTranscriptPath(payload, home);
     if (!transcriptPath) return null;
 
     const jsonl = await fs.readFile(transcriptPath, "utf8");
-    // The narrowing above guarantees a string source once we are here.
-    return isClaudiaSession(jsonl) ? renderAnchorContext(/** @type {string} */ (payload.source)) : null;
+    return isClaudiaSession(jsonl) ? renderAnchorContext(source) : null;
   } catch {
     return null; // a broken read is a silent no, never a blocked session start
   }

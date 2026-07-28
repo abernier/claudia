@@ -50,3 +50,11 @@ fresh greeting, which is jarring and breaks the thread.
   ("Claudia?") to reload the skill — the same fallback as before this hook existed.
 - This is the persona counterpart to ADR-0012 (time): invariants that must outlive
   context loss belong in a hook, not in the conversation.
+
+## Amendment (2026-07-28, #62)
+
+The pair folded: `src/anchor.mjs` is gone, and `scripts/session-anchor.mjs`
+carries the whole concern — `sessionAnchor({ payload, home })` is the tested
+entry function (the entrypoint guard permits import-without-execute), while
+`shouldAnchor` dissolved into its gate and `renderAnchorContext` went internal.
+The decision above is unchanged; only the module layout moved.
