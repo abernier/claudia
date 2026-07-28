@@ -34,6 +34,9 @@ import { resolveVaultRoot } from "../src/vault.mjs";
 /** @type {(p: string) => Promise<string | null>} */
 const read = (p) => fs.readFile(p, "utf8").catch(() => null);
 
+/** @type {(root: string) => string} the settings file inside a vault */
+const configFile = (root) => path.join(root, "config.json");
+
 /**
  * Change one setting, preserving every other key in the file. A file that exists but
  * cannot be parsed is copied to `config.json.bak` first — the person hand-edits this,
@@ -43,7 +46,7 @@ const read = (p) => fs.readFile(p, "utf8").catch(() => null);
  * @returns {Promise<{ code: number, lines: string[] }>}
  */
 async function set({ root, assignment }) {
-  const file = path.join(root, "config.json");
+  const file = configFile(root);
   /** @type {string[]} */
   const lines = [];
 
@@ -91,7 +94,7 @@ export async function runConfig({ root, args = [] }) {
   const setIndex = args.indexOf("--set");
   if (setIndex !== -1) return set({ root, assignment: args[setIndex + 1] || "" });
 
-  const file = path.join(root, "config.json");
+  const file = configFile(root);
   return { code: 0, lines: [renderSettings(parseConfig(await read(file))), file] };
 }
 
@@ -103,7 +106,7 @@ async function main() {
     for (const line of lines) process.stdout.write(line + "\n");
     process.exit(code);
   } catch (err) {
-    const file = path.join(root, "config.json");
+    const file = configFile(root);
     process.stdout.write(`could not read or write ${file}: ${err instanceof Error ? err.message : String(err)}\n`);
     process.exit(1);
   }

@@ -39,8 +39,6 @@ const script = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "sc
 
 const run = (args: string[]) => spawnSync(process.execPath, [script, ...args], { encoding: "utf8" });
 
-const tmp = throwawayHome;
-
 const entry = (rel: string, size = 10): ManifestEntry => ({ rel, size, sha256: "a".repeat(64) });
 const snap = (over: Partial<VaultSnapshot> = {}): VaultSnapshot => ({
   digest: "d",
@@ -235,7 +233,7 @@ describe("readable sizes", () => {
 
 describe("the snapshot pass (scripts/vault-backup.mjs)", () => {
   it("archives the vault, verifies it, and writes a manifest beside it", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
 
@@ -256,7 +254,7 @@ describe("the snapshot pass (scripts/vault-backup.mjs)", () => {
   });
 
   it("takes no second archive when nothing changed", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
 
@@ -270,7 +268,7 @@ describe("the snapshot pass (scripts/vault-backup.mjs)", () => {
   });
 
   it("archives again once a file actually changes", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
 
@@ -287,7 +285,7 @@ describe("the snapshot pass (scripts/vault-backup.mjs)", () => {
   });
 
   it("refuses to archive an emptied vault over the history it already has", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     run([root, "--dest", dest]);
@@ -304,7 +302,7 @@ describe("the snapshot pass (scripts/vault-backup.mjs)", () => {
   });
 
   it("warns about a hard shrink but still archives it", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     run([root, "--dest", dest]);
@@ -321,7 +319,7 @@ describe("the snapshot pass (scripts/vault-backup.mjs)", () => {
   });
 
   it("honours { backups: false } — the person can refuse the copies", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     await fs.writeFile(path.join(root, "config.json"), JSON.stringify({ backups: false }));
@@ -334,7 +332,7 @@ describe("the snapshot pass (scripts/vault-backup.mjs)", () => {
   });
 
   it("stays silent and exits 0 under --quiet, whatever happens (it is a hook)", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const dest = path.join(parent, "backups");
     const missing = path.join(parent, "no-such-vault");
 
@@ -346,7 +344,7 @@ describe("the snapshot pass (scripts/vault-backup.mjs)", () => {
   });
 
   it("reports what it would do without writing anything, under --dry-run", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
 
@@ -359,7 +357,7 @@ describe("the snapshot pass (scripts/vault-backup.mjs)", () => {
 
 describe("getting the data back out", () => {
   it("restores to a new folder and leaves the live vault untouched", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     run([root, "--dest", dest]);
@@ -377,7 +375,7 @@ describe("getting the data back out", () => {
   });
 
   it("refuses to restore into a folder that already holds something", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     run([root, "--dest", dest]);
@@ -393,7 +391,7 @@ describe("getting the data back out", () => {
   });
 
   it("lists the history and reads every archive back on demand", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     run([root, "--dest", dest]);
@@ -405,7 +403,7 @@ describe("getting the data back out", () => {
   });
 
   it("calls a truncated archive broken instead of counting it as history", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     run([root, "--dest", dest]);
@@ -421,7 +419,7 @@ describe("getting the data back out", () => {
 
 describe("staying out of the way", () => {
   it("returns immediately under --detach and archives in the background", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
 
@@ -446,7 +444,7 @@ describe("staying out of the way", () => {
   });
 
   it("leaves no lock behind once it is done", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
 
@@ -461,7 +459,7 @@ describe("two triggers, one archive directory", () => {
     // The SessionEnd hook and the hourly job can fire in the same second. Both would
     // compute the same temp path (stamps are second-resolution), interleave their
     // writes, and rename the mixture into place as though it were history.
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     await fs.mkdir(dest, { recursive: true });
@@ -478,7 +476,7 @@ describe("two triggers, one archive directory", () => {
   it("breaks a lock left behind by a process that died holding it", async () => {
     // Otherwise one crash disables backups permanently — the failure mode where the
     // safety net is silently gone is exactly the one worth engineering against.
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     await fs.mkdir(dest, { recursive: true });
@@ -494,7 +492,7 @@ describe("two triggers, one archive directory", () => {
   });
 
   it("breaks a lock that has been held far too long, whatever the pid says", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     await fs.mkdir(dest, { recursive: true });
@@ -505,7 +503,7 @@ describe("two triggers, one archive directory", () => {
   });
 
   it("breaks an unparseable lock rather than jamming on it", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     await fs.mkdir(dest, { recursive: true });
@@ -515,7 +513,7 @@ describe("two triggers, one archive directory", () => {
   });
 
   it("takes no lock on a dry run — inspecting must not block a real backup", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
 
@@ -526,7 +524,7 @@ describe("two triggers, one archive directory", () => {
 
 describe("clearing the archives is the person's own move (ADR-0032)", () => {
   it("purges the whole set when explicitly asked, and only then", async () => {
-    const parent = await tmp();
+    const parent = await throwawayHome();
     const root = await makeVault(parent);
     const dest = path.join(parent, "backups");
     run([root, "--dest", dest]);
