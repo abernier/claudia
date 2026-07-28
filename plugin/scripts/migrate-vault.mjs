@@ -22,10 +22,10 @@
  * injectable to exercise registry shapes the real list does not have yet.
  */
 import { promises as fs } from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { isEntrypoint } from "../src/entry.mjs";
 import { migrations } from "../src/migrations/index.mjs";
+import { resolveVaultRoot } from "../src/vault.mjs";
 import { rebuildDashboard } from "./build-dashboard.mjs";
 
 const LEDGER = ".migrations";
@@ -188,7 +188,7 @@ function printDiffs(diffs) {
 async function main() {
   const argv = process.argv.slice(2);
   const dry = argv.includes("--dry");
-  const root = argv.find((a) => !a.startsWith("--")) || path.join(os.homedir(), ".claudia");
+  const root = argv.find((a) => !a.startsWith("--")) || resolveVaultRoot();
 
   // A failure can land mid-apply — after the backup, between file writes — so an
   // unhandled rejection here would leave the user staring at a stack trace with a
