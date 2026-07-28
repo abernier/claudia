@@ -15,6 +15,7 @@
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { isEntrypoint } from "../src/entry.mjs";
 import {
   resolveTranscriptPath,
   isClaudiaSession,
@@ -24,6 +25,7 @@ import {
 } from "../src/session.mjs";
 import { stampIdentity } from "../src/frontmatter.mjs";
 import { parseConfig } from "../src/config.mjs";
+import { resolveVaultRoot } from "../src/vault.mjs";
 
 /**
  * Read all of stdin (the hook payload). The 3s timeout resolves with whatever
@@ -52,6 +54,111 @@ function todayStamp() {
 }
 
 /**
+ * The session archive at the vault seam (ADR-0035): payload in, the transcript
+ * archived under `<root>/sessions` out. Silent skip — no vault effect at all —
+ * for anything but a real Claudia conversation.
+ *
+ * @param {{ root: string, payload: import("../src/session.mjs").TranscriptHookPayload, home?: string }} opts
+ *   `home` locates the transcript (Claude Code's own tree, not the vault)
+ * @returns {Promise<void>}
+ */
+export async function saveSession({ root, payload, home = os.homedir() }) {
+  const transcriptPath = resolveTranscriptPath(payload, home);
+
+  // One-time, non-sensitive diagnostic (field NAMES only, never content).
+  await fs
+    .writeFile(
+      path.join(os.tmpdir(), "claudia-sessionend-diag.json"),
+      JSON.stringify({ keys: Object.keys(payload), resolved: transcriptPath || null, at: todayStamp() }, null, 2),
+    )
+    .catch(() => {});
+
+  if (!transcriptPath) return;
+
+  /** @type {string} */
+  let jsonl;
+  try {
+    jsonl = await fs.readFile(transcriptPath, "utf8");
+  } catch {
+    return;
+  }
+
+  // GATE: only archive real Claudia conversations.
+  if (!isClaudiaSession(jsonl)) return;
+
+  const sessionsDir = path.join(root, "sessions");
+  await fs.mkdir(sessionsDir, { recursive: true });
+
+  // Respect the person's opt-out. parseConfig is total — an absent, empty or
+  // hand-broken file resolves to the shipped defaults rather than throwing here.
+  const cfg = parseConfig(await fs.readFile(path.join(root, "config.json"), "utf8").catch(() => null));
+  if (cfg.saveTranscripts === false) return;
+
+  const sessionId = sessionIdFrom(payload);
+  if (!sessionId) return; // can't key the archive → skip rather than mis-file
+  const shortId = sessionId.slice(0, 8); // enough to disambiguate a person's own sessions; keeps names readable
+
+  // One file per session (ADR-0017), OVERWRITTEN each close. Reuse the stem of an
+  // existing archive for this session so its first-seen date prefix stays stable
+  // across resumes (and across midnight), instead of spawning a new dated file.
+  const stamp = todayStamp();
+  const existing = (await fs.readdir(sessionsDir).catch(() => [])).find(
+    (n) => /\.transcript\.(md|jsonl)$/.test(n) && n.slice(0, n.indexOf(".transcript.")).endsWith(`-${shortId}`),
+  );
+  const stem = existing ? existing.slice(0, existing.indexOf(".transcript.")) : `${stamp}-${shortId}`;
+
+  // Deferred distillation (ADR-0016): drop the dirty-flag marker FIRST, before
+  // any transcript/asset write. The invariant: even a failed or partial archive
+  // write leaves the session flagged for distillation at the next recall — if
+  // the marker came after, a throw below would exit 0 silently and the close
+  // would never be distilled, breaking the contract exactly when it matters
+  // most. `recall` distills at the next open and clears the marker — so a
+  // session resumed after it was distilled is re-distilled, and its stale
+  // summary refreshed.
+  // The marker also CARRIES the session's identity frontmatter. These keys are facts
+  // this hook holds and the model would only be guessing at: `dates` comes from the
+  // transcript's own timestamps, so a conversation that ran past midnight reports
+  // both days exactly. `distill-session` writes the judgment half (`people`,
+  // `themes`) and `finish-distillation.mjs` stamps this block onto the summary, so
+  // identity is never re-improvised. `src/pending.mjs` keys on the marker's
+  // EXISTENCE alone, so this content is free.
+  // A transcript with no usable timestamps falls back to the stem's own date — the
+  // same rule migration 0002 applies, so both agree on the degenerate case.
+  const days = sessionDays(jsonl, Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
+  const identity = {
+    type: "session",
+    session: stem,
+    dates: days.length ? days : [/^\d{4}-\d{2}-\d{2}/.exec(stem)?.[0] ?? stamp],
+  };
+  await fs
+    .writeFile(
+      path.join(sessionsDir, `${stem}.pending-summary`),
+      stampIdentity(`needs distillation — see ADR-0016 (flagged ${stamp})\n`, identity),
+    )
+    .catch(() => {});
+
+  // Images the person pasted and documents that entered the conversation live
+  // inline in the JSONL as base64. renderMarkdown (pure) names them, links them
+  // relative to <stem>.assets/, and hands the bytes back for us to decode and
+  // write here — the core stays side-effect-free (ADR-0021). Re-extraction each
+  // close is idempotent: same names, same bytes.
+  const assetsDir = `${stem}.assets`;
+  const { markdown, assets } = renderMarkdown(jsonl, stamp, { assetsDir });
+  if (markdown) {
+    await fs.writeFile(path.join(sessionsDir, `${stem}.transcript.md`), markdown);
+    if (assets.length) {
+      const dir = path.join(sessionsDir, assetsDir);
+      await fs.mkdir(dir, { recursive: true });
+      for (const asset of assets) {
+        await fs.writeFile(path.join(dir, asset.name), Buffer.from(asset.data, "base64"));
+      }
+    }
+  } else {
+    await fs.writeFile(path.join(sessionsDir, `${stem}.transcript.jsonl`), jsonl);
+  }
+}
+
+/**
  * SessionEnd hook entrypoint. Always exits 0 — a hook must never break the host.
  * @returns {Promise<void>}
  */
@@ -67,105 +174,13 @@ async function main() {
       /* tolerate */
     }
 
-    const transcriptPath = resolveTranscriptPath(payload, os.homedir());
-
-    // One-time, non-sensitive diagnostic (field NAMES only, never content).
-    await fs
-      .writeFile(
-        path.join(os.tmpdir(), "claudia-sessionend-diag.json"),
-        JSON.stringify({ keys: Object.keys(payload), resolved: transcriptPath || null, at: todayStamp() }, null, 2),
-      )
-      .catch(() => {});
-
-    if (!transcriptPath) return process.exit(0);
-
-    /** @type {string} */
-    let jsonl;
-    try {
-      jsonl = await fs.readFile(transcriptPath, "utf8");
-    } catch {
-      return process.exit(0);
-    }
-
-    // GATE: only archive real Claudia conversations.
-    if (!isClaudiaSession(jsonl)) return process.exit(0);
-
-    const root = path.join(os.homedir(), ".claudia");
-    const sessionsDir = path.join(root, "sessions");
-    await fs.mkdir(sessionsDir, { recursive: true });
-
-    // Respect the person's opt-out. parseConfig is total — an absent, empty or
-    // hand-broken file resolves to the shipped defaults rather than throwing here.
-    const cfg = parseConfig(await fs.readFile(path.join(root, "config.json"), "utf8").catch(() => null));
-    if (cfg.saveTranscripts === false) return process.exit(0);
-
-    const sessionId = sessionIdFrom(payload);
-    if (!sessionId) return process.exit(0); // can't key the archive → skip rather than mis-file
-    const shortId = sessionId.slice(0, 8); // enough to disambiguate a person's own sessions; keeps names readable
-
-    // One file per session (ADR-0017), OVERWRITTEN each close. Reuse the stem of an
-    // existing archive for this session so its first-seen date prefix stays stable
-    // across resumes (and across midnight), instead of spawning a new dated file.
-    const stamp = todayStamp();
-    const existing = (await fs.readdir(sessionsDir).catch(() => [])).find(
-      (n) => /\.transcript\.(md|jsonl)$/.test(n) && n.slice(0, n.indexOf(".transcript.")).endsWith(`-${shortId}`),
-    );
-    const stem = existing ? existing.slice(0, existing.indexOf(".transcript.")) : `${stamp}-${shortId}`;
-
-    // Deferred distillation (ADR-0016): drop the dirty-flag marker FIRST, before
-    // any transcript/asset write. The invariant: even a failed or partial archive
-    // write leaves the session flagged for distillation at the next recall — if
-    // the marker came after, a throw below would exit 0 silently and the close
-    // would never be distilled, breaking the contract exactly when it matters
-    // most. `recall` distills at the next open and clears the marker — so a
-    // session resumed after it was distilled is re-distilled, and its stale
-    // summary refreshed.
-    // The marker also CARRIES the session's identity frontmatter. These keys are facts
-    // this hook holds and the model would only be guessing at: `dates` comes from the
-    // transcript's own timestamps, so a conversation that ran past midnight reports
-    // both days exactly. `distill-session` writes the judgment half (`people`,
-    // `themes`) and `finish-distillation.mjs` stamps this block onto the summary, so
-    // identity is never re-improvised. `src/pending.mjs` keys on the marker's
-    // EXISTENCE alone, so this content is free.
-    // A transcript with no usable timestamps falls back to the stem's own date — the
-    // same rule migration 0002 applies, so both agree on the degenerate case.
-    const days = sessionDays(jsonl, Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
-    const identity = {
-      type: "session",
-      session: stem,
-      dates: days.length ? days : [/^\d{4}-\d{2}-\d{2}/.exec(stem)?.[0] ?? stamp],
-    };
-    await fs
-      .writeFile(
-        path.join(sessionsDir, `${stem}.pending-summary`),
-        stampIdentity(`needs distillation — see ADR-0016 (flagged ${stamp})\n`, identity),
-      )
-      .catch(() => {});
-
-    // Images the person pasted and documents that entered the conversation live
-    // inline in the JSONL as base64. renderMarkdown (pure) names them, links them
-    // relative to <stem>.assets/, and hands the bytes back for us to decode and
-    // write here — the core stays side-effect-free (ADR-0021). Re-extraction each
-    // close is idempotent: same names, same bytes.
-    const assetsDir = `${stem}.assets`;
-    const { markdown, assets } = renderMarkdown(jsonl, stamp, { assetsDir });
-    if (markdown) {
-      await fs.writeFile(path.join(sessionsDir, `${stem}.transcript.md`), markdown);
-      if (assets.length) {
-        const dir = path.join(sessionsDir, assetsDir);
-        await fs.mkdir(dir, { recursive: true });
-        for (const asset of assets) {
-          await fs.writeFile(path.join(dir, asset.name), Buffer.from(asset.data, "base64"));
-        }
-      }
-    } else {
-      await fs.writeFile(path.join(sessionsDir, `${stem}.transcript.jsonl`), jsonl);
-    }
-
+    await saveSession({ root: resolveVaultRoot(), payload });
     process.exit(0);
   } catch {
     process.exit(0);
   }
 }
 
-main();
+// Run only when invoked directly, not on import (tests import saveSession).
+// Symlink-safe — see src/entry.mjs for what comparing unresolved paths cost.
+if (isEntrypoint(import.meta.url)) main();
