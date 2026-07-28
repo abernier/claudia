@@ -1,5 +1,14 @@
 /**
- * Repo integrity — the plugin's structure stays valid and its docs don't rot.
+ * Repo integrity — fitness functions, one per recorded decision.
+ *
+ * Each test guards one decision and names where it is recorded (an ADR, an
+ * issue, a competency doc). Expectations are derived from the tree wherever
+ * possible, never hardcoded. The prose assertions are deliberate: in a
+ * prompt-programmed plugin the SKILL.md prose *is* the program, so a guarded
+ * rule-sentence is source code — rewording it is a behaviour change and the
+ * failure is legitimate. Anything this file does not guard may be reworded
+ * freely; if a failure here surprises you, read the ADR the title cites
+ * before editing the assertion.
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
@@ -27,60 +36,43 @@ function walk(dir: string, filter?: (p: string) => boolean): string[] {
   return out;
 }
 
+const read = (rel: string) => readFileSync(path.join(root, rel), "utf8");
+
 // Manifest shapes — only the fields these tests assert on.
 type PluginManifest = { name?: string; hooks?: unknown };
 type MarketplaceManifest = { name?: string; plugins: Array<{ source?: string }> };
 type HooksManifest = { hooks: Record<string, unknown> };
 
-describe("manifests", () => {
-  it("plugin.json is valid and names the plugin", () => {
-    const m: PluginManifest = JSON.parse(readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"));
+describe("install contracts", () => {
+  it("the manifests honour the loader contract (#49)", () => {
+    const m: PluginManifest = JSON.parse(read(".claude-plugin/plugin.json"));
     expect(m.name).toBe("claudia");
-  });
-
-  it("plugin.json does NOT declare hooks (hooks/hooks.json is auto-discovered)", () => {
-    const m: PluginManifest = JSON.parse(readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"));
+    // hooks/hooks.json is auto-discovered; declaring it twice double-fires it.
     expect(m.hooks).toBeUndefined();
-  });
-
-  it("marketplace.json is valid and sources the plugin from plugin/", () => {
-    const m: MarketplaceManifest = JSON.parse(readFileSync(path.join(repo, ".claude-plugin/marketplace.json"), "utf8"));
-    expect(m.name).toBe("claudia");
-    expect(m.plugins.length).toBeGreaterThan(0);
+    const mk: MarketplaceManifest = JSON.parse(
+      readFileSync(path.join(repo, ".claude-plugin/marketplace.json"), "utf8"),
+    );
+    expect(mk.name).toBe("claudia");
+    expect(mk.plugins.length).toBeGreaterThan(0);
     // `./` shipped the whole repo — the site, the demo, the tests, and a
     // package.json the installer then ran `npm install` against (#49).
-    expect(m.plugins[0]!.source).toBe("./plugin");
-  });
-
-  it("hooks.json wires UserPromptSubmit + SessionEnd", () => {
-    const h: HooksManifest = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
+    expect(mk.plugins[0]!.source).toBe("./plugin");
+    const h: HooksManifest = JSON.parse(read("hooks/hooks.json"));
     expect(Object.keys(h.hooks)).toEqual(expect.arrayContaining(["UserPromptSubmit", "SessionEnd"]));
   });
-});
 
-describe("the payload boundary (#49)", () => {
-  // `plugin/` is not just a folder — it is the tarball. There is no exclude
-  // mechanism anywhere in the install path (no .claudeignore, no ignorePatterns,
-  // no `files` field), so the directory is the only boundary there is. These
-  // assert its consequences, because the sorting rule itself — what addresses
-  // Claudia or the person goes down, what addresses the maintainer stays up —
-  // is not mechanically testable.
-
-  it("carries no package.json — that is what pulled 100MB of devDependencies", () => {
-    // The installer runs `npm install` at the plugin root. With package.json in
-    // the payload, every install landed vitest, typescript, prettier, husky and
-    // changesets on the person's machine. It also rules out making plugin/ an
-    // npm workspace member.
+  it("the payload boundary holds — plugin/ is the tarball (#49)", () => {
+    // There is no exclude mechanism anywhere in the install path (no
+    // .claudeignore, no ignorePatterns, no `files` field), so the directory is
+    // the only boundary there is.
+    //
+    // No package.json: the installer runs `npm install` at the plugin root —
+    // with one in the payload, every install landed 100MB of devDependencies
+    // on the person's machine.
     const found = walk(root, (p) => path.basename(p) === "package.json");
     expect(found.map((p) => path.relative(repo, p))).toEqual([]);
-  });
-
-  it("holds no file above the installer's 50:1 compression ratio", () => {
-    // The desktop validates every zip entry against MAX_COMPRESSION_RATIO: 50 and
-    // warns on the first one over. One file in this repo trips it — the asciinema
-    // cast at 81:1 — and it lives in demo/, which stays up here. Same threshold,
-    // so this fails before a person sees an orange warning on a mental-health
-    // plugin rather than after.
+    // No file above the desktop installer's MAX_COMPRESSION_RATIO: 50 — this
+    // fails before a person sees an orange warning on a mental-health plugin.
     const over = walk(root)
       .map((p) => {
         const raw = readFileSync(p);
@@ -101,24 +93,17 @@ describe("the payload boundary (#49)", () => {
     const missing = [...cited].filter((rel) => !existsSync(path.join(root, rel)));
     expect(missing, `cited but absent from plugin/:\n${missing.join("\n")}`).toEqual([]);
   });
-});
 
-describe("scripts are reachable through a symlink", () => {
-  // Three scripts decided "run or imported?" by comparing `path.resolve(argv[1])` to
-  // `fileURLToPath(import.meta.url)`. Node resolves symlinks for the second and not the
-  // first, so on a dev install — where ${CLAUDE_PLUGIN_ROOT} IS a link — main() never
-  // ran and the script exited 0. finish-distillation stopped clearing its marker and
-  // every recall re-flagged an already-distilled session, with nothing to see anywhere.
-  const scripts = walk(path.join(root, "scripts"), (p) => p.endsWith(".mjs") && !p.endsWith(".test.mjs"));
-
-  it("none tells run from imported by comparing unresolved paths", () => {
+  it("scripts stay reachable through a symlink — isEntrypoint() everywhere (the dev-install incident)", () => {
+    // Three scripts decided "run or imported?" by comparing `path.resolve(argv[1])`
+    // to `fileURLToPath(import.meta.url)`. Node resolves symlinks for the second and
+    // not the first, so on a dev install — where ${CLAUDE_PLUGIN_ROOT} IS a link —
+    // main() never ran and the script exited 0, silently.
+    const scripts = walk(path.join(root, "scripts"), (p) => p.endsWith(".mjs") && !p.endsWith(".test.mjs"));
     const fragile = scripts
       .filter((p) => /path\.resolve\(process\.argv\[1\]\)/.test(readFileSync(p, "utf8")))
       .map((p) => path.relative(root, p));
     expect(fragile, `must use isEntrypoint() from src/entry.mjs:\n${fragile.join("\n")}`).toEqual([]);
-  });
-
-  it("the ones that are both executable and importable guard through the one shared test", () => {
     const guards = scripts.flatMap((p) =>
       [...readFileSync(p, "utf8").matchAll(/^if \((.+)\) main\(\);$/gm)].map((m) => ({
         rel: path.relative(root, p),
@@ -129,10 +114,8 @@ describe("scripts are reachable through a symlink", () => {
     for (const g of guards)
       expect(g.condition, `${g.rel} should guard with isEntrypoint()`).toBe("isEntrypoint(import.meta.url)");
   });
-});
 
-describe("components", () => {
-  it("every skill has name + description frontmatter", () => {
+  it("every skill declares name + description frontmatter", () => {
     const skills = walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md"));
     expect(skills.length).toBeGreaterThan(0);
     for (const s of skills) {
@@ -144,33 +127,28 @@ describe("components", () => {
   });
 });
 
-describe("README stays in sync with the command surface", () => {
-  // The gap that let /thread ship undocumented: commands/ was guarded and
-  // updated, but nothing tied the README's Commands table back to it. The
-  // expectation is derived from the tree, so adding or removing a command
-  // only ever requires updating the README — never this test.
-  it("the Commands table lists exactly the shipped commands", () => {
+describe("docs stay in sync with the tree", () => {
+  it("the README command table lists exactly the shipped commands (the /thread gap)", () => {
+    // The expectation is derived from commands/, so adding or removing a
+    // command only ever requires updating the README — never this test.
     const commands = walk(path.join(root, "commands"), (p) => p.endsWith(".md"))
       .map((p) => "/" + path.basename(p, ".md"))
       .sort();
-    const readme = readFileSync(path.join(root, "README.md"), "utf8");
+    const readme = read("README.md");
     const tabled = [...readme.matchAll(/^\|\s*`(\/[a-z-]+)`\s*\|/gm)].map((m) => m[1]).sort();
     expect(tabled).toEqual(commands);
   });
-});
 
-describe("the architecture diagram stays in sync with the wiring", () => {
-  // Same rot as the README's command table, one file over: the ASCII picture this
-  // replaced still advertised a `Stop` hook writing the summary, long after
-  // hooks.json had moved to SessionEnd and ADR-0016 had moved distillation to the
-  // next open. A diagram is prose too, so tie it back to the thing it draws.
-  const diagram =
-    readFileSync(path.join(repo, "docs/ARCHITECTURE.md"), "utf8").match(/```mermaid\n([\s\S]*?)```/)?.[1] ?? "";
-
-  it("pictures every hook event and every script hooks.json wires", () => {
+  it("the architecture diagram pictures the wiring — nothing more, nothing less", () => {
+    // The ASCII picture this replaced still advertised a `Stop` hook long after
+    // hooks.json had moved to SessionEnd (ADR-0016). A diagram is prose too, so
+    // both directions are derived: everything wired is pictured, everything
+    // pictured still exists.
+    const diagram =
+      readFileSync(path.join(repo, "docs/ARCHITECTURE.md"), "utf8").match(/```mermaid\n([\s\S]*?)```/)?.[1] ?? "";
     expect(diagram, "docs/ARCHITECTURE.md must carry a mermaid block").not.toBe("");
     const wired: Record<string, Array<{ hooks: Array<{ command: string }> }>> = JSON.parse(
-      readFileSync(path.join(root, "hooks/hooks.json"), "utf8"),
+      read("hooks/hooks.json"),
     ).hooks;
     for (const [event, groups] of Object.entries(wired)) {
       expect(diagram, `${event} is wired but not pictured`).toContain(event);
@@ -180,11 +158,6 @@ describe("the architecture diagram stays in sync with the wiring", () => {
           expect(diagram, `${script} is wired but not pictured`).toContain(script);
         }
     }
-  });
-
-  it("pictures nothing that no longer exists", () => {
-    // The other direction: a rename in scripts/ or skills/ leaves the picture
-    // naming a file that is gone.
     const named = new Set([
       ...[...diagram.matchAll(/\b([\w-]+\.mjs)\b/g)].map((m) => path.join("scripts", m[1]!)),
       ...[...diagram.matchAll(/\bskills\/([\w-]+)/g)].map((m) => path.join("skills", m[1]!)),
@@ -192,586 +165,7 @@ describe("the architecture diagram stays in sync with the wiring", () => {
     expect(named.size, "the diagram should name some of what it draws").toBeGreaterThan(0);
     for (const rel of named) expect(existsSync(path.join(root, rel)), `${rel} is pictured but gone`).toBe(true);
   });
-});
 
-describe("rotating vault archive (ADR-0032)", () => {
-  it("snapshots at SessionEnd, after the dashboard rebuild", () => {
-    // Order matters: it must capture the distilled state, not the state before
-    // save-session and build-dashboard wrote to it.
-    const h = readFileSync(path.join(root, "hooks/hooks.json"), "utf8");
-    const end = JSON.parse(h).hooks.SessionEnd[0].hooks.map((x: { command: string }) => x.command);
-    expect(end.at(-1)).toMatch(/vault-backup\.mjs/);
-    expect(end.at(-1)).toMatch(/--quiet/); // benign layer: never fails a session
-    expect(end.at(-1)).toMatch(/--detach/); // and never makes the person wait on one
-  });
-
-  it("/forget leaves the archives alone — a backup a routine command can destroy is not one", () => {
-    const forget = readFileSync(path.join(root, "commands/forget.md"), "utf8");
-    expect(/--purge/.test(forget), "/forget must not purge the archive set").toBe(false);
-    expect(/never touch .*claudia-backups/i.test(forget)).toBe(true);
-  });
-
-  it("/forget says what is true about the copies it does not touch", () => {
-    // The price of leaving archives alone is that the command must stop claiming a
-    // permanence it no longer delivers.
-    const forget = readFileSync(path.join(root, "commands/forget.md"), "utf8");
-    expect(/rotate out/.test(forget), "must say the older copies persist").toBe(true);
-    expect(/\/backup/.test(forget), "and where the person can clear them").toBe(true);
-  });
-
-  it("never mines an archive to undo a forgetting", () => {
-    // This behavioural rule is what makes leaving the archives alone compatible with
-    // honouring the deletion. It has to exist in both places that can reach one.
-    for (const f of ["commands/forget.md", "commands/backup.md"]) {
-      const txt = readFileSync(path.join(root, f), "utf8");
-      expect(/chose to forget/i.test(txt), `${f} must carry the never-retrieve rule`).toBe(true);
-    }
-  });
-
-  it("is refusable, like every other copy the plugin keeps", () => {
-    expect([...SETTING_KEYS], "backups must be a declared setting (ADR-0028)").toContain("backups");
-  });
-
-  it("is disclosed inside the existing first-run breath, not as its own prompt", () => {
-    const remember = readFileSync(path.join(root, "skills/remember/SKILL.md"), "utf8");
-    expect(/claudia-backups/.test(remember), "the archive must be disclosed at all").toBe(true);
-    expect(/same breath/.test(remember), "and folded into the one disclosure that exists").toBe(true);
-  });
-
-  it("keeps the background job out of the conversation", () => {
-    // A companion that asks to install system things stops feeling like a companion.
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/launchd|launchctl|backup-timer/i.test(persona)).toBe(false);
-    const cmd = readFileSync(path.join(root, "commands/backup.md"), "utf8");
-    expect(/never raise it mid-conversation/i.test(cmd)).toBe(true);
-  });
-});
-
-describe("no self-authored skills (ADR-0034)", () => {
-  // The toolkit changes under an ADR, by hand — never at runtime. These pin the
-  // withdrawal so the mechanism cannot creep back in one file at a time.
-  it("ships neither the meta-skill, the auditor, nor the quarantine", () => {
-    for (const rel of ["skills/author-skill", "agents/skill-auditor.md", "proposed-skills"])
-      expect(existsSync(path.join(root, rel)), `${rel} was withdrawn by ADR-0034`).toBe(false);
-  });
-
-  it("leaves the persona and the soul no route back to authoring", () => {
-    const soul = readFileSync(path.join(root, "SOUL.md"), "utf8");
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/author-skill|proposed-skills/.test(soul + persona), "self-extension is not a capability").toBe(false);
-  });
-
-  it("keeps ADR-0006 as a superseded record — skills/quiz came out of it", () => {
-    const adr = readFileSync(path.join(root, "docs/adr/0006-self-authoring.md"), "utf8");
-    expect(/^status: superseded by ADR-0034$/m.test(adr), "the reversal must stay traceable").toBe(true);
-    expect(existsSync(path.join(root, "skills/quiz/SKILL.md")), "quiz is an ordinary skill now").toBe(true);
-  });
-});
-
-describe("opening ritual", () => {
-  it("greets by name, checks in on a still-open thread, handles first-timers, skips resolved", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/still.?open/i.test(persona), "opening should target a still-open thread").toBe(true);
-    expect(/by name/i.test(persona), "opening should greet by name").toBe(true);
-    expect(/First time/i.test(persona), "opening should handle first-timers").toBe(true);
-    expect(/resolved/i.test(persona), "opening should not re-raise resolved threads").toBe(true);
-  });
-
-  it("recall surfaces anticipated events (follow-ups) and skips resolved ones", () => {
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
-    expect(/anticipat/i.test(recall)).toBe(true);
-    expect(/resolved/i.test(recall)).toBe(true);
-  });
-
-  it("the persona is reachable by name (model-invocation trigger)", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/names Claudia|talk to Claudia|@Claudia/i.test(persona)).toBe(true);
-  });
-});
-
-describe("delegation (ephemeral specialists)", () => {
-  it("the persona can delegate backroom work, bounded away from the relationship/crisis", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/Task/.test(persona), "persona should use the Task tool to delegate").toBe(true);
-    expect(/never delegate the relationship or a crisis/i.test(persona), "delegation must be bounded").toBe(true);
-    expect(/^allowed-tools:.*\bTask\b/m.test(persona), "Task should be pre-approved to avoid mid-session prompts").toBe(
-      true,
-    );
-  });
-});
-
-describe("working understanding (ADR-0008)", () => {
-  it("recall loads it, held provisionally", () => {
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
-    expect(/understanding\.md/.test(recall)).toBe(true);
-    expect(/provisional|hold it lightly|hypothesis/i.test(recall)).toBe(true);
-  });
-
-  it("the persona holds it lightly, reflects it back, and stays anti-dependency", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/working understanding/i.test(persona)).toBe(true);
-    expect(/does that fit/i.test(persona)).toBe(true);
-    expect(/need you.{0,8}less/i.test(persona), "must be designed against dependency").toBe(true);
-  });
-
-  it("stays out of clinical framing (glossary + skill)", () => {
-    const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
-    expect(/Working understanding/.test(ctx)).toBe(true);
-    expect(/_Avoid_.*(formulation|dossier|clinical)/i.test(ctx)).toBe(true);
-    const skill = readFileSync(path.join(root, "skills/understand/SKILL.md"), "utf8");
-    expect(/no diagnosis/i.test(skill)).toBe(true);
-  });
-});
-
-describe("curiosity & intake (ADR-0009)", () => {
-  it("the persona is reflection-led but actively curious, and offers intake", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/reflection-led/i.test(persona), "must stay reflection-led").toBe(true);
-    expect(/never three questions in a\s+row/i.test(persona), "anti-interrogation dosage").toBe(true);
-    expect(/intake/i.test(persona), "persona should offer the intake").toBe(true);
-  });
-
-  it("intake is offered (declinable) and yields to safety", () => {
-    const intake = readFileSync(path.join(root, "skills/intake/SKILL.md"), "utf8");
-    expect(/declinable/i.test(intake)).toBe(true);
-    expect(/crisis/i.test(intake)).toBe(true);
-  });
-});
-
-describe("relationship map (ADR-0010)", () => {
-  it("uses mermaid and stays non-judgmental about third parties", () => {
-    const skill = readFileSync(path.join(root, "skills/relationships/SKILL.md"), "utf8");
-    expect(/mermaid/i.test(skill)).toBe(true);
-    expect(/non-judgmental/i.test(skill)).toBe(true);
-    expect(/accusatory/i.test(skill) && /never/i.test(skill), "no clinical/accusatory labels on third parties").toBe(
-      true,
-    );
-  });
-
-  it("is surfaced by recall", () => {
-    expect(/people\.md/.test(readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8"))).toBe(true);
-  });
-});
-
-describe("person fiches (ADR-0011)", () => {
-  it("relationships maintains fiches, cross-linked, transcript only via summary", () => {
-    const skill = readFileSync(path.join(root, "skills/relationships/SKILL.md"), "utf8");
-    expect(/per-person fiches/i.test(skill)).toBe(true);
-    expect(/relative markdown link/i.test(skill)).toBe(true);
-    expect(/only through/i.test(skill), "reach a transcript only through its summary").toBe(true);
-  });
-
-  it("export runs the vault export pass", () => {
-    expect(/vault-export\.mjs/.test(readFileSync(path.join(root, "commands/export.md"), "utf8"))).toBe(true);
-  });
-
-  it("the template stays a mirror, not a dossier", () => {
-    const tmpl = readFileSync(path.join(root, "docs/person-fiche-template.md"), "utf8");
-    expect(/mirror/i.test(tmpl) && /never a dossier/i.test(tmpl)).toBe(true);
-  });
-});
-
-describe("life timeline (ADR-0014)", () => {
-  it("is person-led, trauma-informed; dated-list canonical, mermaid optional", () => {
-    const skill = readFileSync(path.join(root, "skills/timeline/SKILL.md"), "utf8");
-    expect(/never force/i.test(skill), "never force a chronological trauma inventory").toBe(true);
-    expect(/never infer/i.test(skill), "never infer unstated events").toBe(true);
-    expect(/sectioned list/i.test(skill), "dated sectioned list is canonical").toBe(true);
-    expect(/optional/i.test(skill) && /mermaid/i.test(skill), "mermaid is an optional view").toBe(true);
-  });
-});
-
-describe("to-do-later surface (ADR-0018)", () => {
-  it("the persona points to it — the trigger that makes it reachable mid-session", () => {
-    // The guard that was missing at v0.3.0: the surface was wired into
-    // recall/remember/distill, but the always-loaded persona never mentioned it,
-    // so asking Claudia to "create a todo" mid-conversation routed nowhere. A
-    // wired-but-untriggerable capability is invisible until found by hand — this
-    // asserts the reachability, not just the plumbing.
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/todo/i.test(persona), "persona should point to the todo capability").toBe(true);
-  });
-
-  it("recall reads it", () => {
-    expect(/todo\.md/.test(readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8"))).toBe(true);
-  });
-});
-
-describe("dashboard mirror (ADR-0019)", () => {
-  it("is rebuilt at SessionEnd and at the tail of recall (a zero-lag mirror)", () => {
-    const h: HooksManifest = JSON.parse(readFileSync(path.join(root, "hooks/hooks.json"), "utf8"));
-    expect(/build-dashboard\.mjs/.test(JSON.stringify(h.hooks.SessionEnd)), "SessionEnd should rebuild it").toBe(true);
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
-    expect(/build-dashboard\.mjs/.test(recall), "recall should rebuild after deferred distillation").toBe(true);
-  });
-
-  it("is a mirror that transcludes or points — never summarises prose", () => {
-    const adr = readFileSync(path.join(root, "docs/adr/0019-dashboard.md"), "utf8");
-    expect(/never summarise|linked, never excerpted/i.test(adr)).toBe(true);
-    const mod = readFileSync(path.join(root, "src/dashboard.mjs"), "utf8");
-    expect(/transclude/i.test(mod) && /never/i.test(mod)).toBe(true);
-  });
-
-  it("never mirrors safety.md (no risk profile at a glance)", () => {
-    const adr = readFileSync(path.join(root, "docs/adr/0019-dashboard.md"), "utf8");
-    expect(/deliberately absent/i.test(adr)).toBe(true);
-    const script = readFileSync(path.join(root, "scripts/build-dashboard.mjs"), "utf8");
-    expect(/"safety\.md"/.test(script), "the builder must not read safety.md").toBe(false);
-  });
-
-  it("is disclosed once (remember) and refusable via config.json", () => {
-    expect(/dashboard/i.test(readFileSync(path.join(root, "skills/remember/SKILL.md"), "utf8"))).toBe(true);
-    const script = readFileSync(path.join(root, "scripts/build-dashboard.mjs"), "utf8");
-    expect(/cfg\.dashboard === false/.test(script)).toBe(true);
-    // Through the declared reader, not an inline JSON.parse (ADR-0028).
-    expect(/parseConfig/.test(script), "the opt-out reads the shared settings module").toBe(true);
-  });
-});
-
-describe("vault migrations (ADR-0020)", () => {
-  it("is auto-applied at recall as background upkeep, and disclosed when it acts", () => {
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
-    expect(/migrate-vault\.mjs/.test(recall), "recall should run the migration runner").toBe(true);
-    expect(/disclose/i.test(recall), "recall must disclose when it migrates").toBe(true);
-  });
-
-  it("backs up first and never touches the verbatim transcript", () => {
-    const runner = readFileSync(path.join(root, "scripts/migrate-vault.mjs"), "utf8");
-    expect(/\.bak-/.test(runner), "runner takes a backup before writing").toBe(true);
-    expect(/transcript\.md/.test(runner), "runner excludes *.transcript.md").toBe(true);
-  });
-
-  it("migrations are pure, idempotent transforms behind an ordered registry", () => {
-    const idx = readFileSync(path.join(root, "src/migrations/index.mjs"), "utf8");
-    expect(/migrations\s*=\s*\[/.test(idx), "registry exports an ordered list").toBe(true);
-    const m = readFileSync(path.join(root, "src/migrations/0001-wikilinks-to-relative.mjs"), "utf8");
-    expect(/export function migrate/.test(m) && /idempotent/i.test(m)).toBe(true);
-  });
-});
-
-// Every skill and command, split into (frontmatter, body) so the allowed-tools
-// declaration itself never counts as a "use" of the tool.
-const surfaces = [
-  ...walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md")),
-  ...walk(path.join(root, "commands"), (p) => p.endsWith(".md")),
-].map((file) => {
-  const txt = readFileSync(file, "utf8");
-  const end = txt.indexOf("\n---", 3);
-  return {
-    rel: path.relative(root, file),
-    frontmatter: end === -1 ? "" : txt.slice(0, end),
-    body: end === -1 ? txt : txt.slice(end),
-  };
-});
-
-/** Surfaces that reach for `tool` in their body without declaring it in allowed-tools. */
-function undeclaredUsers(tool: string): string[] {
-  const declared = new RegExp(`^allowed-tools:.*\\b${tool}\\b`, "m");
-  return surfaces.filter((s) => s.body.includes(tool) && !declared.test(s.frontmatter)).map((s) => s.rel);
-}
-
-describe("the choice UI (ADR-0024)", () => {
-  it("is declared wherever it is used", () => {
-    // The gap at v0.9.0: `quiz` was built end-to-end on AskUserQuestion while its
-    // allowed-tools said `Read Write Bash`, so the choice UI raised a permission
-    // prompt mid-quiz — immersion broken at the worst moment. Same reasoning as the
-    // `Task` assertion above, applied to every surface rather than one file.
-    const undeclared = undeclaredUsers("AskUserQuestion");
-    expect(undeclared, `uses AskUserQuestion without declaring it:\n${undeclared.join("\n")}`).toEqual([]);
-  });
-
-  it("stays out of the exploratory skills", () => {
-    // The half that protects the therapeutic side. A menu pre-writes the answers,
-    // so these surfaces ask openly, permanently: getting to know someone, ratifying
-    // a theme, walking a life timeline, checking a relationship map, and crisis.
-    const exploratory = ["intake", "themes", "timeline", "relationships", "understand", "crisis"];
-    for (const name of exploratory) {
-      const txt = readFileSync(path.join(root, `skills/${name}/SKILL.md`), "utf8");
-      expect(/AskUserQuestion/.test(txt), `${name} must ask openly, not with options (ADR-0024)`).toBe(false);
-    }
-  });
-
-  it("keep shows the words in the preview pane, not squeezed into a description", () => {
-    // The person is choosing *words*; `preview` is the only field with room for them.
-    const keep = readFileSync(path.join(root, "skills/keep/SKILL.md"), "utf8");
-    expect(/`preview`/.test(keep), "the verbatim passage belongs in preview (ADR-0024)").toBe(true);
-  });
-
-  it("the persona carries the rule and is pre-approved for it", () => {
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/^allowed-tools:.*\bAskUserQuestion\b/m.test(persona), "pre-approved, to avoid mid-session prompts").toBe(
-      true,
-    );
-    expect(
-      /Buttons for decisions/i.test(persona),
-      "the persona is the only always-loaded file — the rule must live there",
-    ).toBe(true);
-  });
-
-  it("crisis and the irreversible commands keep their plain-text asks", () => {
-    // Non-goals with reasons (ADR-0024): /help-now is "not the moment for
-    // exploration", and friction is protective on a write that cannot be undone.
-    for (const cmd of ["help-now", "forget", "migrate"]) {
-      const txt = readFileSync(path.join(root, `commands/${cmd}.md`), "utf8");
-      expect(/AskUserQuestion/.test(txt), `/${cmd} asks in plain text on purpose (ADR-0024)`).toBe(false);
-    }
-  });
-});
-
-describe("the pulled menu (ADR-0027)", () => {
-  const menu = readFileSync(path.join(root, "commands/menu.md"), "utf8");
-
-  it("carries the picker — the one place it is legitimate", () => {
-    expect(/^allowed-tools:.*\bAskUserQuestion\b/m.test(menu), "the picker is the whole point").toBe(true);
-  });
-
-  it("is pulled, never opened on the person", () => {
-    // This is the single fact that makes a picker legitimate here and forbidden at
-    // the opening (ADR-0024): the person asked to be shown, so nothing is pre-written.
-    expect(/Never open it unprompted/i.test(menu)).toBe(true);
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/never at the opening/i.test(persona), "the persona may name /menu, never open it").toBe(true);
-  });
-
-  it("stays the person's own material, with the open door always on it", () => {
-    expect(/never a feature list/i.test(menu), "a menu of skills would make her a list of features").toBe(true);
-    expect(/always the open door/i.test(menu), "the menu must stay declinable from inside").toBe(true);
-    expect(/dated list of past sessions/i.test(menu), "memory is not an archive to browse (ADR-0004)").toBe(true);
-  });
-
-  it("is a view onto memory, never a write to it", () => {
-    expect(/^allowed-tools:(?!.*\b(Write|Edit)\b)/m.test(menu), "reads only, like the dashboard mirror").toBe(true);
-  });
-
-  it("leaves the opening ritual in plain text", () => {
-    // recall earns one specific check-in from the person's own files; a picker there
-    // would displace it with a generic list — the ADR's first half.
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
-    expect(/AskUserQuestion/.test(recall), "recall must open in plain text (ADR-0027)").toBe(false);
-  });
-});
-
-describe("showing a deliverable (ADR-0026)", () => {
-  it("the glossary knows saving from showing", () => {
-    const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
-    expect(/Showing is not\s+publishing/i.test(ctx), "the Deliverable entry must carry the distinction").toBe(true);
-  });
-
-  it("is declared wherever it is used", () => {
-    const undeclared = undeclaredUsers("SendUserFile");
-    expect(undeclared, `uses SendUserFile without declaring it:\n${undeclared.join("\n")}`).toEqual([]);
-  });
-
-  it("never pushes — 'proactive' may be forbidden, never instructed", () => {
-    // The hard non-goal. `status: 'proactive'` pushes a notification to the person's
-    // phone; Claudia shows a file because they are already here, never to bring them
-    // back. Same refusal as scheduled check-ins (ADR-0012, "Presence, not
-    // surveillance"), and the one a future change is most likely to reach for.
-    //
-    // A flat ban on the word would gag the persona, which has to *name* the thing it
-    // forbids. So the rule is semantic: every mention must be negated close by.
-    const instructed: string[] = [];
-    for (const s of surfaces) {
-      for (const m of s.body.matchAll(/proactive/gi)) {
-        const preceding = s.body.slice(Math.max(0, m.index - 60), m.index);
-        if (!/\bnever\b|\bnot\b|\bno\b/i.test(preceding)) instructed.push(`${s.rel}:${m.index}`);
-      }
-    }
-    expect(instructed, `Claudia never initiates contact (ADR-0026):\n${instructed.join("\n")}`).toEqual([]);
-  });
-
-  it("crisis never sends a file", () => {
-    const crisis = readFileSync(path.join(root, "skills/crisis/SKILL.md"), "utf8");
-    expect(/SendUserFile/.test(crisis), "stay with the person; a download card is a detour").toBe(false);
-  });
-
-  it("Artifact stays refused — showing is not publishing", () => {
-    // Artifact mints a durable, shareable URL: a persistent copy outside the machine,
-    // which is exactly what ADR-0007 rejected with the remote connector.
-    const publishing = surfaces.filter((s) => /\bArtifact\b/.test(s.body)).map((s) => s.rel);
-    expect(publishing, `nothing leaves the machine (ADR-0007):\n${publishing.join("\n")}`).toEqual([]);
-    const adr = readFileSync(path.join(root, "docs/adr/0026-showing-the-deliverable.md"), "utf8");
-    expect(/Artifact/.test(adr), "the ADR must record why it is refused").toBe(true);
-  });
-});
-
-describe("giving the win back (docs/competencies/attribution.md)", () => {
-  it("the library index lists it", () => {
-    const index = readFileSync(path.join(root, "docs/competencies/README.md"), "utf8");
-    expect(/attribution\.md/.test(index), "a competency the index doesn't list is not in the spine").toBe(true);
-  });
-
-  it("the asymmetry is written down — gains theirs, setbacks not", () => {
-    // Marlatt's abstinence violation effect: attributing a lapse to internal, stable,
-    // global causes is what turns it into a relapse. A symmetric "fair" attribution is
-    // the harmful one, so the doc must say the asymmetry is deliberate.
-    const doc = readFileSync(path.join(root, "docs/competencies/attribution.md"), "utf8");
-    expect(/[Nn]ever run it backwards/.test(doc)).toBe(true);
-    expect(/asymmetry is deliberate/.test(doc)).toBe(true);
-  });
-
-  it("credit offered is taken, not deflected — congruence over performed modesty", () => {
-    const doc = readFileSync(path.join(root, "docs/competencies/attribution.md"), "utf8");
-    expect(/[Nn]ever refuse credit that is offered/.test(doc)).toBe(true);
-    expect(/congruence/i.test(doc), "the reason is congruence, not politeness").toBe(true);
-  });
-
-  it("the persona carries it — the ADR-0018 lesson", () => {
-    // The only always-loaded file. A stance documented only in docs/ is invisible in
-    // practice, and this one has to fire on ordinary turns or it never fires at all.
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/competencies\/attribution\.md/.test(persona)).toBe(true);
-    expect(/needing me less/.test(persona), "the persona should name what this is for").toBe(true);
-  });
-});
-
-describe("the handover note (ADR-0033)", () => {
-  const skillPath = path.join(root, "skills/handover/SKILL.md");
-
-  it("the glossary fences the clinical sense of the word", () => {
-    const ctx = readFileSync(path.join(root, "CONTEXT.md"), "utf8");
-    expect(/clinician-to-clinician/.test(ctx), "the Avoid line must fence the clinical sense").toBe(true);
-  });
-
-  it("the provenance line is required and cannot be cut", () => {
-    // The one line on the page that is not the person's to remove. Without it the note
-    // reads as correspondence from a peer to a professional with no other way to know
-    // what produced it — safety-floor rule 1 at the receiving end.
-    const skill = readFileSync(skillPath, "utf8");
-    expect(/an AI companion \(not a clinician\)/.test(skill), "the header text must be shown").toBe(true);
-    expect(/not optional and not removable/.test(skill)).toBe(true);
-  });
-
-  it("nothing is pre-selected — a default is not a choice", () => {
-    // Pre-ticking was proposed and rejected (ADR-0033, Planet49): her judgment lives in
-    // what makes the list and in the reason under it, never in a default state.
-    const skill = readFileSync(skillPath, "utf8");
-    expect(/[Nn]othing is pre-selected/.test(skill)).toBe(true);
-  });
-
-  it("never invents a stem, and is never stamped with one either", () => {
-    const skill = readFileSync(skillPath, "utf8");
-    expect(/type: handover/.test(skill), "the skill should show its block").toBe(true);
-    expect(/[Nn]ever write a `?session:`? key/.test(skill), "must forbid inventing a stem").toBe(true);
-    // The deliberate non-extension: the closing script's regex knows exercises and
-    // teachings only. A handover leaves the machine, and the opaque stem means nothing
-    // to the person who receives it.
-    const script = readFileSync(path.join(root, "scripts/finish-distillation.mjs"), "utf8");
-    expect(/handover/.test(script), "finish-distillation must not learn about handovers").toBe(false);
-  });
-
-  it("Claudia never carries it further than the person", () => {
-    const skill = readFileSync(skillPath, "utf8");
-    expect(/[Nn]ever send it anywhere yourself/.test(skill)).toBe(true);
-    expect(/display: 'attach'/.test(skill), "a take-away, like a worksheet (ADR-0026)").toBe(true);
-    const adr = readFileSync(path.join(root, "docs/adr/0026-showing-the-deliverable.md"), "utf8");
-    expect(/sessions\/handovers/.test(adr), "the surface table must carry the row").toBe(true);
-  });
-
-  it("never assesses whether the work with Claudia has sufficed", () => {
-    // Dropped deliberately: asking "am I still useful to you?" puts the person in the
-    // position of reassuring or dismissing her (ADR-0033, and Ivey via ADR-0024).
-    const skill = readFileSync(skillPath, "utf8");
-    expect(/the work with you has been enough/.test(skill), "the refusal must be written down").toBe(true);
-  });
-
-  it("the referral goes first — the note never delays help", () => {
-    const skill = readFileSync(skillPath, "utf8");
-    expect(/referral goes first/.test(skill)).toBe(true);
-    expect(/never a precondition for getting help/.test(skill)).toBe(true);
-    const referOnly = readFileSync(path.join(root, "docs/approaches/refer-only.md"), "utf8");
-    expect(/handover/.test(referOnly), "recognise → refer used to stop here").toBe(true);
-    expect(/never before/.test(referOnly)).toBe(true);
-  });
-
-  it("the persona knows it exists — the ADR-0018 lesson", () => {
-    // A capability documented everywhere except skills/claudia/SKILL.md is invisible in
-    // practice, because that is the only always-loaded file.
-    const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-    expect(/`handover`/.test(persona)).toBe(true);
-    expect(/ADR-0033/.test(persona)).toBe(true);
-  });
-});
-
-describe("frontmatter contract (ADR-0025)", () => {
-  it("identity is stamped by code — distill-session runs the script, never a bare rm", () => {
-    const skill = readFileSync(path.join(root, "skills/distill-session/SKILL.md"), "utf8");
-    expect(/finish-distillation\.mjs/.test(skill), "distill-session must close via the script").toBe(true);
-    expect(/rm -f[^\n]*pending-summary/.test(skill), "the bare rm -f must be gone — it was the enforcement point").toBe(
-      false,
-    );
-  });
-
-  it("the model is told it writes only the judgment half", () => {
-    const skill = readFileSync(path.join(root, "skills/distill-session/SKILL.md"), "utf8");
-    expect(/people:/.test(skill) && /themes:/.test(skill)).toBe(true);
-    expect(/ratified/i.test(skill), "themes: must be ratified threads only (ADR-0015)").toBe(true);
-    expect(/[Nn]o safety key/.test(skill), "no safety facet in frontmatter (ADR-0019 symmetry)").toBe(true);
-  });
-
-  it("deliverables never invent a stem — the value comes from the close", () => {
-    for (const s of ["skills/exercise/SKILL.md", "skills/teach/SKILL.md"]) {
-      const skill = readFileSync(path.join(root, s), "utf8");
-      expect(/type: (exercise|teaching)/.test(skill), `${s} should show its block`).toBe(true);
-      expect(/[Nn]ever write a `?session:`? key/.test(skill), `${s} must forbid inventing a stem`).toBe(true);
-    }
-  });
-
-  it("writing is conservative — a block it cannot read is left untouched", () => {
-    const mod = readFileSync(path.join(root, "src/frontmatter.mjs"), "utf8");
-    expect(/malformed/.test(mod)).toBe(true);
-    expect(/export function stampIdentity/.test(mod)).toBe(true);
-    expect(
-      /export function serializeFrontmatter/.test(mod),
-      "a general serializer would defeat the line-surgery guarantee",
-    ).toBe(false);
-  });
-});
-
-describe("the person's settings (ADR-0028)", () => {
-  const command = readFileSync(path.join(root, "commands/config.md"), "utf8");
-  const persona = readFileSync(path.join(root, "skills/claudia/SKILL.md"), "utf8");
-
-  it("every reader goes through the one module — no ad-hoc JSON.parse of config.json", () => {
-    // The state this ADR replaced: two scripts each parsing the file inline, with the
-    // default living only in an `=== false` check and nothing declaring the key set.
-    for (const s of ["scripts/save-session.mjs", "scripts/build-dashboard.mjs", "scripts/config.mjs"]) {
-      const txt = readFileSync(path.join(root, s), "utf8");
-      expect(/from "\.\.\/src\/config\.mjs"/.test(txt), `${s} should import the settings module`).toBe(true);
-      expect(/JSON\.parse\([^)]*config\.json/.test(txt), `${s} must not parse config.json itself`).toBe(false);
-    }
-  });
-
-  it("the write path is deterministic — the model never hand-edits the JSON", () => {
-    // A model rewriting the file is how an unknown key (or the rest of it) disappears.
-    expect(/config\.mjs" --set/.test(command), "/config changes a setting through the script").toBe(true);
-    expect(/^allowed-tools:(?!.*\b(Write|Edit)\b)/m.test(command), "no direct write to config.json").toBe(true);
-  });
-
-  it("emoji is off by default, and the rule lives in the always-loaded persona", () => {
-    // Config is read at recall; the persona is loaded always. Putting the rule there
-    // means a session that never reads the file still writes plainly — the fail-safe
-    // direction, since the setting only ever *loosens* it.
-    expect(defaults().emoji, "emoji defaults off — the setting only ever loosens the register").toBe(false);
-    expect(/without emoji/i.test(persona), "the persona must carry the register rule").toBe(true);
-    expect(/emoji/i.test(readFileSync(path.join(root, "SOUL.md"), "utf8")), "and the soul, as congruence").toBe(true);
-  });
-
-  it("recall loads the settings before the first sentence, and never recites them", () => {
-    const recall = readFileSync(path.join(root, "skills/recall/SKILL.md"), "utf8");
-    expect(/config\.mjs/.test(recall), "recall should read the settings").toBe(true);
-    expect(/never read it back|never recite/i.test(recall), "settings are honoured silently, like memory").toBe(true);
-  });
-
-  it("nothing configurable can lower the safety floor", () => {
-    const adr = readFileSync(path.join(root, "docs/adr/0028-settings.md"), "utf8");
-    expect(/lower the floor/i.test(adr), "the ADR must state the limit").toBe(true);
-    expect(/no free-text style key/i.test(adr), "a free-text persona override is a way through the floor").toBe(true);
-    expect(/never nudge/i.test(command), "a preference is not a symptom to explore").toBe(true);
-  });
-});
-
-describe("documentation links resolve", () => {
   it("every relative .md link points to an existing file", () => {
     // The whole repo, not just the payload: the move put a boundary between the
     // ADRs and what links to them, and a link that crosses it breaks here first.
@@ -805,8 +199,364 @@ describe("documentation links resolve", () => {
   });
 });
 
-describe("consultation (ADR-0030)", () => {
-  it("ships the consult agent with a one-tool allowlist (secrecy by construction)", () => {
+describe("decision guards", () => {
+  it("ADR-0032 — the rotating archive keeps every promise it made", () => {
+    // Snapshots last at SessionEnd: it must capture the distilled state, not the
+    // state before save-session and build-dashboard wrote to it.
+    const end = JSON.parse(read("hooks/hooks.json")).hooks.SessionEnd[0].hooks.map(
+      (x: { command: string }) => x.command,
+    );
+    expect(end.at(-1)).toMatch(/vault-backup\.mjs/);
+    expect(end.at(-1)).toMatch(/--quiet/); // benign layer: never fails a session
+    expect(end.at(-1)).toMatch(/--detach/); // and never makes the person wait on one
+    // /forget leaves the archives alone — a backup a routine command can destroy
+    // is not one — and says what is true about the copies it does not touch.
+    const forget = read("commands/forget.md");
+    expect(/--purge/.test(forget), "/forget must not purge the archive set").toBe(false);
+    expect(/never touch .*claudia-backups/i.test(forget)).toBe(true);
+    expect(/rotate out/.test(forget), "must say the older copies persist").toBe(true);
+    expect(/\/backup/.test(forget), "and where the person can clear them").toBe(true);
+    // Never mine an archive to undo a forgetting — in both places that can reach one.
+    for (const f of ["commands/forget.md", "commands/backup.md"])
+      expect(/chose to forget/i.test(read(f)), `${f} must carry the never-retrieve rule`).toBe(true);
+    // Refusable like every other copy, disclosed inside the existing first-run
+    // breath, and the background job stays out of the conversation.
+    expect([...SETTING_KEYS], "backups must be a declared setting (ADR-0028)").toContain("backups");
+    const remember = read("skills/remember/SKILL.md");
+    expect(/claudia-backups/.test(remember), "the archive must be disclosed at all").toBe(true);
+    expect(/same breath/.test(remember), "and folded into the one disclosure that exists").toBe(true);
+    expect(/launchd|launchctl|backup-timer/i.test(read("skills/claudia/SKILL.md"))).toBe(false);
+    expect(/never raise it mid-conversation/i.test(read("commands/backup.md"))).toBe(true);
+  });
+
+  it("ADR-0034 — self-authoring stays withdrawn, traceably", () => {
+    for (const rel of ["skills/author-skill", "agents/skill-auditor.md", "proposed-skills"])
+      expect(existsSync(path.join(root, rel)), `${rel} was withdrawn by ADR-0034`).toBe(false);
+    expect(
+      /author-skill|proposed-skills/.test(read("SOUL.md") + read("skills/claudia/SKILL.md")),
+      "self-extension is not a capability",
+    ).toBe(false);
+    const adr = read("docs/adr/0006-self-authoring.md");
+    expect(/^status: superseded by ADR-0034$/m.test(adr), "the reversal must stay traceable").toBe(true);
+    expect(existsSync(path.join(root, "skills/quiz/SKILL.md")), "quiz is an ordinary skill now").toBe(true);
+  });
+
+  it("the opening ritual earns its check-in (skills/claudia + recall contract)", () => {
+    const persona = read("skills/claudia/SKILL.md");
+    expect(/still.?open/i.test(persona), "opening should target a still-open thread").toBe(true);
+    expect(/by name/i.test(persona), "opening should greet by name").toBe(true);
+    expect(/First time/i.test(persona), "opening should handle first-timers").toBe(true);
+    expect(/resolved/i.test(persona), "opening should not re-raise resolved threads").toBe(true);
+    const recall = read("skills/recall/SKILL.md");
+    expect(/anticipat/i.test(recall), "recall surfaces anticipated events").toBe(true);
+    expect(/resolved/i.test(recall), "and skips resolved ones").toBe(true);
+    expect(/names Claudia|talk to Claudia|@Claudia/i.test(persona), "the persona is reachable by name").toBe(true);
+  });
+
+  it("delegation is bounded away from the relationship and crisis (skills/claudia contract)", () => {
+    const persona = read("skills/claudia/SKILL.md");
+    expect(/Task/.test(persona), "persona should use the Task tool to delegate").toBe(true);
+    expect(/never delegate the relationship or a crisis/i.test(persona), "delegation must be bounded").toBe(true);
+    expect(/^allowed-tools:.*\bTask\b/m.test(persona), "Task should be pre-approved to avoid mid-session prompts").toBe(
+      true,
+    );
+  });
+
+  it("ADR-0008 — the working understanding is held lightly, never clinically", () => {
+    const recall = read("skills/recall/SKILL.md");
+    expect(/understanding\.md/.test(recall), "recall loads it").toBe(true);
+    expect(/provisional|hold it lightly|hypothesis/i.test(recall), "held provisionally").toBe(true);
+    const persona = read("skills/claudia/SKILL.md");
+    expect(/working understanding/i.test(persona)).toBe(true);
+    expect(/does that fit/i.test(persona), "reflected back for correction").toBe(true);
+    expect(/need you.{0,8}less/i.test(persona), "must be designed against dependency").toBe(true);
+    const ctx = read("CONTEXT.md");
+    expect(/Working understanding/.test(ctx)).toBe(true);
+    expect(/_Avoid_.*(formulation|dossier|clinical)/i.test(ctx), "the glossary de-clinicalises it").toBe(true);
+    expect(/no diagnosis/i.test(read("skills/understand/SKILL.md"))).toBe(true);
+  });
+
+  it("ADR-0009 — curiosity without interrogation, intake offered not imposed", () => {
+    const persona = read("skills/claudia/SKILL.md");
+    expect(/reflection-led/i.test(persona), "must stay reflection-led").toBe(true);
+    expect(/three questions/i.test(persona), "anti-interrogation dosage").toBe(true);
+    expect(/intake/i.test(persona), "persona should offer the intake").toBe(true);
+    const intake = read("skills/intake/SKILL.md");
+    expect(/declinable/i.test(intake)).toBe(true);
+    expect(/crisis/i.test(intake), "intake yields to safety").toBe(true);
+  });
+
+  it("ADR-0010 — the relationship map stays non-judgmental and surfaced by recall", () => {
+    const skill = read("skills/relationships/SKILL.md");
+    expect(/mermaid/i.test(skill)).toBe(true);
+    expect(/non-judgmental/i.test(skill)).toBe(true);
+    expect(/accusatory/i.test(skill) && /never/i.test(skill), "no clinical/accusatory labels on third parties").toBe(
+      true,
+    );
+    expect(/people\.md/.test(read("skills/recall/SKILL.md")), "recall surfaces it").toBe(true);
+  });
+
+  it("ADR-0011 — a fiche is the person's mirror, never a dossier on someone", () => {
+    const skill = read("skills/relationships/SKILL.md");
+    expect(/per-person fiches/i.test(skill)).toBe(true);
+    expect(/relative markdown link/i.test(skill), "fiches cross-link relatively").toBe(true);
+    expect(/only through/i.test(skill), "reach a transcript only through its summary").toBe(true);
+    expect(/vault-export\.mjs/.test(read("commands/export.md")), "export runs the vault export pass").toBe(true);
+    const tmpl = readFileSync(path.join(root, "docs/person-fiche-template.md"), "utf8");
+    expect(/mirror/i.test(tmpl) && /never a dossier/i.test(tmpl)).toBe(true);
+  });
+
+  it("ADR-0014 — the timeline is person-led and trauma-informed", () => {
+    const skill = read("skills/timeline/SKILL.md");
+    expect(/never force/i.test(skill), "never force a chronological trauma inventory").toBe(true);
+    expect(/never infer/i.test(skill), "never infer unstated events").toBe(true);
+    expect(/sectioned list/i.test(skill), "dated sectioned list is canonical").toBe(true);
+    expect(/optional/i.test(skill) && /mermaid/i.test(skill), "mermaid is an optional view").toBe(true);
+  });
+
+  it("ADR-0018 — the todo surface is reachable mid-session, not just wired", () => {
+    // The guard that was missing at v0.3.0: the surface was wired into
+    // recall/remember/distill, but the always-loaded persona never mentioned it,
+    // so asking Claudia to "create a todo" mid-conversation routed nowhere.
+    expect(/todo/i.test(read("skills/claudia/SKILL.md")), "persona should point to the todo capability").toBe(true);
+    expect(/todo\.md/.test(read("skills/recall/SKILL.md")), "recall reads it").toBe(true);
+  });
+
+  it("ADR-0019 — the dashboard is a zero-lag mirror that only points, and omits safety.md", () => {
+    const h: HooksManifest = JSON.parse(read("hooks/hooks.json"));
+    expect(/build-dashboard\.mjs/.test(JSON.stringify(h.hooks.SessionEnd)), "SessionEnd should rebuild it").toBe(true);
+    const recall = read("skills/recall/SKILL.md");
+    expect(/build-dashboard\.mjs/.test(recall), "recall should rebuild after deferred distillation").toBe(true);
+    const adr = read("docs/adr/0019-dashboard.md");
+    expect(/never summarise|linked, never excerpted/i.test(adr)).toBe(true);
+    const mod = read("src/dashboard.mjs");
+    expect(/transclude/i.test(mod) && /never/i.test(mod), "the module states the points-only rule").toBe(true);
+    expect(/deliberately absent/i.test(adr), "no risk profile at a glance").toBe(true);
+    const script = read("scripts/build-dashboard.mjs");
+    expect(/"safety\.md"/.test(script), "the builder must not read safety.md").toBe(false);
+    expect(/dashboard/i.test(read("skills/remember/SKILL.md")), "disclosed once, at first-run").toBe(true);
+    expect(/cfg\.dashboard === false/.test(script), "refusable via config.json").toBe(true);
+    // Through the declared reader, not an inline JSON.parse (ADR-0028).
+    expect(/parseConfig/.test(script), "the opt-out reads the shared settings module").toBe(true);
+  });
+
+  it("ADR-0020 — migrations stay pure, backed-up-first, and quiet upkeep at recall", () => {
+    const recall = read("skills/recall/SKILL.md");
+    expect(/migrate-vault\.mjs/.test(recall), "recall should run the migration runner").toBe(true);
+    expect(/disclose/i.test(recall), "recall must disclose when it migrates").toBe(true);
+    const runner = read("scripts/migrate-vault.mjs");
+    expect(/\.bak-/.test(runner), "runner takes a backup before writing").toBe(true);
+    expect(/transcript\.md/.test(runner), "runner excludes *.transcript.md").toBe(true);
+    expect(/migrations\s*=\s*\[/.test(read("src/migrations/index.mjs")), "registry exports an ordered list").toBe(true);
+    const m = read("src/migrations/0001-wikilinks-to-relative.mjs");
+    expect(/export function migrate/.test(m) && /idempotent/i.test(m)).toBe(true);
+  });
+});
+
+// Every skill and command, split into (frontmatter, body) so the allowed-tools
+// declaration itself never counts as a "use" of the tool.
+const surfaces = [
+  ...walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md")),
+  ...walk(path.join(root, "commands"), (p) => p.endsWith(".md")),
+].map((file) => {
+  const txt = readFileSync(file, "utf8");
+  const end = txt.indexOf("\n---", 3);
+  return {
+    rel: path.relative(root, file),
+    frontmatter: end === -1 ? "" : txt.slice(0, end),
+    body: end === -1 ? txt : txt.slice(end),
+  };
+});
+
+/** Surfaces that reach for `tool` in their body without declaring it in allowed-tools. */
+function undeclaredUsers(tool: string): string[] {
+  const declared = new RegExp(`^allowed-tools:.*\\b${tool}\\b`, "m");
+  return surfaces.filter((s) => s.body.includes(tool) && !declared.test(s.frontmatter)).map((s) => s.rel);
+}
+
+describe("tool-use sweeps (derived over every surface)", () => {
+  it("ADR-0024 / ADR-0026 — every tool a surface uses is declared in its allowed-tools", () => {
+    // The gap at v0.9.0: `quiz` was built end-to-end on AskUserQuestion while its
+    // allowed-tools said `Read Write Bash`, so the choice UI raised a permission
+    // prompt mid-quiz — immersion broken at the worst moment.
+    for (const tool of ["AskUserQuestion", "SendUserFile"]) {
+      const undeclared = undeclaredUsers(tool);
+      expect(undeclared, `uses ${tool} without declaring it:\n${undeclared.join("\n")}`).toEqual([]);
+    }
+  });
+
+  it("ADR-0026 / ADR-0007 — Claudia never initiates contact and nothing leaves the machine", () => {
+    // `status: 'proactive'` pushes a notification to the person's phone; Claudia
+    // shows a file because they are already here, never to bring them back. A flat
+    // ban on the word would gag the persona, which has to *name* the thing it
+    // forbids — so the rule is semantic: every mention must be negated close by.
+    const instructed: string[] = [];
+    for (const s of surfaces) {
+      for (const m of s.body.matchAll(/proactive/gi)) {
+        const preceding = s.body.slice(Math.max(0, m.index - 60), m.index);
+        if (!/\bnever\b|\bnot\b|\bno\b/i.test(preceding)) instructed.push(`${s.rel}:${m.index}`);
+      }
+    }
+    expect(instructed, `Claudia never initiates contact (ADR-0026):\n${instructed.join("\n")}`).toEqual([]);
+    // Artifact mints a durable, shareable URL: a persistent copy outside the
+    // machine, which is exactly what ADR-0007 rejected with the remote connector.
+    const publishing = surfaces.filter((s) => /\bArtifact\b/.test(s.body)).map((s) => s.rel);
+    expect(publishing, `nothing leaves the machine (ADR-0007):\n${publishing.join("\n")}`).toEqual([]);
+    expect(/Artifact/.test(read("docs/adr/0026-showing-the-deliverable.md")), "the ADR records why").toBe(true);
+  });
+});
+
+describe("decision guards (continued)", () => {
+  it("ADR-0024 — buttons for decisions, open questions for exploration", () => {
+    // The half that protects the therapeutic side: a menu pre-writes the answers,
+    // so the exploratory surfaces ask openly, permanently.
+    const exploratory = ["intake", "themes", "timeline", "relationships", "understand", "crisis"];
+    for (const name of exploratory)
+      expect(
+        /AskUserQuestion/.test(read(`skills/${name}/SKILL.md`)),
+        `${name} must ask openly, not with options (ADR-0024)`,
+      ).toBe(false);
+    // Non-goals with reasons: /help-now is not the moment for exploration, and
+    // friction is protective on a write that cannot be undone.
+    for (const cmd of ["help-now", "forget", "migrate"])
+      expect(/AskUserQuestion/.test(read(`commands/${cmd}.md`)), `/${cmd} asks in plain text on purpose`).toBe(false);
+    // The person choosing *words* sees them in the preview pane.
+    expect(/`preview`/.test(read("skills/keep/SKILL.md")), "the verbatim passage belongs in preview").toBe(true);
+    const persona = read("skills/claudia/SKILL.md");
+    expect(/^allowed-tools:.*\bAskUserQuestion\b/m.test(persona), "pre-approved, to avoid mid-session prompts").toBe(
+      true,
+    );
+    expect(
+      /Buttons for decisions/i.test(persona),
+      "the persona is the only always-loaded file — the rule must live there",
+    ).toBe(true);
+  });
+
+  it("ADR-0027 — the menu is pulled by the person, never opened on them", () => {
+    const menu = read("commands/menu.md");
+    expect(/^allowed-tools:.*\bAskUserQuestion\b/m.test(menu), "the picker is the whole point").toBe(true);
+    expect(/Never open it unprompted/i.test(menu)).toBe(true);
+    expect(
+      /never at the opening/i.test(read("skills/claudia/SKILL.md")),
+      "the persona may name /menu, never open it",
+    ).toBe(true);
+    expect(/never a feature list/i.test(menu), "a menu of skills would make her a list of features").toBe(true);
+    expect(/always the open door/i.test(menu), "the menu must stay declinable from inside").toBe(true);
+    expect(/dated list of past sessions/i.test(menu), "memory is not an archive to browse (ADR-0004)").toBe(true);
+    expect(/^allowed-tools:(?!.*\b(Write|Edit)\b)/m.test(menu), "a view onto memory, never a write to it").toBe(true);
+    expect(/AskUserQuestion/.test(read("skills/recall/SKILL.md")), "recall must open in plain text").toBe(false);
+  });
+
+  it("ADR-0026 — showing is not publishing, and crisis never sends a file", () => {
+    expect(
+      /Showing is not\s+publishing/i.test(read("CONTEXT.md")),
+      "the Deliverable glossary entry must carry the distinction",
+    ).toBe(true);
+    expect(
+      /SendUserFile/.test(read("skills/crisis/SKILL.md")),
+      "stay with the person; a download card is a detour",
+    ).toBe(false);
+  });
+
+  it("attribution — gains are theirs, setbacks are not (docs/competencies/attribution.md)", () => {
+    // Marlatt's abstinence violation effect: attributing a lapse to internal,
+    // stable, global causes is what turns it into a relapse. A symmetric "fair"
+    // attribution is the harmful one, so the doc must say it is deliberate.
+    const doc = readFileSync(path.join(root, "docs/competencies/attribution.md"), "utf8");
+    expect(/[Nn]ever run it backwards/.test(doc)).toBe(true);
+    expect(/asymmetry is deliberate/.test(doc)).toBe(true);
+    expect(/[Nn]ever refuse credit that is offered/.test(doc)).toBe(true);
+    expect(/congruence/i.test(doc), "the reason is congruence, not politeness").toBe(true);
+    expect(/attribution\.md/.test(read("docs/competencies/README.md")), "the library index lists it").toBe(true);
+    // The only always-loaded file — the ADR-0018 lesson.
+    const persona = read("skills/claudia/SKILL.md");
+    expect(/competencies\/attribution\.md/.test(persona)).toBe(true);
+    expect(/needing me less/.test(persona), "the persona should name what this is for").toBe(true);
+  });
+
+  it("ADR-0033 — the handover is the person's note, carried by them, never a gate to help", () => {
+    const skill = read("skills/handover/SKILL.md");
+    // The provenance line is the one line that is not the person's to remove —
+    // safety-floor rule 1 at the receiving end.
+    expect(/an AI companion \(not a clinician\)/.test(skill), "the header text must be shown").toBe(true);
+    expect(/not optional and not removable/.test(skill)).toBe(true);
+    // Pre-ticking was proposed and rejected (Planet49): her judgment lives in what
+    // makes the list, never in a default state.
+    expect(/[Nn]othing is pre-selected/.test(skill)).toBe(true);
+    expect(/type: handover/.test(skill), "the skill should show its block").toBe(true);
+    expect(/[Nn]ever write a `?session:`? key/.test(skill), "must forbid inventing a stem").toBe(true);
+    expect(
+      /handover/.test(read("scripts/finish-distillation.mjs")),
+      "finish-distillation must not learn about handovers",
+    ).toBe(false);
+    expect(/[Nn]ever send it anywhere yourself/.test(skill)).toBe(true);
+    expect(/display: 'attach'/.test(skill), "a take-away, like a worksheet (ADR-0026)").toBe(true);
+    expect(/sessions\/handovers/.test(read("docs/adr/0026-showing-the-deliverable.md")), "the surface table row").toBe(
+      true,
+    );
+    expect(/the work with you has been enough/.test(skill), "never assesses whether she has sufficed").toBe(true);
+    expect(/referral goes first/.test(skill)).toBe(true);
+    expect(/never a precondition for getting help/.test(skill)).toBe(true);
+    const referOnly = readFileSync(path.join(root, "docs/approaches/refer-only.md"), "utf8");
+    expect(/handover/.test(referOnly), "recognise → refer used to stop here").toBe(true);
+    expect(/never before/.test(referOnly)).toBe(true);
+    const persona = read("skills/claudia/SKILL.md");
+    expect(/`handover`/.test(persona), "the persona knows it exists").toBe(true);
+    expect(/ADR-0033/.test(persona)).toBe(true);
+    expect(/clinician-to-clinician/.test(read("CONTEXT.md")), "the glossary fences the clinical sense").toBe(true);
+  });
+
+  it("ADR-0025 — identity is stamped by code, judgment stays the model's half", () => {
+    const distill = read("skills/distill-session/SKILL.md");
+    expect(/finish-distillation\.mjs/.test(distill), "distill-session must close via the script").toBe(true);
+    expect(
+      /rm -f[^\n]*pending-summary/.test(distill),
+      "the bare rm -f must be gone — it was the enforcement point",
+    ).toBe(false);
+    expect(/people:/.test(distill) && /themes:/.test(distill)).toBe(true);
+    expect(/ratified/i.test(distill), "themes: must be ratified threads only (ADR-0015)").toBe(true);
+    expect(/[Nn]o safety key/.test(distill), "no safety facet in frontmatter (ADR-0019 symmetry)").toBe(true);
+    for (const s of ["skills/exercise/SKILL.md", "skills/teach/SKILL.md"]) {
+      const skill = read(s);
+      expect(/type: (exercise|teaching)/.test(skill), `${s} should show its block`).toBe(true);
+      expect(/[Nn]ever write a `?session:`? key/.test(skill), `${s} must forbid inventing a stem`).toBe(true);
+    }
+    const mod = read("src/frontmatter.mjs");
+    expect(/malformed/.test(mod), "a block it cannot read is left untouched").toBe(true);
+    expect(/export function stampIdentity/.test(mod)).toBe(true);
+    expect(
+      /export function serializeFrontmatter/.test(mod),
+      "a general serializer would defeat the line-surgery guarantee",
+    ).toBe(false);
+  });
+
+  it("ADR-0028 — settings go through one module, and nothing configurable lowers the floor", () => {
+    // The state this ADR replaced: two scripts each parsing the file inline, with
+    // the default living only in an `=== false` check.
+    for (const s of ["scripts/save-session.mjs", "scripts/build-dashboard.mjs", "scripts/config.mjs"]) {
+      const txt = read(s);
+      expect(/from "\.\.\/src\/config\.mjs"/.test(txt), `${s} should import the settings module`).toBe(true);
+      expect(/JSON\.parse\([^)]*config\.json/.test(txt), `${s} must not parse config.json itself`).toBe(false);
+    }
+    const command = read("commands/config.md");
+    expect(/config\.mjs" --set/.test(command), "/config changes a setting through the script").toBe(true);
+    expect(/^allowed-tools:(?!.*\b(Write|Edit)\b)/m.test(command), "no direct write to config.json").toBe(true);
+    // Emoji defaults off; the register rule lives in the always-loaded persona —
+    // the fail-safe direction, since the setting only ever loosens it.
+    expect(defaults().emoji, "emoji defaults off").toBe(false);
+    const persona = read("skills/claudia/SKILL.md");
+    expect(/without emoji/i.test(persona), "the persona must carry the register rule").toBe(true);
+    expect(/emoji/i.test(read("SOUL.md")), "and the soul, as congruence").toBe(true);
+    const recall = read("skills/recall/SKILL.md");
+    expect(/config\.mjs/.test(recall), "recall reads the settings before the first sentence").toBe(true);
+    expect(/never read it back|never recite/i.test(recall), "settings are honoured silently, like memory").toBe(true);
+    const adr = read("docs/adr/0028-settings.md");
+    expect(/lower the floor/i.test(adr), "the ADR must state the limit").toBe(true);
+    expect(/no free-text style key/i.test(adr), "a free-text persona override is a way through the floor").toBe(true);
+    expect(/never nudge/i.test(command), "a preference is not a symptom to explore").toBe(true);
+  });
+
+  it("ADR-0030 — consultation secrecy is by construction: one tool, no filesystem", () => {
     const p = path.join(root, "agents/consult.md");
     expect(existsSync(p)).toBe(true);
     const txt = readFileSync(p, "utf8");
