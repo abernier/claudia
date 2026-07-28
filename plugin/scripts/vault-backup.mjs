@@ -44,6 +44,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { parseConfig } from "../src/config.mjs";
+import { isEntrypoint } from "../src/entry.mjs";
+import { resolveVaultRoot } from "../src/vault.mjs";
 import {
   ARCHIVE_SUFFIX,
   MANIFEST_SUFFIX,
@@ -271,12 +273,13 @@ async function acquireLock(dest) {
 /* ------------------------------------------------------------------ modes */
 
 /**
- * The snapshot entry point: refuse politely, then run the pass under the lock.
+ * The snapshot pass at the vault seam (ADR-0035): refuse politely, then run
+ * the pass under the lock.
  *
  * @param {{ root: string, dest: string, quiet: boolean, dry: boolean }} opts
  * @returns {Promise<number>} exit code
  */
-async function snapshot({ root, dest, quiet, dry }) {
+export async function snapshot({ root, dest, quiet, dry }) {
   /** @param {string} msg */
   const say = (msg) => {
     if (!quiet) console.log(msg);
@@ -550,7 +553,7 @@ async function main() {
   const dest = valueOf("--dest") ?? DEFAULT_DEST;
   // A bare flag must not swallow the vault path behind it: only TAKES_VALUE flags do.
   const positional = argv.filter((a, i) => !a.startsWith("--") && !TAKES_VALUE.has(argv[i - 1] ?? ""));
-  const root = (positional[0] ?? path.join(os.homedir(), ".claudia")).replace(/\/+$/, "");
+  const root = (positional[0] ?? resolveVaultRoot()).replace(/\/+$/, "");
 
   if (has("--list")) return process.exit(await list(dest));
   if (has("--verify")) return process.exit(await verify(dest));
@@ -561,10 +564,14 @@ async function main() {
   process.exit(await snapshot({ root, dest, quiet: has("--quiet"), dry: has("--dry-run") }));
 }
 
-main().catch((/** @type {unknown} */ err) => {
-  // Under --quiet this is a hook: a backup that blew up must not fail the session
-  // the person just had. Run by hand, say what broke.
-  const quiet = process.argv.includes("--quiet");
-  if (!quiet) console.error(`Backup failed: ${err instanceof Error ? err.message : String(err)}`);
-  process.exit(quiet ? 0 : 1);
-});
+// Run only when invoked directly, not on import (tests import snapshot).
+// Symlink-safe — see src/entry.mjs for what comparing unresolved paths cost.
+if (isEntrypoint(import.meta.url)) {
+  main().catch((/** @type {unknown} */ err) => {
+    // Under --quiet this is a hook: a backup that blew up must not fail the session
+    // the person just had. Run by hand, say what broke.
+    const quiet = process.argv.includes("--quiet");
+    if (!quiet) console.error(`Backup failed: ${err instanceof Error ? err.message : String(err)}`);
+    process.exit(quiet ? 0 : 1);
+  });
+}
