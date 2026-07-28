@@ -86,8 +86,8 @@ async function main() {
     console.log(count ? `Exported ${count} files to ${dest}.` : `Nothing to export at ${root}`);
     process.exit(0);
   } catch (/** @type {unknown} */ err) {
-    // /export is user-invoked: exiting 0 here would pass an interrupted copy off
-    // as a complete backup. Say what broke and where the partial tree landed.
+    // /export is person-invoked: exiting 0 here would pass an interrupted copy
+    // off as a complete backup. Say what broke and where the partial tree landed.
     const why = err instanceof Error ? err.message : String(err);
     console.error(`Export failed: ${why}`);
     console.error(`A partial copy may exist at ${dest} — don't trust it as a complete export.`);
