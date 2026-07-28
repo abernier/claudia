@@ -135,6 +135,14 @@ describe("install contracts", () => {
     expect(guards.length, "some scripts are executable and importable both").toBeGreaterThan(0);
     for (const g of guards)
       expect(g.condition, `${g.rel} should guard with isEntrypoint()`).toBe("isEntrypoint(import.meta.url)");
+    // A script that exports symbols is importable BY DESIGN — a bare `main();`
+    // would run it on import, so there the guard is mandatory (the session-anchor
+    // fold, #62). Hook-only scripts with no exports may keep the bare call.
+    const unguarded = scripts
+      .map((p) => ({ rel: path.relative(root, p), txt: readFileSync(p, "utf8") }))
+      .filter((s) => /^export /m.test(s.txt) && /^main\(\);$/m.test(s.txt))
+      .map((s) => s.rel);
+    expect(unguarded, `importable scripts must guard main() with isEntrypoint():\n${unguarded.join("\n")}`).toEqual([]);
   });
 
   it("every skill declares name + description frontmatter (the loader contract)", () => {

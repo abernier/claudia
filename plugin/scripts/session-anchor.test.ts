@@ -30,6 +30,9 @@ async function transcriptOf(jsonl: string): Promise<string> {
   return p;
 }
 
+/** Run the hook to completion: payload in (stdin closed), stdout + exit out. */
+const anchor = (input: string) => spawnSync(process.execPath, [script], { encoding: "utf8", input });
+
 describe("sessionAnchor — the decision at its interface", () => {
   it("re-anchors a resumed Claudia session: identity, continuity, no fresh greeting", async () => {
     const note = await sessionAnchor({
@@ -69,12 +72,7 @@ describe("sessionAnchor — the decision at its interface", () => {
 
 describe("session-anchor (SessionStart hook) — the wire", () => {
   it("emits the SessionStart injection for a resumed Claudia session, exit 0", async () => {
-    const transcript = await transcriptOf(claudiaJsonl);
-    const r = spawnSync(process.execPath, [script], {
-      encoding: "utf8",
-      input: JSON.stringify({ source: "resume", transcript_path: transcript }),
-      env: { ...process.env },
-    });
+    const r = anchor(JSON.stringify({ source: "resume", transcript_path: await transcriptOf(claudiaJsonl) }));
 
     expect(r.status).toBe(0);
     const out = JSON.parse(r.stdout);
@@ -83,11 +81,7 @@ describe("session-anchor (SessionStart hook) — the wire", () => {
   });
 
   it("stays silent on garbage stdin — fail-silent, exit 0", () => {
-    const r = spawnSync(process.execPath, [script], {
-      encoding: "utf8",
-      input: "not json at all",
-      env: { ...process.env },
-    });
+    const r = anchor("not json at all");
     expect(r.status).toBe(0);
     expect(r.stdout).toBe("");
   });
