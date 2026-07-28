@@ -47,11 +47,9 @@ describe("decide()", () => {
     expect(r.escalate).toBe(false);
   });
 
-  it("uncertain + model OFF → fail-safe escalate", async () => {
-    const r = await decide("I can't go on anymore", { modelClassifierEnabled: false });
-    expect(r.escalate).toBe(true);
-    expect(r.reason).toContain("classifier off");
-  });
+  // classifier-off, classifier-unavailable and none→silent are pinned at the
+  // process seam (../scripts/safety-check.test.ts), which exercises this same
+  // logic through the real wiring.
 
   it("uncertain + model says elevated → escalate", async () => {
     const r = await decide("I can't go on anymore", {
@@ -63,23 +61,6 @@ describe("decide()", () => {
     });
     expect(r.escalate).toBe(true);
     expect(r.reason).toContain("model:elevated");
-  });
-
-  it("uncertain + model says none → silent", async () => {
-    const r = await decide("I can't go on anymore", {
-      modelClassifierEnabled: true,
-      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: true, verdict: { risk: "none" } }),
-    });
-    expect(r.escalate).toBe(false);
-  });
-
-  it("uncertain + model UNAVAILABLE → fail-safe escalate", async () => {
-    const r = await decide("I can't go on anymore", {
-      modelClassifierEnabled: true,
-      classifyWithModel: async (): Promise<ClassifierResult> => ({ ok: false }),
-    });
-    expect(r.escalate).toBe(true);
-    expect(r.reason).toContain("failing safe");
   });
 
   // Model output is untrusted text — the verdict check must normalize case and
