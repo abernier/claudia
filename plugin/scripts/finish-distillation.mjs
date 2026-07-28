@@ -40,10 +40,10 @@
  * Always exits 0: never break the host.
  */
 import { promises as fs } from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { isEntrypoint } from "../src/entry.mjs";
 import { parseFrontmatter, stampIdentity } from "../src/frontmatter.mjs";
+import { resolveVaultRoot } from "../src/vault.mjs";
 
 /** Leading `YYYY-MM-DD` of a stem (ADR-0017) or of a deliverable's filename. */
 const STEM_DATE = /^(\d{4}-\d{2}-\d{2})/;
@@ -156,7 +156,7 @@ async function main() {
   try {
     const stem = process.argv[2] || "";
     const deliverables = process.argv.slice(3);
-    const root = process.env.CLAUDIA_ROOT || path.join(os.homedir(), ".claudia");
+    const root = resolveVaultRoot();
     const status = await finishDistillation({ root, stem, deliverables });
     // Silent on the normal paths; the abnormal ones are worth surfacing to the caller
     // (the model), because they mean the session is still owed a summary.
