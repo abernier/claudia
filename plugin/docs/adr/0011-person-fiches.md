@@ -23,7 +23,7 @@ evergreen notes).
 
 ## Linking
 
-- **Plain relative markdown links** by default (`[Marie](Marie.md)`,
+- **Plain relative markdown links** by default (`[Ombeline](Ombeline.md)`,
   `[…](../sessions/<stem>.summary.md)`), computed from the linking file's own
   directory: portable and legible everywhere — GitHub, any plain viewer, Obsidian —
   with no rewrite step. Paths containing spaces are wrapped in angle brackets

@@ -13,8 +13,8 @@ the third party. See [ADR-0011](adr/0011-person-fiches.md) and
 ```markdown
 ---
 type: person
-name: Liliana                 # the file's canonical name (person's own language)
-aliases: [Lili]               # other names I use for her (my own reference)
+name: Sixtine                 # the file's canonical name (person's own language)
+aliases: [Tine]               # other names I use for her (my own reference)
 relationship: partner         # brother, mother, friend, manager, ex…
 closeness: high               # how close it feels — the person's word
 felt_quality: warm-but-tense  # the felt tone, in the person's words
@@ -26,7 +26,7 @@ themes: [trust, conflict-avoidance]
 tags: [family]
 ---
 
-# Liliana
+# Sixtine
 
 > One line, in my words: who she is to me.
 
@@ -50,7 +50,7 @@ The felt tone of the bond, right now and over time. My experience, not a verdict
 The thread this relationship touches → [trust](../themes/trust.md), [boundaries](../themes/boundaries.md).
 
 ## Connections
-- [Marie](Marie.md) — her sister, my closest friend
+- [Ombeline](Ombeline.md) — her sister, my closest friend
 - [Sam](Sam.md) — my manager (unrelated, but they've met)
 
 ## Open questions
@@ -64,7 +64,7 @@ The thread this relationship touches → [trust](../themes/trust.md), [boundarie
   `last_reflected` when it changes.
 - **Link generously but earn each link** (the one-sentence rule). Use **relative
   markdown links** — a fiche lives in `people/`, so link another person as
-  `[Marie](Marie.md)`, a session as `[2026-07-21](../sessions/<stem>.summary.md)`, a
+  `[Ombeline](Ombeline.md)`, a session as `[2026-07-21](../sessions/<stem>.summary.md)`, a
   thread as `[trust](../themes/trust.md)` (the [`themes`](../skills/themes/SKILL.md)
   layer, ADR-0015), and the working understanding as
   `[understanding](../understanding.md)`. Wrap any path containing spaces in angle

@@ -21,8 +21,8 @@ English/universal; **content is written in the person's language**.
 ├── themes.md            recurring threads across sessions — person-ratified, provisional (ADR-0015)
 ├── safety.md            locale + region resources + standing safety flags (never means/methods)
 ├── people/                         one reflective fiche per important person (ADR-0011)
-│   ├── Liliana.md                  relative-linked to sessions, themes, other people
-│   └── Marie.md
+│   ├── Ombeline.md                 relative-linked to sessions, themes, other people
+│   └── Sixtine.md
 ├── themes/                         one note per recurring thread that earned depth (ADR-0015)
 │   └── the inner critic.md         name in the person's words; verbatim kept separate
 └── sessions/                        one set of files per SESSION, keyed <date>-<short-session-id> (ADR-0017)
@@ -50,7 +50,7 @@ English/universal; **content is written in the person's language**.
 ## Invariants
 
 - **Notes cross-link with plain relative markdown links**, computed from the linking
-  file's own directory — a `people/` fiche links another person as `[Marie](Marie.md)`,
+  file's own directory — a `people/` fiche links another person as `[Ombeline](Ombeline.md)`,
   a session as `[…](../sessions/<stem>.summary.md)`, a root file as `[…](../themes.md)`;
   a root file (e.g. `timeline.md`) links a fiche as `[…](people/<name>.md)`. Wrap any
   path containing spaces in angle brackets — `[…](<themes/the inner critic.md>)`.

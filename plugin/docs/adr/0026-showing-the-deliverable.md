@@ -7,7 +7,7 @@ status: accepted
 Claudia makes things: an ecomap of the people around someone, a life timeline, an
 explainer with a diagram, a worksheet to work through. All of it is written under
 `~/.claudia/` and then **announced in prose** — "I've saved it to
-`sessions/exercises/2026-07-23-…`". The ecomap of Marie and Liliana, the one artifact
+`sessions/exercises/2026-07-23-…`". The ecomap of Ombeline and Sixtine, the one artifact
 that is genuinely worth _looking at_, arrives as raw ` ```mermaid ` text in a
 terminal.
 

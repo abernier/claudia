@@ -48,7 +48,7 @@ only invent one. That is the whole story of the dead stems.
 type: session                         type: exercise | teaching
 session: 2026-07-21-9113d5d7          created: 2026-07-22
 dates: [2026-07-21, 2026-07-22]       slug: un-sentiment-ca-s-accueille
-people: [Liliana]                     session: 2026-07-21-9113d5d7
+people: [Sixtine]                     session: 2026-07-21-9113d5d7
 themes: [the inner critic]            ---
 ---
 ```
