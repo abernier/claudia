@@ -15,8 +15,8 @@ const fixture = (): Record<string, string> => ({
   "themes.md":
     "← [[MEMORY]]\n## Candidats (vus sur [[2026-07-21-abc]])\n- **[[etre-rabaisse]]** — the wound\n- see [[the inner critic]]\n",
   "people/Sixtine.md":
-    '---\ntype: person\nthemes: ["[[etre-rabaisse]]", "[[trust]]"]\n---\n← [[MEMORY]]\nsee [[2026-07-21-abc]] and [[Marie]]\n',
-  "people/Marie.md": "# Marie\n",
+    '---\ntype: person\nthemes: ["[[etre-rabaisse]]", "[[trust]]"]\n---\n← [[MEMORY]]\nsee [[2026-07-21-abc]] and [[Ombeline]]\n',
+  "people/Ombeline.md": "# Ombeline\n",
   "sessions/2026-07-21-abc.summary.md": '---\npeople: ["[[Sixtine]]"]\n---\nwith [[Sixtine]]\n',
   "sessions/2026-07-21-abc.transcript.md": "verbatim [[Sixtine]] stays untouched\n",
   "todo.md": "the tag `[[<date>-id>]]` at the end\n- task · [[2026-07-21-abc]]\n",
@@ -53,7 +53,7 @@ describe("0001 — wikilinks → relative links", () => {
     const out = migrate(fixture());
     expect(out["people/Sixtine.md"]).toContain("← [MEMORY](../MEMORY.md)");
     expect(out["people/Sixtine.md"]).toContain("[2026-07-21-abc](../sessions/2026-07-21-abc.summary.md)");
-    expect(out["people/Sixtine.md"]).toContain("[Marie](Marie.md)");
+    expect(out["people/Sixtine.md"]).toContain("[Ombeline](Ombeline.md)");
     expect(out["sessions/2026-07-21-abc.summary.md"]).toContain("with [Sixtine](../people/Sixtine.md)");
   });
 

@@ -52,8 +52,8 @@ describe("parseFrontmatter()", () => {
   });
 
   it("strips one layer of matching quotes, on scalars and list items", () => {
-    expect(parseFrontmatter(`---\nname: "Liliana"\nthemes: ['the inner critic', trust]\n---\n`).data).toEqual({
-      name: "Liliana",
+    expect(parseFrontmatter(`---\nname: "Sixtine"\nthemes: ['the inner critic', trust]\n---\n`).data).toEqual({
+      name: "Sixtine",
       themes: ["the inner critic", "trust"],
     });
   });
@@ -99,15 +99,15 @@ describe("stampIdentity()", () => {
   });
 
   it("inserts a missing key next to the siblings that are already there", () => {
-    const out = stampIdentity("---\ntype: session\npeople: [Liliana]\n---\nbody\n", identity);
+    const out = stampIdentity("---\ntype: session\npeople: [Sixtine]\n---\nbody\n", identity);
     expect(out).toBe(
-      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21]\npeople: [Liliana]\n---\nbody\n",
+      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21]\npeople: [Sixtine]\n---\nbody\n",
     );
   });
 
   it("inserts at the top when no sibling is present yet", () => {
-    expect(stampIdentity("---\npeople: [Liliana]\n---\nbody\n", { type: "exercise" })).toBe(
-      "---\ntype: exercise\npeople: [Liliana]\n---\nbody\n",
+    expect(stampIdentity("---\npeople: [Sixtine]\n---\nbody\n", { type: "exercise" })).toBe(
+      "---\ntype: exercise\npeople: [Sixtine]\n---\nbody\n",
     );
   });
 
