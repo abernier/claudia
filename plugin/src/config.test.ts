@@ -13,15 +13,21 @@ import {
   renderSettings,
   SETTINGS,
   SETTING_KEYS,
+  showValue,
 } from "./config.mjs";
 
 describe("the declared settings", () => {
-  it("ships emoji OFF by default — the whole point of ADR-0028", () => {
-    expect(SETTINGS.emoji.default).toBe(false);
-    expect(defaults().emoji).toBe(false);
-  });
-
-  it("keeps the two pre-existing opt-outs default-ON (ADR-0004, ADR-0019)", () => {
+  it("declares exactly these keys with exactly these defaults (ADR-0028)", () => {
+    // THE canonical pin of the contract, and the only one: `defaults()` is derived
+    // from SETTINGS, so this single assertion fixes the key set and every shipped
+    // default at once — adding a setting is a one-line change here and nowhere
+    // else. Each value carries a decision: the two pre-existing opt-outs stay ON
+    // (ADR-0004, ADR-0019); backups stay ON, since a safety net you have to
+    // remember to switch on is not one (ADR-0032); emoji ships OFF, the whole
+    // point of ADR-0028 and the fail-safe direction, since the setting only ever
+    // loosens the persona's rule; verbose ships OFF, so the machinery stays
+    // invisible unless the person asks; language defaults to fr, the behaviour
+    // every earlier vault had (ADR-0029).
     expect(defaults()).toEqual({
       saveTranscripts: true,
       dashboard: true,
@@ -32,35 +38,14 @@ describe("the declared settings", () => {
     });
   });
 
-  it("ships backups ON — a safety net you have to remember to switch on is not one (ADR-0032)", () => {
-    expect(SETTINGS.backups.default).toBe(true);
-  });
-
-  it("ships verbose OFF — the machinery stays invisible unless the person asks", () => {
-    expect(SETTINGS.verbose.default).toBe(false);
-  });
-
-  it("ships language as a CLOSED enum defaulting to fr — the behaviour every earlier vault had (ADR-0029)", () => {
-    expect(SETTINGS.language.default).toBe("fr");
-    expect(SETTINGS.language.values).toEqual(["fr", "en"]);
-  });
-
   it("declares no key that could touch the safety floor", () => {
     // Settings sit above the floor, like immersion. A key named for safety, crisis
     // or the hook would be one that softens a never/always rule (ADR-0001).
     for (const key of SETTING_KEYS) expect(/safety|crisis|floor|hook|disclaim/i.test(key)).toBe(false);
   });
 
-  it("exposes every declared key, with a person-facing line for /config", () => {
-    expect([...SETTING_KEYS].sort()).toEqual([
-      "backups",
-      "dashboard",
-      "emoji",
-      "language",
-      "saveTranscripts",
-      "verbose",
-    ]);
-    for (const key of SETTING_KEYS) expect(SETTINGS[key].what.length).toBeGreaterThan(20);
+  it("gives every declared key a person-facing line for /config", () => {
+    for (const key of SETTING_KEYS) expect(SETTINGS[key].what.length, key).toBeGreaterThan(20);
   });
 
   it("recognises a real key and refuses a typo", () => {
@@ -157,24 +142,27 @@ describe("coerceSetting()", () => {
   });
 });
 
+describe("showValue()", () => {
+  it("shows a switch as on/off and an enum value verbatim (ADR-0029)", () => {
+    // The rendering convention itself, pinned here once — so the listing below can
+    // be derived from it without the two agreeing by construction.
+    expect(showValue(true)).toBe("on");
+    expect(showValue(false)).toBe("off");
+    expect(showValue("en")).toBe("en");
+  });
+});
+
 describe("renderSettings()", () => {
-  const listing = renderSettings({
-    saveTranscripts: true,
-    dashboard: false,
-    emoji: true,
-    language: "en",
-    verbose: false,
-    backups: true,
-  });
-
-  it("shows every declared setting, its value and its default", () => {
-    for (const key of SETTING_KEYS) expect(listing).toContain(key);
-    expect(listing).toMatch(/emoji\s+on\s+\(default off\)/);
-    expect(listing).toMatch(/dashboard\s+off\s+\(default on\)/);
-    expect(listing).toMatch(/language\s+en\s+\(default fr\)/); // enum values shown verbatim, not on/off
-  });
-
-  it("hides nothing that happens to sit at its default", () => {
-    expect(renderSettings(defaults()).split("\n")).toHaveLength(SETTING_KEYS.length);
+  it("shows every declared setting, its current value and its shipped default", () => {
+    // Expected line by line from the table itself, so adding a setting needs no
+    // edit here: one line per declared key, in declared order, each value as
+    // showValue() renders it.
+    const cfg = { ...defaults(), dashboard: false, emoji: true, language: "en" as const };
+    const lines = renderSettings(cfg).split("\n");
+    expect(lines, "a view hides nothing, not even a value sitting at its default").toHaveLength(SETTING_KEYS.length);
+    for (const [i, key] of SETTING_KEYS.entries())
+      expect(lines[i], key).toMatch(
+        new RegExp(`^${key}\\s+${showValue(cfg[key])}\\s+\\(default ${showValue(SETTINGS[key].default)}\\)\\s+\\S`),
+      );
   });
 });

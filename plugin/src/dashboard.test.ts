@@ -1,3 +1,28 @@
+/**
+ * The mirror's invariants (ADR-0019) — never its voice.
+ *
+ * ADR-0019 decided what `dashboard.md` *is*: a derived file that only
+ * **transcludes** what a source already says or **points** at it with a relative
+ * link, never summarises; a section whose source is absent is omitted rather
+ * than left dangling; a present-but-unparsable source degrades to an honest
+ * pointer. Those are the properties asserted here — over every language the
+ * settings declare at once — and the wording that carries them is
+ * implementation, free to move. Reword a heading, a glue word or the day format
+ * and this file stays green.
+ *
+ * ADR-0029 names those per-language strings (`22/07` in French, `Jul 22` in
+ * English) as the string table's business, and what it *binds* is guarded here
+ * structurally rather than by literal: the declared value list is exactly the set
+ * of shipped tables, and no two languages render the same document.
+ *
+ * The two literals in {@link PROVENANCE} are the deliberate exception: that line
+ * is where the file tells the person it is a mirror and that their real notes
+ * live elsewhere, so rewording it changes what the document *claims to be*.
+ *
+ * On disk — every link resolving to a real vault file, the prose surfaces left
+ * unexcerpted, `safety.md` never mirrored — is pinned at the seam, in
+ * ../scripts/build-dashboard.test.ts.
+ */
 import { describe, it, expect } from "vitest";
 import {
   listItems,
@@ -10,17 +35,20 @@ import {
   buildDashboard,
 } from "./dashboard.mjs";
 import type { DashboardInput, MirrorSession } from "./dashboard.mjs";
+import { SETTINGS } from "./config.mjs";
+import type { MirrorLanguage } from "./config.mjs";
 
 describe("listItems()", () => {
   it("transcludes bullet / numbered / checkbox lines verbatim, right-trimmed", () => {
     const md: string =
-      "# Objectifs\n\n- retrouver le sommeil  \n* parler à Liliana\n1. bouger un peu\n- [ ] respirer\n\nprose ignorée";
+      "# Objectifs\n\n- retrouver le sommeil  \n* parler à Sixtine\n1. bouger un peu\n- [ ] respirer\n\nprose ignorée";
     expect(listItems(md)).toEqual([
       "- retrouver le sommeil",
-      "* parler à Liliana",
+      "* parler à Sixtine",
       "1. bouger un peu",
       "- [ ] respirer",
     ]);
+    expect(listItems(md, { max: 2 })).toEqual(["- retrouver le sommeil", "* parler à Sixtine"]);
   });
   it("captures a WRAPPED bullet in full — never truncates to a dangling half-sentence", () => {
     // The real-data bug: a goal spilling onto the next physical line was cut at line 1.
@@ -31,25 +59,16 @@ describe("listItems()", () => {
       "- **M'autoriser la colère**",
     ]);
   });
-  it("returns [] for null / listless prose (caller then links instead)", () => {
-    expect(listItems(null)).toEqual([]);
-    expect(listItems("juste un paragraphe, aucune liste")).toEqual([]);
-  });
-  it("respects max", () => {
-    expect(listItems("- a\n- b\n- c", { max: 2 })).toEqual(["- a", "- b"]);
-  });
 });
 
 describe("sectionItems()", () => {
-  const todo: string =
-    "# À faire\n\n## Ouvert\n- [ ] rappeler le médecin · [2026-07-21-abc](sessions/2026-07-21-abc.summary.md)\n- [ ] écrire à Liliana\n\n## Fait\n- [x] réserver\n";
-  it("scopes to the matched heading, stops at the next heading", () => {
+  it("scopes to the matched heading, stops at the next one, and finds nothing when none matches", () => {
+    const todo: string =
+      "# À faire\n\n## Ouvert\n- [ ] rappeler le médecin · [2026-07-21-abc](sessions/2026-07-21-abc.summary.md)\n- [ ] écrire à Sixtine\n\n## Fait\n- [x] réserver\n";
     expect(sectionItems(todo, /ouvert/i)).toEqual([
       "- [ ] rappeler le médecin · [2026-07-21-abc](sessions/2026-07-21-abc.summary.md)",
-      "- [ ] écrire à Liliana",
+      "- [ ] écrire à Sixtine",
     ]);
-  });
-  it("returns [] when no heading matches", () => {
     expect(sectionItems(todo, /introuvable/i)).toEqual([]);
   });
 });
@@ -62,41 +81,37 @@ describe("quoteBlocks()", () => {
       "> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)",
       "> Dire non, ce n'était pas trahir.\n>\n> — moi",
     ]);
+    expect(quoteBlocks(keepsakes, { max: 1 })).toEqual([quoteBlocks(keepsakes)[0]]);
   });
   it("keeps the attribution and any note attached to their own quote", () => {
     // The quoted blank line is what holds a keepsake together — it must not split it.
     const one: string = "> une phrase\n>\n> — moi\n> *ce que ça me fait : je respire.*";
     expect(quoteBlocks(one)).toEqual([one]);
   });
-  it("respects max (the mirror shows one) and returns [] for null / quoteless prose", () => {
-    expect(quoteBlocks(keepsakes, { max: 1 })).toEqual([quoteBlocks(keepsakes)[0]]);
-    expect(quoteBlocks(null)).toEqual([]);
-    expect(quoteBlocks("aucune citation ici")).toEqual([]);
-  });
 });
 
 describe("mermaidBlock()", () => {
   it("returns the first mermaid fence verbatim", () => {
-    const people: string = "# Mon monde\n\n```mermaid\ngraph TD\n  moi --> Liliana\n```\n\nsuite";
-    expect(mermaidBlock(people)).toBe("```mermaid\ngraph TD\n  moi --> Liliana\n```");
+    const people: string = "# Mon monde\n\n```mermaid\ngraph TD\n  moi --> Sixtine\n```\n\nsuite";
+    expect(mermaidBlock(people)).toBe("```mermaid\ngraph TD\n  moi --> Sixtine\n```");
   });
   it("returns null when there is no mermaid block", () => {
-    expect(mermaidBlock("- Liliana\n- ma sœur")).toBeNull();
+    expect(mermaidBlock("- Sixtine\n- ma sœur")).toBeNull();
     expect(mermaidBlock(null)).toBeNull();
   });
 });
 
 describe("personName()", () => {
   it("reads a labelled field", () => {
-    expect(personName("**Nom** : Antoine\ncontexte…")).toBe("Antoine");
-    expect(personName("- name: Marie Dupont")).toBe("Marie Dupont");
+    expect(personName("**Nom** : Agnès\ncontexte…")).toBe("Agnès");
+    expect(personName("- name: Agnès Dupont")).toBe("Agnès Dupont");
   });
   it("reads a short first-line H1 (a title, not a sentence)", () => {
-    expect(personName("# Antoine\n\nquelqu'un de…")).toBe("Antoine");
+    expect(personName("# Agnès\n\nquelqu'un de…")).toBe("Agnès");
   });
   it("never guesses from prose — a sentence-y H1 or plain prose yields null", () => {
-    expect(personName("# Antoine se sent débordé en ce moment.")).toBeNull();
-    expect(personName("Antoine, 34 ans, navigue une période difficile.")).toBeNull();
+    expect(personName("# Agnès se sent débordée en ce moment.")).toBeNull();
+    expect(personName("Agnès, 34 ans, navigue une période difficile.")).toBeNull();
     expect(personName(null)).toBeNull();
   });
 });
@@ -126,152 +141,228 @@ describe("cadence()", () => {
   });
 });
 
-describe("buildDashboard() — transclude or point, never summarise", () => {
-  const understanding: string =
-    "# Working understanding\n\n## En ce moment\nune longue prose thérapeutique très personnelle…";
-  const base: DashboardInput = {
-    name: "Antoine",
-    sessions: [
-      { stem: "2026-07-21-bbb", date: "2026-07-21", hasSummary: true },
-      { stem: "2026-07-22-ccc", date: "2026-07-22", hasSummary: false },
-    ],
-    goals: "## Objectifs\n- retrouver le sommeil\n- poser une limite au travail",
-    themes: "## Thèmes\n- l'inner critic\n- s'effacer pour ne pas déranger",
-    todo: "## Ouvert\n- [ ] rappeler le médecin\n## Fait\n- [x] réserver",
-    keepsakes:
-      "# Ce que je garde\n\n> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)\n\n> Dire non, ce n'était pas trahir.\n>\n> — moi\n",
-    people: "```mermaid\ngraph TD\n  moi --> Liliana\n```",
-    timeline:
-      "- 2001 — naissance de ma sœur\n- 2019 — déménagement\n- 2024 — nouveau poste\n- 2026 — début avec Claudia",
-    understandingExists: true,
-    generatedAt: "2026-07-22",
-  };
+/**
+ * One row per source surface the mirror can show: the file a pointer to it names,
+ * the whole source as the vault holds it, and the fragment that must come through
+ * **verbatim**. Adding a section to the mirror is adding a row here.
+ */
+const SURFACES = [
+  {
+    key: "goals",
+    file: "goals.md",
+    source: "## Objectifs\n- retrouver le sommeil\n- poser une limite au travail",
+    shown: "- retrouver le sommeil",
+  },
+  { key: "themes", file: "themes.md", source: "## Thèmes\n- l'inner critic", shown: "- l'inner critic" },
+  {
+    key: "todo",
+    file: "todo.md",
+    source: "## Ouvert\n- [ ] rappeler le médecin\n\n## Fait\n- [x] réserver",
+    shown: "- [ ] rappeler le médecin",
+  },
+  {
+    // Attribution included, links and all (ADR-0023): a source's own links are the
+    // person's, and they travel with the passage.
+    key: "keepsakes",
+    file: "keepsakes.md",
+    source:
+      "# Ce que je garde\n\n> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)\n",
+    shown: "> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)",
+  },
+  {
+    key: "people",
+    file: "people.md",
+    source: "```mermaid\ngraph TD\n  moi --> Sixtine\n```",
+    shown: "```mermaid\ngraph TD\n  moi --> Sixtine\n```",
+  },
+  {
+    // Four markers, so the mirror's bounded glance (the last three) is visible.
+    key: "timeline",
+    file: "timeline.md",
+    source: "- 2001 — naissance de ma sœur\n- 2019 — déménagement\n- 2024 — nouveau poste\n- 2026 — début avec Claudia",
+    shown: "- 2026 — début avec Claudia",
+  },
+] as const;
 
-  it("titles with the name and shows computed vitals", () => {
-    const md: string = buildDashboard(base);
-    expect(md).toMatch(/^# Vue d'ensemble — Antoine/);
-    expect(md).toContain("dernière session · 22/07");
-    expect(md).toContain("2 sessions");
+/** The oldest life marker — past the mirror's bounded glance, it stays in its file. */
+const BEYOND_THE_GLANCE = "- 2001 — naissance de ma sœur";
+
+type SurfaceKey = (typeof SURFACES)[number]["key"];
+
+const PERSON = "Agnès";
+const DISTILLED: MirrorSession = { stem: "2026-07-21-bbb", date: "2026-07-21", hasSummary: true };
+const PENDING: MirrorSession = { stem: "2026-07-22-ccc", date: "2026-07-22", hasSummary: false };
+
+/** A vault with every surface present — the baseline each invariant varies from. */
+const base: DashboardInput = {
+  name: PERSON,
+  sessions: [DISTILLED, PENDING],
+  ...(Object.fromEntries(SURFACES.map((s) => [s.key, s.source])) as Record<SurfaceKey, string>),
+  understandingExists: true,
+  generatedAt: "2026-07-22",
+};
+
+/**
+ * What a link in the mirror may point at: a surface the baseline vault has, or a
+ * target one of its sources already carried — a transcluded link is the person's
+ * own, and the mirror is not answerable for where it goes.
+ */
+const REACHABLE: string[] = [
+  "understanding.md",
+  ...SURFACES.map((s) => s.file),
+  `sessions/${DISTILLED.stem}.summary.md`,
+];
+
+/**
+ * The mirror's one golden line per language: the note that says this file is a
+ * reflection and that the person's real notes live in the linked files. Keyed by
+ * the settings enum, so a language shipped in `config.mjs` without a string table
+ * in `dashboard.mjs` fails here rather than silently rendering French.
+ */
+const PROVENANCE: Record<MirrorLanguage, string> = {
+  fr: "*Ce fichier est un reflet, tenu à jour tout seul — tes vraies notes vivent dans les fichiers liés.*",
+  en: "*This file is a mirror, kept up to date on its own — your real notes live in the linked files.*",
+};
+
+const LANGUAGES = (SETTINGS.language.values ?? []) as readonly MirrorLanguage[];
+
+/** Every `](target)` the mirror points at, in order. */
+const linkTargets = (md: string): string[] => [...md.matchAll(/\]\(([^)]+)\)/g)].map((m) => m[1]!);
+
+const sessionLinks = (md: string): string[] => linkTargets(md).filter((t) => t.startsWith("sessions/"));
+
+/**
+ * The mirror's section headings, in order — stopping at the `---` rule, below
+ * which sits the footer nav rather than a section. Compared to each other and
+ * counted, never matched against a literal.
+ */
+function headings(md: string): string[] {
+  const out: string[] = [];
+  for (const line of md.split("\n")) {
+    if (line === "---") break;
+    if (line.startsWith("## ")) out.push(line);
+  }
+  return out;
+}
+
+describe("buildDashboard() — the mirror's contract, in every declared language", () => {
+  it("speaks exactly the languages the settings declare (ADR-0029)", () => {
+    // The two tables are shipped in different modules; this is where they meet.
+    expect(Object.keys(PROVENANCE).sort()).toEqual([...LANGUAGES].sort());
   });
 
-  it("links the working understanding, never excerpts its prose", () => {
-    const md: string = buildDashboard(base);
-    expect(md).toContain("## Là où on en est");
-    expect(md).toContain("→ [understanding](understanding.md)");
-    expect(md).not.toContain("longue prose thérapeutique");
-    expect(md).not.toContain("En ce moment");
-  });
-
-  it("transcludes lists verbatim (goals, themes)", () => {
-    const md: string = buildDashboard(base);
-    expect(md).toContain("- retrouver le sommeil");
-    expect(md).toContain("- l'inner critic");
-  });
-
-  it("shows only the still-open todos", () => {
-    const md: string = buildDashboard(base);
-    expect(md).toContain("- [ ] rappeler le médecin");
-    expect(md).not.toContain("réserver");
-  });
-
-  it("renders recent fils as date+link, and pending sessions as pending — never an excerpt", () => {
-    const md: string = buildDashboard(base);
-    expect(md).toContain("- 21/07 → [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)");
-    expect(md).toContain("- 22/07 · *en cours de distillation*");
-  });
-
-  it("mirrors the newest keepsake verbatim — one only, and never a count", () => {
-    const md: string = buildDashboard(base);
-    expect(md).toContain("## Ce que tu gardes");
-    expect(md).toContain(
-      "> Tu n'es pas en retard sur ta vie.\n>\n> — Claudia · [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)",
+  it("gives each declared language words of its own — no two render the same document (ADR-0029)", () => {
+    // The drift this suite exists to catch: a shipped language whose table was
+    // copied from another's, or never written, renders identically and nothing says
+    // so. Which words differ is the mirror's business; that they differ is not.
+    const rendered = LANGUAGES.map((l) => buildDashboard({ ...base, language: l }));
+    expect(new Set(rendered).size, "two languages rendering alike is a table that never got written").toBe(
+      LANGUAGES.length,
     );
-    expect(md).not.toContain("Dire non"); // the collection is not the glance
-    expect(md).not.toMatch(/\d+\s+(keepsakes?|citations?|phrases? gardées?)/i);
   });
 
-  it("omits the keepsakes section entirely when nothing has been kept", () => {
-    const md: string = buildDashboard({ ...base, keepsakes: null });
-    expect(md).not.toContain("## Ce que tu gardes");
-    expect(md).not.toContain("keepsakes.md");
+  it("degrades an unshipped language to the shipped default — the whole document, not just a heading", () => {
+    const fallback = SETTINGS.language.default as MirrorLanguage;
+    const unshipped = buildDashboard({ ...base, language: "de" as unknown as MirrorLanguage });
+    expect(unshipped).toBe(buildDashboard({ ...base, language: fallback }));
   });
 
-  it("transcludes the ecomap block verbatim", () => {
-    const md: string = buildDashboard(base);
-    expect(md).toContain("```mermaid\ngraph TD\n  moi --> Liliana\n```");
-  });
+  describe.each(LANGUAGES)("in %s", (language) => {
+    const mirror = (over: DashboardInput = {}) => buildDashboard({ ...base, ...over, language });
 
-  it("keeps only the last three life markers", () => {
-    const md: string = buildDashboard(base);
-    expect(md).toContain("- 2026 — début avec Claudia");
-    expect(md).not.toContain("naissance de ma sœur");
-  });
+    it("says it is a mirror and where the real notes live (the one line pinned verbatim)", () => {
+      expect(mirror()).toContain(PROVENANCE[language]);
+    });
 
-  it("never mirrors safety content", () => {
-    const md: string = buildDashboard(base);
-    expect(md).not.toMatch(/safety|sécurité|risque|crise/i);
-  });
+    it("transcludes a present source verbatim, and leaves no trace of an absent one (ADR-0019)", () => {
+      const full = mirror();
+      for (const { key, file, shown } of SURFACES) {
+        expect(full, `${key} should come through verbatim`).toContain(shown);
+        const dropped: DashboardInput = { ...base };
+        dropped[key] = null; // the file the person simply does not have
+        const without = buildDashboard({ ...dropped, language });
+        expect(without, `${key} absent: nothing of it may be transcluded`).not.toContain(shown);
+        expect(without, `${key} absent: no dangling link to ${file}`).not.toContain(file);
+        expect(headings(without), `${key} absent: exactly its section goes`).toHaveLength(headings(full).length - 1);
+      }
+    });
 
-  it("omits the name when it cannot be found, and omits absent sections (no dangling links)", () => {
-    const md: string = buildDashboard({ ...base, name: null, timeline: null, people: null });
-    expect(md).toMatch(/^# Vue d'ensemble\n/);
-    expect(md).not.toContain("## Repères de vie");
-    expect(md).not.toContain("## Ton monde");
-    expect(md).not.toContain("timeline.md");
-  });
+    it("points at the working understanding, never into it (ADR-0019)", () => {
+      // The prose never even reaches the builder — the input carries a boolean, so
+      // excerpting it is impossible by construction. What is asserted is the pointer.
+      expect(linkTargets(mirror())).toContain("understanding.md");
+      const without = mirror({ understandingExists: false });
+      expect(without).not.toContain("understanding.md");
+      expect(headings(without)).toHaveLength(headings(mirror()).length - 1);
+    });
 
-  it("falls back to a bare link when a present source has no parsable list", () => {
-    const md: string = buildDashboard({ ...base, goals: "on en reparlera, rien d'arrêté encore" });
-    expect(md).toContain("## Objectifs\n→ [goals](goals.md)");
-  });
-});
+    it("links a distilled session and shows a pending one without naming it (ADR-0016)", () => {
+      // Read on a vault with nothing kept, so the only session links in the document
+      // are the mirror's own — a transcluded keepsake carries the person's.
+      const own = (over: DashboardInput = {}) => mirror({ keepsakes: null, ...over });
+      expect(sessionLinks(own())).toEqual([`sessions/${DISTILLED.stem}.summary.md`]);
+      const pendingOnly = own({ sessions: [PENDING] });
+      expect(headings(pendingOnly), "the section stays — the session is shown").toEqual(headings(own()));
+      expect(sessionLinks(pendingOnly), "but there is no summary to point at yet").toEqual([]);
+      expect(pendingOnly, "and nothing of it is named or excerpted").not.toContain(PENDING.stem);
+      expect(headings(own({ sessions: [] }))).toHaveLength(headings(own()).length - 1);
+    });
 
-describe("buildDashboard() speaks the person's language (ADR-0029)", () => {
-  const base: DashboardInput = {
-    name: "Nora",
-    sessions: [
-      { stem: "2026-07-21-bbb", date: "2026-07-21", hasSummary: true },
-      { stem: "2026-07-22-ccc", date: "2026-07-22", hasSummary: false },
-    ],
-    goals: "## Goals\n- say no without guilt",
-    todo: "## Open\n- [ ] draft the message\n## Done\n- [x] book the class",
-    understandingExists: true,
-    generatedAt: "2026-07-22",
-    language: "en",
-  };
+    it("points only at files the vault actually has (ADR-0019)", () => {
+      const carried = SURFACES.flatMap((s) => linkTargets(s.source)); // the person's own links, transcluded
+      const dangling = linkTargets(mirror()).filter((t) => ![...REACHABLE, ...carried].includes(t));
+      expect(dangling, `links to files that do not exist:\n${dangling.join("\n")}`).toEqual([]);
+    });
 
-  it("titles, vitals and day format in English", () => {
-    const md: string = buildDashboard(base);
-    expect(md).toMatch(/^# Overview — Nora/);
-    expect(md).toContain("last session · Jul 22");
-    expect(md).toContain("2 sessions");
-  });
+    it("keeps the glance bounded — the oldest life markers stay in their file (ADR-0019)", () => {
+      // A mirror that grew without limit would stop being a glance and become the file.
+      expect(mirror()).not.toContain(BEYOND_THE_GLANCE);
+    });
 
-  it("labels every section in English, and marks a pending session in English", () => {
-    const md: string = buildDashboard(base);
-    expect(md).toContain("## Where we are");
-    expect(md).toContain("*(provisional)*");
-    expect(md).toContain("## Goals");
-    expect(md).toContain("## Recent threads");
-    expect(md).toContain("- Jul 22 · *being distilled*");
-    expect(md).toContain("- Jul 21 → [2026-07-21-bbb](sessions/2026-07-21-bbb.summary.md)");
-    expect(md).toContain("*This file is a mirror, kept up to date on its own");
-    expect(md).toContain("*(generated Jul 22)*");
-    expect(md).not.toMatch(/Vue d'ensemble|À reprendre|généré/);
-  });
+    it("degrades an unparsable source to an honest pointer rather than guessing (ADR-0019)", () => {
+      const md = mirror({ goals: "on en reparlera, rien d'arrêté encore" });
+      expect(md, "prose is never excerpted").not.toContain("on en reparlera");
+      expect(linkTargets(md), "it is pointed at instead").toContain("goals.md");
+      expect(headings(md), "and the section stays").toEqual(headings(mirror()));
+    });
 
-  it("matches `## Open` todos — and still `## Ouvert` — regardless of the setting", () => {
-    const en: string = buildDashboard(base);
-    expect(en).toContain("## To pick up");
-    expect(en).toContain("- [ ] draft the message");
-    expect(en).not.toContain("book the class");
-    const switched: string = buildDashboard({ ...base, todo: "## Ouvert\n- [ ] l'ancien item\n## Fait\n- [x] fini" });
-    expect(switched).toContain("- [ ] l'ancien item"); // a vault that changed language keeps its history readable
-    expect(switched).not.toContain("fini");
-  });
+    it("shows what is still open, whichever language the todo file was written in (ADR-0018)", () => {
+      // A vault that changed language keeps its whole history readable (ADR-0029).
+      for (const { todo, open, done } of [
+        {
+          todo: "## Ouvert\n- [ ] rappeler le médecin\n\n## Fait\n- [x] réserver",
+          open: "rappeler le médecin",
+          done: "réserver",
+        },
+        {
+          todo: "## Open\n- [ ] draft the message\n\n## Done\n- [x] book the class",
+          open: "draft the message",
+          done: "book the class",
+        },
+      ]) {
+        const md = mirror({ todo });
+        expect(md, todo).toContain(`- [ ] ${open}`);
+        expect(md, todo).not.toContain(done);
+      }
+    });
 
-  it("degrades an unshipped language to the old behaviour (French), totally", () => {
-    const md: string = buildDashboard({ ...base, language: "de" as unknown as DashboardInput["language"] });
-    expect(md).toMatch(/^# Vue d'ensemble — Nora/);
+    it("mirrors one kept passage, verbatim, and never counts them (ADR-0023)", () => {
+      const kept = "> Tu n'es pas en retard sur ta vie.\n>\n> — moi";
+      const older = "> Dire non, ce n'était pas trahir.";
+      const md = mirror({ keepsakes: `# Ce que je garde\n\n${kept}\n\n${older}\n>\n> — moi\n` });
+      expect(md).toContain(kept);
+      expect(md, "a glance at what they carry, not the collection").not.toContain(older);
+      expect(md, "counting would turn re-reading into scoring").not.toMatch(/\d+\s+(keepsakes?|citations?|phrases?)/i);
+    });
+
+    it("carries the person's name in its title, and nothing in its place when there is none", () => {
+      const [titled = ""] = mirror().split("\n");
+      expect(titled).toMatch(/^# /);
+      expect(titled).toContain(PERSON);
+      const [nameless = ""] = mirror({ name: null }).split("\n");
+      expect(nameless).not.toContain(PERSON);
+      expect(titled.startsWith(nameless), "the name is appended to the same title").toBe(true);
+      expect(nameless, "no glue left hanging where the name would have been").not.toMatch(/[\s—·:|-]$/);
+    });
   });
 });
