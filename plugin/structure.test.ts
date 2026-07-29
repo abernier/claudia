@@ -251,7 +251,10 @@ describe("decision guards", () => {
       expect(/chose to forget/i.test(read(f)), `${f} must carry the never-retrieve rule`).toBe(true);
     // Refusable like every other copy, disclosed inside the existing first-run
     // breath, and the background job stays out of the conversation.
-    expect([...SETTING_KEYS], "backups must be a declared setting (ADR-0028)").toContain("backups");
+    // Not the settings table (pinned once, in src/config.test.ts): what is guarded
+    // here is that the archive has a switch at all, so it is refusable like every
+    // other copy the vault keeps.
+    expect([...SETTING_KEYS], "the archive must be refusable — it needs a declared key").toContain("backups");
     const remember = read("skills/remember/SKILL.md");
     expect(/claudia-backups/.test(remember), "the archive must be disclosed at all").toBe(true);
     expect(/same breath/.test(remember), "and folded into the one disclosure that exists").toBe(true);
@@ -560,7 +563,10 @@ describe("decision guards", () => {
     expect(/^allowed-tools:(?!.*\b(Write|Edit)\b)/m.test(command), "no direct write to config.json").toBe(true);
     // Emoji defaults off; the register rule lives in the always-loaded persona —
     // the fail-safe direction, since the setting only ever loosens it.
-    expect(defaults().emoji, "emoji defaults off").toBe(false);
+    // Not a restatement of the settings table (pinned once, in src/config.test.ts):
+    // what is guarded here is the *direction* — the strict side is the default, so a
+    // compaction that drops `emoji: true` falls back to plain, never to loose.
+    expect(defaults().emoji, "the setting may only ever loosen the persona's rule").toBe(false);
     const persona = read("skills/claudia/SKILL.md");
     expect(/without emoji/i.test(persona), "the persona must carry the register rule").toBe(true);
     expect(/emoji/i.test(read("SOUL.md")), "and the soul, as congruence").toBe(true);
