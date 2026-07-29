@@ -20,7 +20,7 @@ The block splits in two, and only one half is yours:
 type: session                     # ┐
 session: 2026-07-21-9113d5d7      # │ identity — NOT yours. Stamped by
 dates: [2026-07-21, 2026-07-22]   # ┘ finish-distillation.mjs. Don't write these.
-people: [Liliana]                 # ┐ judgment — only you can know these.
+people: [Sixtine]                 # ┐ judgment — only you can know these.
 themes: [the inner critic]        # ┘
 ---
 ```
