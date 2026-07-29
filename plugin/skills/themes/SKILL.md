@@ -48,8 +48,8 @@ with spaces in angle brackets):
 ```markdown
 # Themes
 
-- **[the inner critic](<themes/the inner critic.md>)** — the voice that says it was never enough · _open_ → [Liliana](people/Liliana.md), [2026-07-21](sessions/2026-07-21-9113d5d7.summary.md)
-- **[what steadies me](<themes/what steadies me.md>)** — walking first thing, and Marie · _resource_ → [Marie](people/Marie.md)
+- **[the inner critic](<themes/the inner critic.md>)** — the voice that says it was never enough · _open_ → [Sixtine](people/Sixtine.md), [2026-07-21](sessions/2026-07-21-9113d5d7.summary.md)
+- **[what steadies me](<themes/what steadies me.md>)** — walking first thing, and Ombeline · _resource_ → [Ombeline](people/Ombeline.md)
 ```
 
 Status: `open` / `quiet` / `eased`, or `resource` for a strength thread. A thread
@@ -66,7 +66,7 @@ name: the inner critic
 status: open
 first_noticed: 2026-07-21
 last_reflected: 2026-07-22
-people: [Liliana]
+people: [Sixtine]
 ---
 
 # the inner critic
@@ -75,7 +75,7 @@ people: [Liliana]
 
 ## Where it shows
 
-- 2026-07-21 — right after the dinner with Liliana. → [2026-07-21](../sessions/2026-07-21-9113d5d7.summary.md)
+- 2026-07-21 — right after the dinner with Sixtine. → [2026-07-21](../sessions/2026-07-21-9113d5d7.summary.md)
 
 ## Exceptions / what helps
 
@@ -107,8 +107,8 @@ at the scale where it earns its place. A regenerated view, **never** the store:
 graph TD
   IC["the inner critic"]
   WS["what steadies me"]
-  LIL["Liliana"]
-  IC ---|"loudest after"| LIL
+  SIX["Sixtine"]
+  IC ---|"loudest after"| SIX
   WS -.->|"quiets"| IC
   click IC "themes/the inner critic.md"
 ````

@@ -32,7 +32,7 @@ If `recall` already ran this turn, use what you have; don't re-read.
 
 **One question, 2–4 options**, in the person's language, on `AskUserQuestion`.
 
-- The **label** is their thread in their own words — _"le dîner avec Liliana"_,
+- The **label** is their thread in their own words — _"le dîner avec Sixtine"_,
   never _"reprendre une session"_. The **description** is the one line that says why
   it's on the list: _"tu voulais aborder l'argent — c'est resté ouvert"_.
 - An activity appears **incarnated in their material**, never as a capability: _"the

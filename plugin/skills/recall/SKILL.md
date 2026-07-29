@@ -63,7 +63,7 @@ If `~/.claudia/` exists, read:
   gently steer where you are today — but hold it lightly, as a hypothesis, and
   drop it the moment the person contradicts it.
 - `people.md` — the [relationship map](../relationships/SKILL.md): who the
-  important people are (Liliana, "your sister"…) and how the person frames each
+  important people are (Sixtine, "your sister"…) and how the person frames each
   bond, so you hold their world in mind.
 - `themes.md` — the [recurring threads](../themes/SKILL.md) across sessions, and any
   **candidate** thread awaiting the person's ratification. Hold them lightly.
@@ -82,7 +82,7 @@ From what you read, pick out — for a warm, contextualized opening check-in:
 
 - the person's **name**,
 - one **still-open** thread or an **event they were anticipating**, with the
-  **concern attached** (e.g. "dinner with Liliana Friday — wanted to raise the
+  **concern attached** (e.g. "dinner with Sixtine Friday — wanted to raise the
   money thing"),
 - any between-session step they meant to try — the `todo.md` `## Ouvert` list is
   the concrete home for these; a still-open item there is a good candidate.

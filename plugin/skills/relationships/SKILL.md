@@ -7,7 +7,7 @@ allowed-tools: Read Write Bash SendUserFile
 # Relationship map
 
 Keep a light, living map of the people who matter to the person — so you _know_
-who Liliana or "your sister" is, and can hold their world in mind across sessions.
+who Sixtine or "your sister" is, and can hold their world in mind across sessions.
 The **graph** lives at `~/.claudia/people.md` (mermaid); each person can also get a
 **fiche** at `~/.claudia/people/<name>.md`. It feeds the
 [working understanding](../understand/SKILL.md).
@@ -34,11 +34,11 @@ what you're exploring. Keep it plain mermaid — **no clinical genogram symbols*
 ```mermaid
 graph TD
   ME(["You"])
-  ME ---|"sister · close"| SIS["Marie"]
-  ME ---|"partner · tender, some tension lately"| LIL["Liliana"]
+  ME ---|"sister · close"| SIS["Ombeline"]
+  ME ---|"partner · tender, some tension lately"| SIX["Sixtine"]
   ME ---|"manager · draining"| BOSS["Sam"]
-  click SIS "people/Marie.md"
-  click LIL "people/Liliana.md"
+  click SIS "people/Ombeline.md"
+  click SIX "people/Sixtine.md"
 ````
 
 ```
