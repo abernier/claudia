@@ -128,9 +128,9 @@ describe("stampIdentity()", () => {
   });
 
   it("preserves comments, spacing and the person's own line ending", () => {
-    const handEdited = "---\r\ntype: person\r\naliases: [Lili]   # her name to me\r\n---\r\nbody\r\n";
+    const handEdited = "---\r\ntype: person\r\naliases: [Tine]   # her name to me\r\n---\r\nbody\r\n";
     const out = stampIdentity(handEdited, { type: "person", first_noted: "2026-07-21" });
-    expect(out).toContain("aliases: [Lili]   # her name to me");
+    expect(out).toContain("aliases: [Tine]   # her name to me");
     expect(out.split("\n").every((l) => l === "" || l.endsWith("\r"))).toBe(true);
   });
 });
