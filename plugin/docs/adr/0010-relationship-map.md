@@ -11,7 +11,7 @@ biopsychosocial intake (ADR-0009). It is **adaptive**: an ecomap by default (the
 person at the centre, key people around, each edge labelled with the relationship
 and closeness _as the person frames it_), extending toward a **family genogram**
 when family history is explored. Rendered in **mermaid**, stored at
-`~/.claudia/people.md`. It powers continuity — knowing who Liliana or "your sister"
+`~/.claudia/people.md`. It powers continuity — knowing who Sixtine or "your sister"
 is — and is part of the [Working understanding](0008-working-understanding.md)'s
 social context.
 

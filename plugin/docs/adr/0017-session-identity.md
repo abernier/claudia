@@ -20,7 +20,7 @@ therapy vault (and would keep being, including the session doing this cleanup).
 ## Bug 2 — date-keyed, append-only archiving
 
 `save-session` wrote `<date>.transcript.md` and **appended** on every close. A
-resumed conversation re-dumps its _entire_ transcript each time, so one Liliana
+resumed conversation re-dumps its _entire_ transcript each time, so one therapy
 session appeared **three times** (growing) in a single day's file; and because the
 gate was loose, three unrelated dev `/grill-me` sessions were concatenated after
 it. One day-file, six sessions, two of them real.
@@ -54,7 +54,7 @@ legacy plain `<date>`), so both schemes coexist.
 - Keying by session also **fixes distillation granularity** (the same-day limitation
   noted in ADR-0016): two conversations on one day are now two files with two
   summaries, and a session resumed across days is _one_ file, not two.
-- **Migration (one-off).** The existing date-files were rebuilt: the genuine Liliana
+- **Migration (one-off).** The existing date-files were rebuilt: the genuine therapy
   session (spanning 07-21→07-22) was re-rendered from its source JSONL to a single
   session-keyed transcript + one consolidated summary; the polluted/triplicated
   date-files were moved to `sessions/_pre-cleanup/` (reversible) rather than deleted.
