@@ -27,14 +27,14 @@ describe("vault export pass (scripts/vault-export.mjs)", () => {
     const src = path.join(parent, "vault");
     await fs.mkdir(path.join(src, "people"), { recursive: true });
     await fs.writeFile(path.join(src, "MEMORY.md"), "index\n");
-    await fs.writeFile(path.join(src, "people", "Liliana.md"), "fiche\n");
+    await fs.writeFile(path.join(src, "people", "Sixtine.md"), "fiche\n");
 
     const dest = path.join(parent, "out");
     const r = runExport(src, dest);
 
     expect(r.status).toBe(0);
     expect(r.stdout).toMatch(/Exported 2 files/);
-    expect(await fs.readFile(path.join(dest, "people", "Liliana.md"), "utf8")).toBe("fiche\n");
+    expect(await fs.readFile(path.join(dest, "people", "Sixtine.md"), "utf8")).toBe("fiche\n");
   });
 
   it("on a mid-copy failure, exits 1 and warns the person about the partial copy", async () => {

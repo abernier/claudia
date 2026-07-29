@@ -41,12 +41,12 @@ const STEM = "2026-07-21-9113d5d7";
 describe("finishDistillation()", () => {
   it("stamps identity onto a summary that carries only the judgment half", async () => {
     const root = await makeVault({
-      [`sessions/${STEM}.summary.md`]: "---\npeople: [Liliana]\n---\n\n# Séance\n\nLe fil.\n",
+      [`sessions/${STEM}.summary.md`]: "---\npeople: [Sixtine]\n---\n\n# Séance\n\nLe fil.\n",
       [`sessions/${STEM}.pending-summary`]: MARKER,
     });
     expect(await finishDistillation({ root, stem: STEM })).toBe("stamped");
     expect(await read(root, `sessions/${STEM}.summary.md`)).toBe(
-      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21, 2026-07-22]\npeople: [Liliana]\n---\n\n# Séance\n\nLe fil.\n",
+      "---\ntype: session\nsession: 2026-07-21-9113d5d7\ndates: [2026-07-21, 2026-07-22]\npeople: [Sixtine]\n---\n\n# Séance\n\nLe fil.\n",
     );
   });
 
@@ -195,7 +195,7 @@ describe("run as a script, the way distill-session runs it", () => {
 
   it("stamps and clears when reached through a symlinked plugin root", async () => {
     const root = await makeVault({
-      [`sessions/${STEM}.summary.md`]: "---\npeople: [Liliana]\n---\n\n# Séance\n",
+      [`sessions/${STEM}.summary.md`]: "---\npeople: [Sixtine]\n---\n\n# Séance\n",
       [`sessions/${STEM}.pending-summary`]: MARKER,
     });
     const run = close(await linkToPlugin(), root);

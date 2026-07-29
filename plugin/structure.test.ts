@@ -208,7 +208,7 @@ describe("docs stay in sync with the tree", () => {
       // N backticks closes on a run of exactly N. The naive /`[^`]*`/ mis-paired on a
       // span *containing* a longer run — the CHANGELOG's inline ` ```mermaid ` — and
       // every link after it in the file silently lost its code-span shield, surfacing
-      // documented `~/.claudia/` paths (`Marie.md`) as broken repo links.
+      // documented `~/.claudia/` paths (`Ombeline.md`) as broken repo links.
       const txt = readFileSync(f, "utf8")
         .replace(/```[\s\S]*?```/g, "")
         .replace(/(`+)[\s\S]*?(?<!`)\1(?!`)/g, "");
