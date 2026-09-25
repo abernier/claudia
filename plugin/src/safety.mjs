@@ -46,6 +46,43 @@ export const UNCERTAIN = [
  */
 
 /**
+ * Blocks Claude Code writes into a prompt that are not the person's words: a
+ * background task reporting back, a system reminder, the captured output of a local
+ * command or a `!` shell run. Screening them screens whatever the task or the command
+ * happened to print — the animation-studio log where a squashed character screams
+ * "AAAAaaaah" read as violence (ADR-0036).
+ *
+ * Conservative on purpose. `<command-name>` / `<command-args>` are NOT here: a slash
+ * command's arguments are typed by the person. Only complete, closed blocks are
+ * removed — a truncated or unknown wrapper stays in and is screened.
+ */
+export const HARNESS_BLOCKS = [
+  "task-notification",
+  "system-reminder",
+  "local-command-stdout",
+  "local-command-stderr",
+  "local-command-caveat",
+  "bash-stdout",
+  "bash-stderr",
+];
+
+const HARNESS_BLOCK_RE = new RegExp(`<(${HARNESS_BLOCKS.join("|")})>[\\s\\S]*?</\\1>`, "g");
+
+/**
+ * The part of a prompt the person actually wrote: the prompt with every harness
+ * block removed, trimmed. Empty when the prompt was nothing but harness output — a
+ * `<task-notification>` payload is the common case — and then there is nothing to
+ * screen.
+ * @param {string | null | undefined} prompt
+ * @returns {string}
+ */
+export function personsWords(prompt) {
+  return String(prompt || "")
+    .replace(HARNESS_BLOCK_RE, "")
+    .trim();
+}
+
+/**
  * Pure, synchronous first pass. Returns the risk band and a reason.
  * @param {string} text - Prompt text to screen (defensively coerced).
  * @returns {HeuristicResult}

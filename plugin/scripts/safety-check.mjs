@@ -4,13 +4,26 @@
  *
  * Thin wrapper around ../src/safety.mjs. Runs OUTSIDE the persona (ADR-0001 rule
  * 8 / ADR-0003). Stage 2 (fast-model classifier via the local `claude` CLI) is
- * OFF by default — set CLAUDIA_MODEL_CLASSIFIER=on to enable. FAIL-SAFE: on any
- * error we escalate; we never suppress. Reads the hook payload (JSON on stdin),
- * emits UserPromptSubmit hook output (JSON on stdout). Never blocks the turn.
+ * OFF by default — set CLAUDIA_MODEL_CLASSIFIER=on to enable. Reads the hook
+ * payload (JSON on stdin), emits UserPromptSubmit hook output (JSON on stdout).
+ * Never blocks the turn.
+ *
+ * GATED (ADR-0036): the plugin is user-scoped, so this fires in every session on
+ * the machine. It screens only a Claudia session — the transcript shows the
+ * `claudia` skill activated, or the prompt names her (turn one, before the
+ * activation is written) — and only the person's own words, never a harness
+ * block such as a `<task-notification>`. Everywhere else it is silent.
+ *
+ * FAIL-SAFE inside the gate: once the session is established as Claudia's, any
+ * error escalates; we never suppress. A gate that cannot tell (no transcript,
+ * unreadable) reads as "not Claudia" unless the prompt names her.
  */
 
 import { execFile } from "node:child_process";
-import { decide, escalationContext } from "../src/safety.mjs";
+import os from "node:os";
+import { isEntrypoint } from "../src/entry.mjs";
+import { isClaudiaHookPayload, namesClaudia } from "../src/gate.mjs";
+import { decide, escalationContext, personsWords } from "../src/safety.mjs";
 
 /**
  * UserPromptSubmit hook payload: the transcript locator plus the prompt text,
@@ -77,44 +90,93 @@ function classifyWithModel(text) {
 
 /**
  * Emit the UserPromptSubmit hook output that injects the escalation note.
- * @param {string} reason - Why we escalated. Always a string: SafetyDecision is
- *   discriminated on `escalate`, so the `if (escalate)` call site narrows it.
+ * @param {string} note - the full note, as escalationContext() renders it
  * @returns {void}
  */
-function emitEscalation(reason) {
+function emit(note) {
   process.stdout.write(
     JSON.stringify({
-      hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: escalationContext(reason) },
+      hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: note },
     }),
   );
 }
 
 /**
- * Hook entrypoint — always exits 0; on any error it escalates (fail-safe).
+ * The hook's stdin, read as a payload: JSON when it parses, else the raw text as
+ * the prompt (malformed input is still screened — if it is a Claudia turn).
+ * @param {string} raw
+ * @returns {{ payload: UserPromptSubmitPayload, prompt: string }}
+ */
+function parseInput(raw) {
+  try {
+    const parsed = JSON.parse(raw || "{}");
+    if (!parsed || typeof parsed !== "object") return { payload: {}, prompt: raw };
+    const payload = /** @type {UserPromptSubmitPayload} */ (parsed);
+    return { payload, prompt: String(payload.prompt || payload.user_prompt || payload.message || "") };
+  } catch {
+    return { payload: {}, prompt: raw };
+  }
+}
+
+/**
+ * The whole per-turn decision: raw stdin in, the escalation note (or null for
+ * silence) out. Never throws.
+ *
+ * Order matters. Harness blocks are stripped first, so a background task's report
+ * is never screened and never counts as naming her. Then the gate: the person's
+ * words name Claudia, or the transcript shows her activated. Only past the gate
+ * does the fail-safe apply — from there, an error escalates.
+ *
+ * @param {{
+ *   raw: string,
+ *   home?: string,
+ *   modelClassifierEnabled?: boolean,
+ *   classify?: (text: string) => Promise<import("../src/safety.mjs").ClassifierResult>,
+ * }} opts - `home` locates a transcript given only `session_id` + `cwd`;
+ *   `classify` is the stage-2 model call (injectable, for tests)
+ * @returns {Promise<string | null>}
+ */
+export async function safetyCheck({
+  raw,
+  home = os.homedir(),
+  modelClassifierEnabled = false,
+  classify = classifyWithModel,
+}) {
+  const { payload, prompt } = parseInput(raw);
+  const words = personsWords(prompt);
+  if (!words) return null; // nothing the person wrote — a task notification, a reminder
+
+  // GATE: a Claudia session, or a turn that names her. Never throws.
+  const claudia = namesClaudia(words) || (await isClaudiaHookPayload(payload, home));
+  if (!claudia) return null;
+
+  try {
+    const { escalate, reason } = await decide(words, { modelClassifierEnabled, classifyWithModel: classify });
+    return escalate ? escalationContext(reason) : null;
+  } catch {
+    return escalationContext("safety-check error — failing safe");
+  }
+}
+
+/**
+ * Hook entrypoint — always exits 0. safetyCheck never throws; the catch is the
+ * floor's default for an error in this adapter itself.
  * @returns {Promise<void>}
  */
 async function main() {
   try {
-    const raw = await readStdin();
-    let prompt = "";
-    try {
-      const p = /** @type {UserPromptSubmitPayload} */ (JSON.parse(raw || "{}"));
-      prompt = p.prompt || p.user_prompt || p.message || "";
-    } catch {
-      prompt = raw;
-    }
-
-    const { escalate, reason } = await decide(prompt, {
+    const note = await safetyCheck({
+      raw: await readStdin(),
       modelClassifierEnabled: process.env.CLAUDIA_MODEL_CLASSIFIER === "on",
-      classifyWithModel,
     });
-
-    if (escalate) emitEscalation(reason);
+    if (note) emit(note);
     process.exit(0);
   } catch {
-    emitEscalation("safety-check error — failing safe");
+    emit(escalationContext("safety-check error — failing safe"));
     process.exit(0);
   }
 }
 
-main();
+// Run only when invoked directly, not on import (tests import safetyCheck).
+// Symlink-safe — see src/entry.mjs for what comparing unresolved paths cost.
+if (isEntrypoint(import.meta.url)) main();
