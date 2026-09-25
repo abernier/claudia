@@ -11,16 +11,16 @@
  * or a non-Claudia session it injects nothing and touches no state.
  *
  * State: `~/.claudia/last-seen` (one epoch-ms line), local-only, covered by
- * `/forget`. Gated on isClaudiaSession so coding sessions (the plugin may be
- * user-scoped) never pollute the "since you last spoke with Claudia" clock.
+ * `/forget`. Gated on a Claudia session (src/gate.mjs, ADR-0036) so coding sessions
+ * (the plugin is user-scoped) never pollute the "since you last spoke with Claudia"
+ * clock.
  */
 
-import { promises as fs, createReadStream } from "node:fs";
+import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import readline from "node:readline";
 import { isEntrypoint } from "../src/entry.mjs";
-import { resolveTranscriptPath, isClaudiaActivationLine } from "../src/session.mjs";
+import { isClaudiaHookPayload } from "../src/gate.mjs";
 import { buildTimeContext, renderTimeContext } from "../src/time.mjs";
 import { resolveVaultRoot } from "../src/vault.mjs";
 
@@ -38,34 +38,6 @@ function readStdin() {
     process.stdin.on("end", () => resolve(data));
     setTimeout(() => resolve(data), 2000);
   });
-}
-
-/**
- * Does this transcript contain a genuine Claudia activation? Streamed line by line,
- * stopping at the first hit.
- *
- * This used to be a bounded head-read (the first 256 KB), which looked cheap and was
- * wrong: an image pasted early in the conversation is a single ~500 KB line, so
- * everything after it — the activation included — fell outside the window, the gate
- * read "not a Claudia session", and the time layer silently switched off for the whole
- * conversation. That is precisely the bug ADR-0012 exists to close, so the gate may not
- * be the thing that reintroduces it. A stream costs one substring test per line and
- * exits on the first match (turn one, in a real Claudia session); only a session that
- * never activates Claudia is walked to the end.
- *
- * @param {string} file  path to the JSONL transcript
- * @returns {Promise<boolean>}
- */
-async function hasClaudiaActivation(file) {
-  const stream = createReadStream(file, { encoding: "utf8" });
-  const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
-  try {
-    for await (const line of rl) if (isClaudiaActivationLine(line)) return true;
-    return false;
-  } finally {
-    rl.close();
-    stream.destroy();
-  }
 }
 
 /**
@@ -90,16 +62,9 @@ function emit(note) {
  * @returns {Promise<string | null>} the note to inject, or null to stay silent
  */
 export async function timeContextNote({ root, payload, home = os.homedir(), now = new Date() }) {
-  // GATE: only Claudia conversations get time context and a last-seen tick.
-  const transcriptPath = resolveTranscriptPath(payload, home);
-  if (!transcriptPath) return null;
-  let activated;
-  try {
-    activated = await hasClaudiaActivation(transcriptPath);
-  } catch {
-    return null; // no transcript yet (e.g. first turn) → stay silent
-  }
-  if (!activated) return null;
+  // GATE (ADR-0036): only Claudia conversations get time context and a last-seen
+  // tick. No transcript yet (e.g. the first turn) reads as "not Claudia" → silent.
+  if (!(await isClaudiaHookPayload(payload, home))) return null;
 
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
   const lastSeenPath = path.join(root, "last-seen");
