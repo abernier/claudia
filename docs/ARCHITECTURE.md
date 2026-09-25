@@ -12,7 +12,7 @@ own Markdown.
 
 ```mermaid
 flowchart TB
-  P(["the person names her, or just opens up"])
+  P(["the person addresses her — "Claudia, …", @Claudia"])
 
   subgraph OPEN["① open — the reliable edge of the lifecycle"]
     direction TB
@@ -101,7 +101,7 @@ sequenceDiagram
   else startup | clear
     Note over HK: injects nothing — fails silent
   end
-  P->>C: names her, or just opens up
+  P->>C: addresses her — "Claudia, …", @Claudia
   activate C
   C->>C: skills/claudia — SOUL.md + the relational spine
   C->>HK: recall-open.mjs
@@ -178,7 +178,10 @@ output is context, never a veto. And every arrow that ends anywhere ends in
 ## Runtime pieces
 
 - **`skills/claudia/`** — the persona entry. Loads `SOUL.md` and the relational
-  spine, then conducts the conversation. Model-invoked (and available as a door).
+  spine, then conducts the conversation. Model-invoked only when the person
+  addresses her — her name as a vocative, `@Claudia`, or a slash command — never on
+  a mention or on emotional content alone; every other skill applies only once she
+  is active ([ADR-0037](../plugin/docs/adr/0037-skills-load-only-when-addressed.md)).
 - **`hooks/hooks.json`** — `UserPromptSubmit` runs the safety check and the date
   context on every turn; `SessionStart` re-anchors the persona after a resume or a
   compaction ([ADR-0013](../plugin/docs/adr/0013-persona-continuity.md)); `SessionEnd` writes the
@@ -200,7 +203,8 @@ output is context, never a veto. And every arrow that ends anywhere ends in
 - **`skills/teach` · `exercise`** — deliverables (with mermaid diagrams), written
   in the person's language under `~/.claudia/`.
 - **`skills/research/`** — lets Claudia look up a technique or fact when useful.
-- **`commands/`** — the person-pulled surface: `/help-now`, `/forget`, `/export`,
+- **`commands/`** — the person-pulled surface (`disable-model-invocation`, so only a
+  typed command runs one): `/help-now`, `/forget`, `/export`,
   `/save`, `/migrate`, `/config`, `/thread`, `/dashboard`, `/keep`, `/menu`.
 - **`src/config.mjs`** — the person's settings (`~/.claudia/config.json`): declared
   keys with closed value sets and shipped defaults — booleans plus the `language`

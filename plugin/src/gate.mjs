@@ -9,7 +9,7 @@
  * The signal is the one `src/session.mjs` already defines: the `claudia` skill's
  * loader preamble, appearing as a user-role message in the transcript every hook
  * can locate from its payload. Plus, for the per-turn safety hook only, the person
- * addressing her directly in the prompt — the skill triggers on her name, so on
+ * addressing her directly in the prompt — the skill loads when she is addressed, so on
  * turn one the activation is not in the transcript yet.
  *
  * Like `src/entry.mjs`, this module reads the filesystem, because the question it
@@ -95,8 +95,9 @@ const OPENING_ADDRESS =
  * as a standalone token, or a prompt that opens with (an optional greeting and) her
  * name as a vocative: "Claudia, I can't go on", "Hey Claudia!", "salut Claudia\n…".
  *
- * The `claudia` skill triggers on her name, so on turn one her activation is not in
- * the transcript yet; addressing her is what opens the safety gate for that turn.
+ * The `claudia` skill loads when she is addressed (ADR-0037), so on turn one her
+ * activation is not in the transcript yet; addressing her is what opens the safety
+ * gate for that turn.
  *
  * Deliberately narrow (ADR-0036). A mention is not an address: "Claudia's safety hook
  * is broken", "the claudia skill", "cd ~/code/claudia", "`claudia`" are all coding
