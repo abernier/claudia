@@ -89,7 +89,7 @@ describe("save-session (SessionEnd hook) — deferred-distillation dirty flag", 
     );
   });
 
-  it("writes no marker for a non-Claudia session (the gate precedes the flag)", async () => {
+  it("writes nothing at all for a non-Claudia session — no marker, no vault, no temp diagnostic (ADR-0036)", async () => {
     const home = await fs.mkdtemp(path.join(os.tmpdir(), "claudia-home-"));
     tmps.push(home);
     const transcript = path.join(home, "session.jsonl");
@@ -97,15 +97,18 @@ describe("save-session (SessionEnd hook) — deferred-distillation dirty flag", 
       transcript,
       line({ type: "user", message: { role: "user", content: "just a normal coding session" } }),
     );
+    // Its own temp dir, so "wrote nothing to tmp" is checkable (os.tmpdir() reads TMPDIR).
+    const tmp = path.join(home, "tmp");
+    await fs.mkdir(tmp);
 
     const r = spawnSync(process.execPath, [script], {
       encoding: "utf8",
       input: JSON.stringify({ session_id: "abcdef12-0000-0000-0000-000000000000", transcript_path: transcript }),
-      env: { ...process.env, HOME: home },
+      env: { ...process.env, HOME: home, TMPDIR: tmp, TMP: tmp, TEMP: tmp },
     });
 
     expect(r.status).toBe(0);
-    const sessions = await fs.readdir(path.join(home, ".claudia", "sessions")).catch(() => []);
-    expect(sessions.filter((n) => n.endsWith(".pending-summary"))).toEqual([]);
+    await expect(fs.access(path.join(home, ".claudia"))).rejects.toThrow();
+    expect(await fs.readdir(tmp)).toEqual([]);
   });
 });

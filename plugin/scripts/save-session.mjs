@@ -4,9 +4,9 @@
  *
  * Thin wrapper around ../src/session.mjs. Writes the person's transcript to their
  * local archive under ~/.claudia/ (default-on; ADR-0004) as readable markdown —
- * but ONLY for real Claudia conversations (the plugin may be enabled at user scope,
- * so this fires for every session; the gate now keys on genuine skill *activation*,
- * not a stray persona string). One file **per session** (`<date>-<session_id>`,
+ * but ONLY for real Claudia conversations (the plugin is enabled at user scope, so
+ * this fires for every session; the gate keys on genuine skill *activation*, not a
+ * stray persona string — ADR-0036). Any other session: nothing written, anywhere. One file **per session** (`<date>-<session_id>`,
  * ADR-0017), OVERWRITTEN on each resume/close so a conversation never piles up as
  * duplicate re-dumps. Local-only; nothing uploaded. Opt-out:
  * `{ "saveTranscripts": false }` in ~/.claudia/config.json (ADR-0028).
@@ -64,15 +64,6 @@ function todayStamp() {
  */
 export async function saveSession({ root, payload, home = os.homedir() }) {
   const transcriptPath = resolveTranscriptPath(payload, home);
-
-  // One-time, non-sensitive diagnostic (field NAMES only, never content).
-  await fs
-    .writeFile(
-      path.join(os.tmpdir(), "claudia-sessionend-diag.json"),
-      JSON.stringify({ keys: Object.keys(payload), resolved: transcriptPath || null, at: todayStamp() }, null, 2),
-    )
-    .catch(() => {});
-
   if (!transcriptPath) return;
 
   /** @type {string} */
@@ -83,7 +74,8 @@ export async function saveSession({ root, payload, home = os.homedir() }) {
     return;
   }
 
-  // GATE: only archive real Claudia conversations.
+  // GATE (ADR-0036): only archive real Claudia conversations. Nothing above this
+  // line writes anywhere — a session that is not Claudia's leaves no trace at all.
   if (!isClaudiaSession(jsonl)) return;
 
   const sessionsDir = path.join(root, "sessions");
