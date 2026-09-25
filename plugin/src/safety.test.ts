@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { heuristic, decide, escalationContext, type ClassifierResult } from "./safety.mjs";
+import { heuristic, decide, escalationContext, personsWords, type ClassifierResult } from "./safety.mjs";
 
 describe("heuristic risk bands", () => {
   it("flags explicit suicidal ideation as clear", () => {
@@ -121,5 +121,29 @@ describe("escalationContext()", () => {
     expect(c).toContain("crisis");
     expect(c).toContain("docs/safety/crisis-protocol.md");
     expect(c).toContain("not the person");
+  });
+});
+
+describe("personsWords — what the person wrote, not what the harness wrapped around it (ADR-0036)", () => {
+  it("is empty for a prompt that is only harness output", () => {
+    expect(personsWords("<task-notification>\n<result>AAAAaaaah, stab</result>\n</task-notification>")).toBe("");
+    expect(personsWords("<local-command-stdout>killed 3 processes</local-command-stdout>")).toBe("");
+    expect(personsWords("<system-reminder>a</system-reminder>\n<bash-stdout>b</bash-stdout>")).toBe("");
+  });
+
+  it("keeps the person's text beside a harness block", () => {
+    expect(personsWords("<system-reminder>ctx</system-reminder>\nI want to kill myself")).toBe("I want to kill myself");
+  });
+
+  it("keeps what might be theirs: slash-command args, unclosed or unknown wrappers", () => {
+    const slash = "<command-name>/help-now</command-name><command-args>I can't go on</command-args>";
+    expect(personsWords(slash)).toBe(slash);
+    expect(personsWords("<task-notification>cut off")).toBe("<task-notification>cut off");
+    expect(personsWords("<note>I want to kill myself</note>")).toBe("<note>I want to kill myself</note>");
+  });
+
+  it("tolerates nothing at all", () => {
+    expect(personsWords(undefined)).toBe("");
+    expect(personsWords("   ")).toBe("");
   });
 });
