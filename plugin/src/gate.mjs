@@ -9,8 +9,8 @@
  * The signal is the one `src/session.mjs` already defines: the `claudia` skill's
  * loader preamble, appearing as a user-role message in the transcript every hook
  * can locate from its payload. Plus, for the per-turn safety hook only, the person
- * naming her in the prompt — the skill triggers on her name, so on turn one the
- * activation is not in the transcript yet.
+ * addressing her directly in the prompt — the skill triggers on her name, so on
+ * turn one the activation is not in the transcript yet.
  *
  * Like `src/entry.mjs`, this module reads the filesystem, because the question it
  * answers is a question about a file. It never writes, and it never throws: a gate
@@ -73,18 +73,40 @@ export async function isClaudiaHookPayload(payload, home = os.homedir()) {
 }
 
 /**
- * Does this text name Claudia — "Claudia", "claudia,", "@Claudia", "hey Claudia"?
- * Whole word, any case. The `claudia` skill triggers on exactly this, so a prompt
- * that names her is a Claudia turn even before the skill's activation reaches the
- * transcript.
+ * `@Claudia` as a standalone token. Not after a letter, digit or path/identifier
+ * character (`user@claudia.dev`, `x@Claudia`), and not followed by one
+ * (`@claudia/plugin`, `@Claudia_bot`). A trailing `.` or `-` counts only when
+ * whitespace or the end follows it — that is a sentence ending, not a filename.
+ */
+const AT_MENTION = /(?<![\p{L}\p{N}_/\\.`@-])@claudia(?![\p{L}\p{N}_/\\`@]|[.\-](?!\s|$))/iu;
+
+/**
+ * An opening address: the prompt starts with an optional greeting, then "Claudia",
+ * then a vocative boundary — a comma, "!", "?", a "." or ":" followed by whitespace
+ * or the end, a dash or em-dash followed by a space, a line break, or the end.
+ * "Claudia's hook", "Claudia doesn't trigger", "claudia/plugin", "claudia:crisis",
+ * "claudia.md" all fail the boundary.
+ */
+const OPENING_ADDRESS =
+  /^(?:(?:hey|hi|hello|dear|ok|okay|bonjour|salut|coucou|allo|allô)[\s,]+)?claudia(?=[,!?]|[.:](?:\s|$)|[ \t]*[-–—][ \t]|[ \t]*(?:\n|$))/iu;
+
+/**
+ * Does this text ADDRESS Claudia — speak to her, not about her? `@Claudia` anywhere
+ * as a standalone token, or a prompt that opens with (an optional greeting and) her
+ * name as a vocative: "Claudia, I can't go on", "Hey Claudia!", "salut Claudia\n…".
  *
- * Deliberately broad: a path like `~/code/claudia/` names her too. For the safety
- * hook that over-reach is the right direction — a screen that fires once too often
- * costs a note; one that misses a crisis costs far more.
+ * The `claudia` skill triggers on her name, so on turn one her activation is not in
+ * the transcript yet; addressing her is what opens the safety gate for that turn.
+ *
+ * Deliberately narrow (ADR-0036). A mention is not an address: "Claudia's safety hook
+ * is broken", "the claudia skill", "cd ~/code/claudia", "`claudia`" are all coding
+ * sessions talking ABOUT her, and a hook that fires there is the failure that matters
+ * most. The text is expected with harness blocks already stripped (`personsWords`).
  *
  * @param {string | null | undefined} text
  * @returns {boolean}
  */
-export function namesClaudia(text) {
-  return /\bclaudia\b/i.test(String(text || ""));
+export function addressesClaudia(text) {
+  const t = String(text || "").trim();
+  return AT_MENTION.test(t) || OPENING_ADDRESS.test(t);
 }

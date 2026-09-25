@@ -188,7 +188,8 @@ output is context, never a veto. And every arrow that ends anywhere ends in
   The plugin is user-scoped, so every hook fires in every session on the machine;
   each acts only in a Claudia session — the `claudia` skill's activation in the
   transcript, located from the payload by `src/gate.mjs`, or, for the safety check
-  on turn one, the prompt naming her — and is silent everywhere else. The safety
+  on turn one, the prompt addressing her directly ("Claudia, …", "@Claudia"; a
+  mere mention never counts) — and is silent everywhere else. The safety
   check screens the person's words only, never a harness block like a
   `<task-notification>` ([ADR-0036](../plugin/docs/adr/0036-every-hook-is-gated.md)).
 - **`skills/choose-approach/`** — selects the modality for the moment
