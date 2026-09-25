@@ -87,7 +87,7 @@ describe("safety-check (UserPromptSubmit hook) — the wiring, end to end", () =
     expect(r.stdout).toBe("");
   });
 
-  it("screens raw text when stdin is not JSON — malformed input naming her is still checked", () => {
+  it("screens raw text when stdin is not JSON — malformed input addressing her is still checked", () => {
     const r = check("Claudia, je veux en finir ce soir");
     expect(r.status).toBe(0);
     expect(escalation(r.stdout)).toContain("CLAUDIA SAFETY");
@@ -164,6 +164,18 @@ describe("the gate (ADR-0036) — screened only in a Claudia session, only the p
     expect(await safetyCheck({ raw: squash, home })).toBeNull();
   });
 
+  it("is silent on a coding session that mentions the claudia repo and violent words", async () => {
+    const file = await transcript(userLine("look at plugin/scripts/safety-check.mjs"));
+    for (const prompt of [
+      `cd ~/code/claudia and fix the scene where ${squash}`,
+      "Claudia's safety hook fired on 'I want to kill myself' in the test fixture",
+      "the claudia skill should not see: stab him, kill him",
+    ]) {
+      expect(await safetyCheck({ raw: JSON.stringify({ prompt, transcript_path: file }) }), prompt).toBeNull();
+      expect(await safetyCheck({ raw: JSON.stringify({ prompt }) }), prompt).toBeNull(); // no transcript at all
+    }
+  });
+
   it("never screens a background task's notification, even in a Claudia session", async () => {
     const notification =
       "<task-notification>\n<task-id>b1</task-id>\n<status>completed</status>\n" +
@@ -189,7 +201,7 @@ describe("the gate (ADR-0036) — screened only in a Claudia session, only the p
     expect(note).toContain("crisis");
   });
 
-  it("escalates a first turn that names her — the activation is not in the transcript yet", async () => {
+  it("escalates a first turn that addresses her — the activation is not in the transcript yet", async () => {
     const file = await transcript(""); // turn one: nothing written but this prompt
     for (const prompt of ["Claudia, je veux en finir ce soir", "@Claudia I want to kill myself"]) {
       const note = await safetyCheck({ raw: JSON.stringify({ prompt, transcript_path: file }) });

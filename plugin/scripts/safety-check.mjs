@@ -10,19 +10,20 @@
  *
  * GATED (ADR-0036): the plugin is user-scoped, so this fires in every session on
  * the machine. It screens only a Claudia session — the transcript shows the
- * `claudia` skill activated, or the prompt names her (turn one, before the
+ * `claudia` skill activated, or the prompt addresses her (turn one, before the
  * activation is written) — and only the person's own words, never a harness
  * block such as a `<task-notification>`. Everywhere else it is silent.
  *
  * FAIL-SAFE inside the gate: once the session is established as Claudia's, any
  * error escalates; we never suppress. A gate that cannot tell (no transcript,
- * unreadable) reads as "not Claudia" unless the prompt names her.
+ * unreadable) reads as "not Claudia" unless the prompt addresses her. A mere
+ * mention ("Claudia's hook", "~/code/claudia") is not an address.
  */
 
 import { execFile } from "node:child_process";
 import os from "node:os";
 import { isEntrypoint } from "../src/entry.mjs";
-import { isClaudiaHookPayload, namesClaudia } from "../src/gate.mjs";
+import { addressesClaudia, isClaudiaHookPayload } from "../src/gate.mjs";
 import { decide, escalationContext, personsWords } from "../src/safety.mjs";
 
 /**
@@ -123,8 +124,8 @@ function parseInput(raw) {
  * silence) out. Never throws.
  *
  * Order matters. Harness blocks are stripped first, so a background task's report
- * is never screened and never counts as naming her. Then the gate: the person's
- * words name Claudia, or the transcript shows her activated. Only past the gate
+ * is never screened and never counts as addressing her. Then the gate: the person's
+ * words address Claudia, or the transcript shows her activated. Only past the gate
  * does the fail-safe apply — from there, an error escalates.
  *
  * @param {{
@@ -146,8 +147,8 @@ export async function safetyCheck({
   const words = personsWords(prompt);
   if (!words) return null; // nothing the person wrote — a task notification, a reminder
 
-  // GATE: a Claudia session, or a turn that names her. Never throws.
-  const claudia = namesClaudia(words) || (await isClaudiaHookPayload(payload, home));
+  // GATE: a Claudia session, or a turn that addresses her. Never throws.
+  const claudia = addressesClaudia(words) || (await isClaudiaHookPayload(payload, home));
   if (!claudia) return null;
 
   try {
