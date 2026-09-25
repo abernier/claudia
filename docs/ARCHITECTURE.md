@@ -26,7 +26,7 @@ flowchart TB
 
   subgraph TURN["② every turn — deterministic, outside the persona"]
     direction TB
-    H["<b>UserPromptSubmit</b> · safety-check.mjs<br/>heuristic pre-filter → fast-model classifier<br/>fail-safe: any doubt or error escalates<br/>+ time-context.mjs"]
+    H["<b>UserPromptSubmit</b> · safety-check.mjs<br/>Claudia sessions only, the person's words only<br/>heuristic pre-filter → fast-model classifier<br/>fail-safe: any doubt or error escalates<br/>+ time-context.mjs"]
   end
 
   subgraph TALK["③ the conversation — everything therapeutic happens here"]
@@ -185,6 +185,12 @@ output is context, never a veto. And every arrow that ends anywhere ends in
   verbatim transcript plus a `.pending-summary` flag, refreshes the dashboard, and
   backs the vault up. No hook writes a summary — a hook cannot run a skill, so
   distillation happens at the next open ([ADR-0016](../plugin/docs/adr/0016-deferred-distillation.md)).
+  The plugin is user-scoped, so every hook fires in every session on the machine;
+  each acts only in a Claudia session — the `claudia` skill's activation in the
+  transcript, located from the payload by `src/gate.mjs`, or, for the safety check
+  on turn one, the prompt naming her — and is silent everywhere else. The safety
+  check screens the person's words only, never a harness block like a
+  `<task-notification>` ([ADR-0036](../plugin/docs/adr/0036-every-hook-is-gated.md)).
 - **`skills/choose-approach/`** — selects the modality for the moment
   (relationship-first default; approach leads when indicated).
 - **`skills/crisis/`** — the structured crisis pivot, invoked when the safety

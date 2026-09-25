@@ -35,6 +35,10 @@ The deliverable is an **installable Claude Code plugin**. That target, plus the
    triggering the [Crisis pivot](../../CONTEXT.md) / `/help-now`. This satisfies
    safety-floor rule 8. We rejected persona self-monitoring — the research is
    categorical that the character must never be trusted to catch its own risk.
+   _(Amended by [ADR-0036](0036-every-hook-is-gated.md): "every message" means every
+   message of a Claudia session. The plugin is user-scoped, so the hook fires in
+   every session on the machine; it screens only the person's words, and only when
+   the transcript shows Claudia activated or the prompt names her.)_
 
 4. **Distribution: single-plugin marketplace.** A `marketplace.json` at the repo
    root makes the repo its own marketplace, installable via

@@ -262,6 +262,30 @@ describe("decision guards", () => {
     expect(/never raise it mid-conversation/i.test(read("commands/backup.md"))).toBe(true);
   });
 
+  it("ADR-0036 — every hook is gated on a Claudia session", () => {
+    // The plugin is user-scoped: every command in hooks.json runs in every session on
+    // the machine. A script that serves other callers too learns it is the hook from
+    // --hook — drop the flag and it acts on every coding session's close again.
+    const commands: string[] = Object.values(
+      JSON.parse(read("hooks/hooks.json")).hooks as Record<string, { hooks: { command: string }[] }[]>,
+    ).flatMap((groups) => groups.flatMap((g) => g.hooks.map((h) => h.command)));
+    for (const name of ["build-dashboard.mjs", "vault-backup.mjs"]) {
+      const cmd = commands.find((c) => c.includes(name));
+      expect(cmd, `${name} must run as a hook`).toBeDefined();
+      expect(cmd, `${name} must be told it is the hook`).toMatch(/--hook\b/);
+    }
+    // The hook-only scripts gate in code; each must reach the shared gate.
+    for (const rel of [
+      "scripts/safety-check.mjs",
+      "scripts/time-context.mjs",
+      "scripts/build-dashboard.mjs",
+      "scripts/vault-backup.mjs",
+    ])
+      expect(/isClaudiaHookPayload/.test(read(rel)), `${rel} must pass the gate (src/gate.mjs)`).toBe(true);
+    for (const rel of ["scripts/save-session.mjs", "scripts/session-anchor.mjs"])
+      expect(/isClaudiaSession/.test(read(rel)), `${rel} must pass the gate`).toBe(true);
+  });
+
   it("ADR-0034 — self-authoring stays withdrawn, traceably", () => {
     for (const rel of ["skills/author-skill", "agents/skill-auditor.md", "proposed-skills"])
       expect(existsSync(path.join(root, rel)), `${rel} was withdrawn by ADR-0034`).toBe(false);
