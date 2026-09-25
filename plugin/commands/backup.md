@@ -1,5 +1,6 @@
 ---
 description: See and manage the rotating archive of your notes — what's kept, whether it still reads back, and how to recover from one.
+disable-model-invocation: true
 argument-hint: "[status | now | check | restore <date> | off]"
 allowed-tools: Read Bash AskUserQuestion
 ---

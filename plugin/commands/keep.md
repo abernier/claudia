@@ -1,5 +1,6 @@
 ---
 description: Keep a passage that landed — something Claudia said, or something you said yourself. Kept word for word in your own notes, to re-read whenever you want. With no argument, Claudia offers you what to keep from what was just said.
+disable-model-invocation: true
 argument-hint: "[the passage to keep — omit it and Claudia will offer]"
 allowed-tools: Read Write Edit Bash AskUserQuestion
 ---

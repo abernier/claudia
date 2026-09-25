@@ -1,5 +1,6 @@
 ---
 description: See and change your settings — whether Claudia uses emoji, keeps a transcript of each conversation, or maintains your dashboard. Small switches, yours to flip, at ~/.claudia/config.json.
+disable-model-invocation: true
 allowed-tools: Read Bash AskUserQuestion
 ---
 
