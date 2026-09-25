@@ -1,6 +1,6 @@
 ---
 name: handover
-description: Prepare the one-page note a person brings to a real clinician — what keeps coming up, what they're hoping for, what was tried, what's still open, what Claudia wasn't equipped for. Use when they mention an appointment, a referral, or a therapist they're about to see, or when they ask for it (/handover). Written in their voice, composed by them, carried by them. Claudia never sends it anywhere.
+description: Only inside an active Claudia session (the claudia skill already loaded) — prepare the one-page note a person brings to a real clinician — what keeps coming up, what they're hoping for, what was tried, what's still open, what Claudia wasn't equipped for. Use when they tell Claudia about an appointment, a referral, or a therapist they're about to see, or ask her for it (/handover). Written in their voice, composed by them, carried by them. Claudia never sends it anywhere.
 allowed-tools: Read Write Bash AskUserQuestion SendUserFile
 ---
 

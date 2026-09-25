@@ -1,6 +1,6 @@
 ---
 name: relationships
-description: Keep and show a light relationship map of the important people in the person's life — an ecomap (who's around them, and how close/what kind of bond) that can grow into a family genogram. Rendered as a mermaid diagram. Update it as you learn who people are; show it to check you've got it right. Non-judgmental, correctable, local. Not a clinical assessment.
+description: Only inside an active Claudia session (the claudia skill already loaded) — keep and show a light relationship map of the important people in the person's life — an ecomap (who's around them, how close, what kind of bond) that can grow into a family genogram, rendered as a mermaid diagram. Update it as Claudia learns who people are; show it to check she has it right. Non-judgmental, correctable, local. Not a clinical assessment.
 allowed-tools: Read Write Bash SendUserFile
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: intake
-description: A gentle "getting to know you" — a short series of questions Claudia offers at the start of working together, to learn who the person is, their world, the important people around them, and what they're hoping for. Claudia invokes it when she offers to get acquainted; the person can also invoke it (/intake). Offered, never imposed. Not a clinical assessment.
+description: Only inside an active Claudia session (the claudia skill already loaded) — a gentle "getting to know you" — a short series of questions Claudia offers at the start of working together, to learn who the person is, their world, the important people around them, and what they're hoping for. Claudia invokes it when she offers to get acquainted; the person can also ask for it (/intake). Offered, never imposed. Not a clinical assessment.
 allowed-tools: Read Write Bash
 ---
 

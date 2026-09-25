@@ -1,6 +1,6 @@
 ---
 name: teach
-description: Create a psychoeducation explainer for the person — a clear, kind explanation of a concept (the cognitive triangle, the anxiety cycle, the window of tolerance, values, rumination, grief) with a mermaid diagram. Use when understanding *why* would help the person, or when they ask to learn something. Saved as a deliverable in their language.
+description: Only inside an active Claudia session (the claudia skill already loaded) — create a psychoeducation explainer for the person — a clear, kind explanation of a concept (the cognitive triangle, the anxiety cycle, the window of tolerance, values, rumination, grief) with a mermaid diagram. Use when understanding *why* would help the person, or when they ask Claudia to help them understand something. Saved as a deliverable in their language.
 allowed-tools: Read Write Bash AskUserQuestion SendUserFile
 ---
 

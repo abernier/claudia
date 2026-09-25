@@ -1,6 +1,6 @@
 ---
 name: distill-session
-description: Turn a finished conversation into a distilled session summary for ~/.claudia/sessions/. Runs at session close when possible, but is normally deferred to the next session's recall (a close is unreliable). Produces the summary that recall will read — never a verbatim copy.
+description: Only inside an active Claudia session (the claudia skill already loaded) — turn a finished Claudia conversation into a distilled session summary for ~/.claudia/sessions/. Runs at session close when possible, but is normally deferred to the next session's recall (a close is unreliable). Produces the summary that recall will read — never a verbatim copy.
 allowed-tools: Read Write Bash
 ---
 

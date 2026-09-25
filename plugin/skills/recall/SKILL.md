@@ -1,6 +1,6 @@
 ---
 name: recall
-description: Load continuity at the start of a conversation. Reads Claudia's working memory for this person from ~/.claudia/ — the distilled session summaries, person model, goals, and safety flags. Never reads raw transcripts.
+description: Only inside an active Claudia session (the claudia skill already loaded) — load continuity at the start of the conversation. Reads Claudia's working memory for this person from ~/.claudia/ — the distilled session summaries, person model, goals, and safety flags. Never reads raw transcripts.
 allowed-tools: Read Bash
 ---
 

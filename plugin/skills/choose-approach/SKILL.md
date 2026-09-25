@@ -1,6 +1,6 @@
 ---
 name: choose-approach
-description: Select the therapeutic approach for the moment. Use when Claudia is deciding *how* to help — whether to stay in reflective/person-centered mode or reach for a specific modality (CBT, behavioral activation, ACT, motivational interviewing, solution-focused, mindfulness & self-compassion). Also flags refer-only situations that need a licensed human.
+description: Only inside an active Claudia session (the claudia skill already loaded) — select the therapeutic approach for the moment. Use when Claudia is deciding *how* to help — whether to stay reflective/person-centered or reach for a specific modality (CBT, behavioral activation, ACT, motivational interviewing, solution-focused, mindfulness & self-compassion). Also flags refer-only situations that need a licensed human.
 allowed-tools: Read
 ---
 
