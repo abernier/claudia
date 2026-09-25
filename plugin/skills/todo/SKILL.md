@@ -1,6 +1,6 @@
 ---
 name: todo
-description: Maintain the shared to-do-later list at ~/.claudia/todo.md — concrete things to do later that either the person or Claudia can add, each tagged with the session that raised it. Use when the person asks to note or remember something to do later ("remind me to…", "note that for later", "add a todo", "crée une todo", "note ça pour plus tard"), when you agree a concrete between-session step, when they ask to see their list ("montre ma liste", "show my todos"), or to tick an item done.
+description: Only inside an active Claudia session (the claudia skill already loaded) — maintain the shared to-do-later list at ~/.claudia/todo.md — concrete things to do later that either the person or Claudia can add, each tagged with the session that raised it. Use when the person asks Claudia to note something to do later ("remind me to…", "note ça pour plus tard"), when she and the person agree a concrete between-session step, when they ask her to show their list ("montre ma liste"), or to tick an item done.
 allowed-tools: Read Write Edit Bash TaskCreate TaskUpdate
 ---
 

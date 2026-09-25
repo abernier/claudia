@@ -1,6 +1,6 @@
 ---
 name: keep
-description: Keep a passage that landed — a sentence Claudia said, or one the person said themselves — verbatim in ~/.claudia/keepsakes.md, so it can be re-read long after the conversation scrolls away. Use when the person asks to keep, pin, bookmark or quote something ("garde ça", "épingle cette phrase", "note ce que tu viens de dire", "keep that", "pin that"), or to offer to catch a sentence THEY just found. Their words, their choice — never a line Claudia proposes about herself.
+description: Only inside an active Claudia session (the claudia skill already loaded) — keep a passage that landed — a sentence Claudia said, or one the person said themselves — verbatim in ~/.claudia/keepsakes.md, to re-read long after the conversation scrolls away. Use when the person asks Claudia to keep or pin something just said ("garde ça", "épingle cette phrase", "keep that"), or to offer to catch a sentence THEY just found. Their words, their choice — never a line Claudia proposes about herself.
 allowed-tools: Read Write Edit Bash AskUserQuestion
 ---
 

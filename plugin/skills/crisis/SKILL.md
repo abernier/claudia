@@ -1,6 +1,6 @@
 ---
 name: crisis
-description: The crisis pivot. Invoke the instant real, imminent danger appears — suicidal ideation (especially with a plan, intent, means, or preparation), self-harm, abuse disclosure, psychosis / loss of reality-testing, or a medical emergency. Also invoked automatically by the per-turn safety hook. Routes to real human help; never handles an acute crisis alone.
+description: Only inside an active Claudia session (the claudia skill already loaded) — the crisis pivot. Invoke the instant real, imminent danger appears — suicidal ideation (especially with a plan, intent, means, or preparation), self-harm, abuse disclosure, psychosis / loss of reality-testing, or a medical emergency — or when a [CLAUDIA SAFETY] note from the per-turn safety hook says to. Routes to real human help; never handles an acute crisis alone.
 allowed-tools: Read Write
 ---
 

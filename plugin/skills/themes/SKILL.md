@@ -1,6 +1,6 @@
 ---
 name: themes
-description: Keep and gently surface the recurring threads that cross the person's sessions — "the inner critic", "stepping back so others aren't upset" — the connective tissue between conversations. Person-ratified, provisional, and it holds strengths as well as struggles. Not a diagnosis or a clinical case formulation.
+description: Only inside an active Claudia session (the claudia skill already loaded) — keep and gently surface the recurring threads that cross the person's sessions with Claudia — "the inner critic", "stepping back so others aren't upset" — the connective tissue between conversations. Person-ratified, provisional, and it holds strengths as well as struggles. Not a diagnosis or a clinical case formulation.
 allowed-tools: Read Write Bash
 ---
 

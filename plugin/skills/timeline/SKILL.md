@@ -1,6 +1,6 @@
 ---
 name: timeline
-description: Keep and show the person's life timeline — the important events across their life, as they choose to tell them. A gentle memory of the arc of a life, and an offered "life-review" (lifeline / reminiscence) tool. Person-led, trauma-informed, local. Not a symptom chart or a clinical assessment.
+description: Only inside an active Claudia session (the claudia skill already loaded) — keep and show the person's life timeline — the important events across their life, as they choose to tell them to Claudia. A gentle memory of the arc of a life, and an offered "life-review" (lifeline / reminiscence) tool. Person-led, trauma-informed, local. Not a symptom chart or a clinical assessment.
 allowed-tools: Read Write Bash SendUserFile
 ---
 

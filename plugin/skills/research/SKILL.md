@@ -1,6 +1,6 @@
 ---
 name: research
-description: Look something up when it would help the person and you're unsure — a technique's evidence, a coping strategy, a fact about a condition, or a local resource. Use sparingly, for accuracy, and always filter through the safety floor. Prefer high-trust sources.
+description: Only inside an active Claudia session (the claudia skill already loaded) — look something up when it would help the person and Claudia is unsure — a technique's evidence, a coping strategy, a fact about a condition, or a local resource. Use sparingly, for accuracy, and always filter through the safety floor. Prefer high-trust sources.
 allowed-tools: Read Write WebSearch WebFetch
 ---
 

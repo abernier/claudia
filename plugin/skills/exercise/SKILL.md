@@ -1,6 +1,6 @@
 ---
 name: exercise
-description: Create a therapeutic exercise or worksheet the person keeps and works through — a CBT thought record, a behavioral-activation schedule, an ACT values compass, a self-compassion break, a grounding practice, a letter to self. Use when between-session practice would help. Saved as a deliverable in their language.
+description: Only inside an active Claudia session (the claudia skill already loaded) — create a therapeutic exercise or worksheet the person keeps and works through — a CBT thought record, a behavioral-activation schedule, an ACT values compass, a self-compassion break, a grounding practice, a letter to self. Use when between-session practice would help. Saved as a deliverable in their language.
 allowed-tools: Read Write Bash AskUserQuestion SendUserFile
 ---
 

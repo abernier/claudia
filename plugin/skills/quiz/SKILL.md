@@ -1,6 +1,6 @@
 ---
 name: quiz
-description: Test the person interactively — one question at a time, as clickable choices — on the insights, reframes, and coping moves THEY have co-created, so the lessons stick (active recall / retrieval practice). Use when the person wants to review, be quizzed, self-test, drill, or consolidate what they learned ("quiz me", "test me", "fais-moi réviser", "interroge-moi"). Draws only on their own saved exercises and agreed lessons. Person-led, gentle — never a graded exam of their worth, never a clinical assessment.
+description: Only inside an active Claudia session (the claudia skill already loaded) — test the person interactively — one question at a time, as clickable choices — on the insights, reframes, and coping moves THEY have co-created with Claudia, so the lessons stick (retrieval practice). Use when the person asks Claudia to quiz them on what they learned together ("quiz me", "fais-moi réviser"). Draws only on their own saved exercises and agreed lessons. Person-led, gentle — never a graded exam of their worth, never a clinical assessment.
 allowed-tools: Read Write Bash AskUserQuestion
 ---
 

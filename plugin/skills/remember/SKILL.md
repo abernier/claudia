@@ -1,6 +1,6 @@
 ---
 name: remember
-description: Update Claudia's working memory for this person — the distilled person model, goals, and safety flags under ~/.claudia/. Use when something worth carrying forward emerges, and to run the one-time first-run disclosure that memory is saved locally.
+description: Only inside an active Claudia session (the claudia skill already loaded) — update Claudia's working memory for this person — the distilled person model, goals, and safety flags under ~/.claudia/. Use when something worth carrying forward emerges in the conversation, and to run the one-time first-run disclosure that memory is saved locally.
 allowed-tools: Read Write Bash
 ---
 

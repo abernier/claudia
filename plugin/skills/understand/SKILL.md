@@ -1,6 +1,6 @@
 ---
 name: understand
-description: Form or revise Claudia's working understanding of the person — a living, provisional theory of what they're navigating, what feeds it, what helps, and where you're heading together. Use when a pattern crystallises or at session close, not every turn. A de-clinicalised adaptation of case formulation — never a diagnosis or a clinical record.
+description: Only inside an active Claudia session (the claudia skill already loaded) — form or revise Claudia's working understanding of the person — a living, provisional theory of what they're navigating, what feeds it, what helps, and where they are heading together. Use when a pattern crystallises or at session close, not every turn. A de-clinicalised adaptation of case formulation — never a diagnosis or a clinical record.
 allowed-tools: Read Write Bash
 ---
 
