@@ -98,7 +98,10 @@ the floor, never through it. (Defined in ADR-0001.)
 
 **Session**:
 One conversation between the person and Claudia, with an opening and a close.
-Its summary is what persists into memory.
+Its summary is what persists into memory. A Claude Code session becomes one only
+when the `claudia` skill activates in it — the plugin's hooks fire in every
+session on the machine and act in none but these (ADR-0036).
+_Avoid_: "Claudia session" for any session the plugin merely runs in.
 
 **Memory**:
 What Claudia carries between sessions, stored under `~/.claudia/` on the person's
