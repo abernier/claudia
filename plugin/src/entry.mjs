@@ -17,8 +17,9 @@
  *
  * Failing open is not available here — the scripts carrying this line are precisely the
  * ones whose silence is indistinguishable from success. So both sides are resolved
- * through the filesystem before they are compared. This is the one module under `src/`
- * that reads the filesystem, because the question it answers *is* a filesystem question.
+ * through the filesystem before they are compared. This is one of the two modules under
+ * `src/` that read the filesystem (with `gate.mjs`), because the question each answers
+ * *is* a filesystem question.
  */
 
 import { realpathSync } from "node:fs";
