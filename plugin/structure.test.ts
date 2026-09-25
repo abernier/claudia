@@ -286,6 +286,33 @@ describe("decision guards", () => {
       expect(/isClaudiaSession/.test(read(rel)), `${rel} must pass the gate`).toBe(true);
   });
 
+  it("ADR-0037 — Claudia's skills load only when she is addressed", () => {
+    // Every description ships into every session on the machine. The persona is the
+    // one door, opened by an address; everything behind it is scoped to her session.
+    const description = (rel: string) => /^description: (.*)$/m.exec(read(rel))?.[1] ?? "";
+    const persona = description("skills/claudia/SKILL.md");
+    expect(persona, "the persona loads on an address").toMatch(/addresses her directly/);
+    expect(persona, "a mention is named as not an address").toMatch(/mention, not an address/);
+    expect(persona, "the old disclosure trigger fires in coding sessions").not.toMatch(
+      /I feel|I've been struggling|emotional disclosure|names Claudia/,
+    );
+    const scoped = walk(path.join(root, "skills"), (p) => p.endsWith("SKILL.md"))
+      .map((p) => path.relative(root, p))
+      .filter((rel) => rel !== "skills/claudia/SKILL.md");
+    expect(scoped.length).toBeGreaterThan(0);
+    for (const rel of scoped)
+      expect(description(rel), `${rel} must be scoped to a Claudia session`).toMatch(
+        /^Only inside an active Claudia session \(the claudia skill already loaded\) — /,
+      );
+    expect(description("skills/crisis/SKILL.md"), "the safety hook's note still reaches crisis").toMatch(
+      /\[CLAUDIA SAFETY\]/,
+    );
+    for (const p of walk(path.join(root, "commands"), (p) => p.endsWith(".md")))
+      expect(readFileSync(p, "utf8"), `${path.relative(root, p)} must be typed, never model-run`).toMatch(
+        /^disable-model-invocation: true$/m,
+      );
+  });
+
   it("ADR-0034 — self-authoring stays withdrawn, traceably", () => {
     for (const rel of ["skills/author-skill", "agents/skill-auditor.md", "proposed-skills"])
       expect(existsSync(path.join(root, rel)), `${rel} was withdrawn by ADR-0034`).toBe(false);

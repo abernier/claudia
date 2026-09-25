@@ -80,6 +80,10 @@ before its own gate.
   every Claude session has still applies, and so does the `crisis` skill's own
   description, which triggers on the danger itself. From the next turn on, once
   the `claudia` skill has activated, the hook screens every message.
+  _(Amended by [ADR-0037](0037-skills-load-only-when-addressed.md): the `claudia`
+  skill now loads only when the person addresses her, and the `crisis` description
+  triggers on danger inside a Claudia session only. Outside one, the model-level
+  safety is what remains.)_
 - **Address, not mention — narrow on purpose.** A broader match (her name as any
   whole word) was tried first and rejected: it fires in exactly the sessions this
   decision exists to leave alone, above all coding sessions on this repository,
