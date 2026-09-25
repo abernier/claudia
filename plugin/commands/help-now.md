@@ -1,5 +1,6 @@
 ---
 description: Immediately show crisis and emergency resources for your region.
+disable-model-invocation: true
 allowed-tools: Read Bash
 ---
 

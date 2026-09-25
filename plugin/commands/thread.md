@@ -1,5 +1,6 @@
 ---
 description: Show the thread of this conversation so far — a light, person-pulled reflection of where we've been, so you can gather it back or keep wandering. It never redirects.
+disable-model-invocation: true
 argument-hint: "[tree — to also see the optional visual map]"
 allowed-tools: Read
 ---

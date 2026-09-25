@@ -1,5 +1,6 @@
 ---
 description: Checkpoint your memory now — Claudia distills where this conversation got to and updates her working notes, without waiting for the session to close. A person-pulled save, for reassurance or before a break.
+disable-model-invocation: true
 allowed-tools: Read Write Bash
 ---
 

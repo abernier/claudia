@@ -1,5 +1,6 @@
 ---
 description: Not sure where to start? Claudia lays out a few things that are open for you right now — plus the plain option of just talking. A menu you pull, never one she opens on you.
+disable-model-invocation: true
 allowed-tools: Read Bash AskUserQuestion
 ---
 

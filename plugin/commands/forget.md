@@ -1,5 +1,6 @@
 ---
 description: Really delete a memory — a session, a topic, or everything. Your data, your call.
+disable-model-invocation: true
 argument-hint: "[session date | topic | all]"
 allowed-tools: Read Bash
 ---

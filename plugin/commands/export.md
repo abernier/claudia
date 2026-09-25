@@ -1,5 +1,6 @@
 ---
 description: Export your memory and deliverables to a location you choose.
+disable-model-invocation: true
 argument-hint: "[destination path]"
 allowed-tools: Read Bash AskUserQuestion
 ---

@@ -1,5 +1,6 @@
 ---
 description: Update your saved notes to the latest format — with a preview and a backup first. Normally automatic; this is the manual control.
+disable-model-invocation: true
 allowed-tools: Read Bash
 ---
 

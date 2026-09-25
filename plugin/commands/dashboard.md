@@ -1,5 +1,6 @@
 ---
 description: Open your dashboard — a bird's-eye view of where things are (goals, themes, what's to pick up, your people). A mirror you pull, never a recital pushed at you.
+disable-model-invocation: true
 allowed-tools: Read Bash SendUserFile
 ---
 
