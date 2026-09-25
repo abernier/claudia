@@ -9,10 +9,25 @@
  * failing silent on a vault that isn't there.
  */
 import { describe, it, expect, afterEach } from "vitest";
+import { spawnSync } from "node:child_process";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { rebuildDashboard } from "./build-dashboard.mjs";
-import { cleanupVaults, makeVault } from "../src/vault.fixture.ts";
+import { fileURLToPath } from "node:url";
+import { rebuildDashboard, rebuildDashboardAtClose } from "./build-dashboard.mjs";
+import { cleanupVaults, makeVault, throwawayHome } from "../src/vault.fixture.ts";
+
+const script = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "./build-dashboard.mjs");
+
+const line = (o: object): string => JSON.stringify(o) + "\n";
+const userLine = (content: string): string => line({ type: "user", message: { role: "user", content } });
+const activation = userLine("Base directory for this skill: /plug/skills/claudia\n# You are Claudia");
+
+/** A transcript in a throwaway home; returns its path. */
+async function transcript(jsonl: string): Promise<string> {
+  const file = path.join(await throwawayHome(), "session.jsonl");
+  await fs.writeFile(file, jsonl);
+  return file;
+}
 
 afterEach(cleanupVaults);
 
@@ -58,5 +73,43 @@ describe("rebuildDashboard", () => {
 
   it("writes nothing when the person has no vault yet", async () => {
     expect(await rebuildDashboard({ root: "/no/such/vault" })).toBe(false);
+  });
+});
+
+describe("the SessionEnd path (--hook) — gated on a Claudia session (ADR-0036)", () => {
+  it("rebuilds the mirror when the closing session was Claudia's", async () => {
+    const root = await makeVault();
+    const payload = { transcript_path: await transcript(activation) };
+
+    expect(await rebuildDashboardAtClose({ root, payload })).toBe(true);
+
+    await expect(fs.access(path.join(root, "dashboard.md"))).resolves.toBeUndefined();
+  });
+
+  it("touches nothing when it was any other session — or when it cannot tell", async () => {
+    const root = await makeVault();
+    const coding = { transcript_path: await transcript(userLine("render the squash-and-stretch pass")) };
+
+    expect(await rebuildDashboardAtClose({ root, payload: coding })).toBe(false);
+    expect(await rebuildDashboardAtClose({ root, payload: {}, home: await throwawayHome() })).toBe(false);
+
+    await expect(fs.access(path.join(root, "dashboard.md"))).rejects.toThrow();
+  });
+
+  it("reads the gate's payload from stdin under --hook; bare, it rebuilds unconditionally", async () => {
+    const root = await makeVault();
+    const run = (args: string[], input: string) =>
+      spawnSync(process.execPath, [script, ...args], {
+        encoding: "utf8",
+        input,
+        env: { ...process.env, CLAUDIA_ROOT: root },
+      });
+    const coding = JSON.stringify({ transcript_path: await transcript(userLine("fix the CI")) });
+
+    expect(run(["--hook"], coding).status).toBe(0);
+    await expect(fs.access(path.join(root, "dashboard.md"))).rejects.toThrow();
+
+    expect(run([], "").status).toBe(0); // `/dashboard`, recall: no payload, no gate
+    await expect(fs.access(path.join(root, "dashboard.md"))).resolves.toBeUndefined();
   });
 });

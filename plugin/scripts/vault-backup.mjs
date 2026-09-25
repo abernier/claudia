@@ -18,7 +18,7 @@
  * archive set can never quietly hold what the person asked to destroy.
  *
  * Usage:
- *   node scripts/vault-backup.mjs [vaultDir] [--dest <dir>] [--quiet] [--detach] [--dry-run]
+ *   node scripts/vault-backup.mjs [vaultDir] [--dest <dir>] [--quiet] [--detach] [--dry-run] [--hook]
  *   node scripts/vault-backup.mjs --list
  *   node scripts/vault-backup.mjs --verify
  *   node scripts/vault-backup.mjs --restore <stamp|latest> [--to <dir>]
@@ -35,6 +35,12 @@
  * child, so the hook returns in the time it takes to fork rather than waiting on the
  * archive — the two triggers are kept from colliding by a lock on the archive
  * directory, not by luck.
+ *
+ * `--hook` is how the SessionEnd hook says it is the caller. The plugin is
+ * user-scoped, so that close fires for every session on the machine; under `--hook`
+ * the script reads the payload on stdin and archives nothing unless the session was
+ * Claudia's (ADR-0036). The gate runs in the parent, before `--detach` forks — the
+ * child has no stdin to read. The hourly timer and `/backup` run without it.
  */
 import { promises as fs, existsSync } from "node:fs";
 import { spawn, spawnSync } from "node:child_process";
@@ -45,6 +51,7 @@ import { fileURLToPath } from "node:url";
 
 import { parseConfig } from "../src/config.mjs";
 import { isEntrypoint } from "../src/entry.mjs";
+import { isClaudiaHookPayload } from "../src/gate.mjs";
 import { resolveVaultRoot } from "../src/vault.mjs";
 import {
   ARCHIVE_SUFFIX,
@@ -525,6 +532,36 @@ async function purge({ dest, yes }) {
 
 /* -------------------------------------------------------------------- cli */
 
+/**
+ * The hook payload on stdin, or whatever arrived within 3s — a hook must never hang.
+ * @returns {Promise<string>}
+ */
+function readStdin() {
+  return new Promise((resolve) => {
+    let data = "";
+    process.stdin.setEncoding("utf8");
+    process.stdin.on("data", (c) => (data += c));
+    process.stdin.on("end", () => resolve(data));
+    setTimeout(() => resolve(data), 3000);
+  });
+}
+
+/**
+ * Under `--hook`: was the session that just closed Claudia's? An unreadable payload
+ * reads as "no" — a backup skipped at one close is taken at the next, or by the timer.
+ * @returns {Promise<boolean>}
+ */
+async function hookSessionIsClaudia() {
+  /** @type {import("../src/session.mjs").TranscriptHookPayload} */
+  let payload = {};
+  try {
+    payload = JSON.parse((await readStdin()) || "{}");
+  } catch {
+    /* tolerate */
+  }
+  return isClaudiaHookPayload(payload);
+}
+
 async function main() {
   const argv = process.argv.slice(2);
   /** The only flags that consume the argument after them. */
@@ -536,13 +573,17 @@ async function main() {
   };
   const has = /** @param {string} f */ (f) => argv.includes(f);
 
+  // The SessionEnd gate (ADR-0036). Here, before --detach: only this process has
+  // the payload on stdin; the detached child is spawned with none.
+  if (has("--hook") && !(await hookSessionIsClaudia())) return process.exit(0);
+
   // Hand the work to a detached child and return immediately. The SessionEnd hook
   // uses this: a backup is not part of closing a conversation, and the person should
   // never wait on one. The child outlives this process; if the machine goes down
   // mid-archive, the temp-file-then-rename dance means there is nothing to clean up.
   if (has("--detach") && !has("--dry-run")) {
     const self = fileURLToPath(import.meta.url);
-    const child = spawn(process.execPath, [self, ...argv.filter((a) => a !== "--detach")], {
+    const child = spawn(process.execPath, [self, ...argv.filter((a) => a !== "--detach" && a !== "--hook")], {
       detached: true,
       stdio: "ignore",
     });

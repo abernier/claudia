@@ -33,11 +33,11 @@
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs\""
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/build-dashboard.mjs\" --hook"
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/vault-backup.mjs\" --quiet --detach"
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/vault-backup.mjs\" --quiet --detach --hook"
           }
         ]
       }

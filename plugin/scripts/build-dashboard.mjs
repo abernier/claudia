@@ -4,7 +4,10 @@
  *
  * Runs at SessionEnd (after `save-session`), at the tail of `recall` (after any
  * deferred distillation, so the newest summary is reflected), and on demand via
- * `/dashboard`. Reads the working memory under ~/.claudia/ and writes
+ * `/dashboard`. The SessionEnd hook passes `--hook`: the plugin is user-scoped, so
+ * that close fires for every session on the machine, and under `--hook` the script
+ * reads the payload on stdin and does nothing unless the session was Claudia's
+ * (ADR-0036). Every other caller runs it bare and gets the rebuild unconditionally. Reads the working memory under ~/.claudia/ and writes
  * ~/.claudia/dashboard.md — a MIRROR that only transcludes or links, never
  * summarises (the summarising already happened in the source files).
  * `safety.md` is never mirrored.
@@ -20,8 +23,10 @@
  */
 
 import { promises as fs } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { isEntrypoint } from "../src/entry.mjs";
+import { isClaudiaHookPayload } from "../src/gate.mjs";
 import { resolveVaultRoot } from "../src/vault.mjs";
 import { buildDashboard, personName, sessionsForMirror } from "../src/dashboard.mjs";
 import { parseConfig } from "../src/config.mjs";
@@ -102,8 +107,48 @@ export async function rebuildDashboard({ root }) {
   }
 }
 
+/**
+ * The SessionEnd path: rebuild the mirror only when the closing session was
+ * Claudia's. Any other session — a coding session, a background task — gets no
+ * vault effect at all. Never throws.
+ *
+ * @param {{ root: string, payload: import("../src/session.mjs").TranscriptHookPayload, home?: string }} opts
+ *   `home` locates the transcript (Claude Code's own tree, not the vault)
+ * @returns {Promise<boolean>} true if the mirror was written
+ */
+export async function rebuildDashboardAtClose({ root, payload, home = os.homedir() }) {
+  if (!(await isClaudiaHookPayload(payload, home))) return false;
+  return rebuildDashboard({ root });
+}
+
+/**
+ * The hook payload on stdin, or whatever arrived within 3s — a hook must never hang.
+ * @returns {Promise<string>}
+ */
+function readStdin() {
+  return new Promise((resolve) => {
+    let data = "";
+    process.stdin.setEncoding("utf8");
+    process.stdin.on("data", (c) => (data += c));
+    process.stdin.on("end", () => resolve(data));
+    setTimeout(() => resolve(data), 3000);
+  });
+}
+
 async function main() {
-  await rebuildDashboard({ root: resolveVaultRoot() });
+  const root = resolveVaultRoot();
+  if (process.argv.includes("--hook")) {
+    /** @type {import("../src/session.mjs").TranscriptHookPayload} */
+    let payload = {};
+    try {
+      payload = JSON.parse((await readStdin()) || "{}");
+    } catch {
+      /* tolerate: an unreadable payload reads as "not Claudia" */
+    }
+    await rebuildDashboardAtClose({ root, payload });
+  } else {
+    await rebuildDashboard({ root });
+  }
   process.exit(0);
 }
 
